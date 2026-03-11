@@ -3,13 +3,15 @@ import AppLayout from './layouts/AppLayout';
 import { ChatProvider } from './contexts/ChatContext';
 import { Chat } from './pages/Chat';
 
-// Existing pages
+// Legacy pages (keep working)
 import { MyInfo } from './pages/MyInfo';
 import { Doom } from './pages/Doom';
 
-// New pages - created and available
+// Home
 import HomeInbox from './pages/Home/HomeInbox';
 import HomeCalendar from './pages/Home/HomeCalendar';
+
+// People
 import PeopleHub from './pages/People/PeopleHub';
 import PeopleHubPage from './pages/People/PeopleHubPage';
 import PeopleMyInfo from './pages/People/PeopleMyInfo';
@@ -19,23 +21,91 @@ import PeopleMyDivision from './pages/People/PeopleMyDivision';
 import PeopleDivisions from './pages/People/PeopleDivisions';
 import PeopleDepartments from './pages/People/PeopleDepartments';
 import PeopleTeams from './pages/People/PeopleTeams';
+
+// Hiring
 import HiringHub from './pages/Hiring/HiringHub';
 import HiringJobOpenings from './pages/Hiring/HiringJobOpenings';
 import HiringCandidates from './pages/Hiring/HiringCandidates';
+import HiringTalentPools from './pages/Hiring/HiringTalentPools';
+import HiringCareersSite from './pages/Hiring/HiringCareersSite';
 
-// Placeholder for pages still being built
-function ComingSoon({ name }: { name: string }) {
-  return (
-    <div className="p-8 flex flex-col items-center justify-center min-h-[300px]">
-      <div className="w-16 h-16 rounded-2xl mb-4 flex items-center justify-center text-2xl"
-        style={{ background: "var(--color-primary-weak)" }}>
-        🚧
-      </div>
-      <h2 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)] mb-2">{name}</h2>
-      <p className="text-sm text-[var(--text-neutral-medium)]">This page is coming soon.</p>
-    </div>
-  );
-}
+// Onboarding
+import OnboardingHub from './pages/Onboarding/OnboardingHub';
+import OnboardingActive from './pages/Onboarding/OnboardingActive';
+import OnboardingOffboarding from './pages/Onboarding/OnboardingOffboarding';
+import OnboardingTaskTemplates from './pages/Onboarding/OnboardingTaskTemplates';
+import OnboardingNewHirePackets from './pages/Onboarding/OnboardingNewHirePackets';
+
+// Payroll
+import PayrollHub from './pages/Payroll/PayrollHub';
+import PayrollPayCalendar from './pages/Payroll/PayrollPayCalendar';
+import PayrollHistory from './pages/Payroll/PayrollHistory';
+import PayrollOffCycle from './pages/Payroll/PayrollOffCycle';
+import PayrollReports from './pages/Payroll/PayrollReports';
+
+// Benefits
+import BenefitsHub from './pages/Benefits/BenefitsHub';
+import BenefitsPlans from './pages/Benefits/BenefitsPlans';
+import BenefitsEnrollment from './pages/Benefits/BenefitsEnrollment';
+import BenefitsCarriers from './pages/Benefits/BenefitsCarriers';
+
+// Performance
+import PerformanceHub from './pages/Performance/PerformanceHub';
+import PerformanceGoals from './pages/Performance/PerformanceGoals';
+import PerformanceReviews from './pages/Performance/PerformanceReviews';
+import PerformanceFeedback from './pages/Performance/PerformanceFeedback';
+import PerformanceOneOnOnes from './pages/Performance/PerformanceOneOnOnes';
+
+// Training
+import TrainingHub from './pages/Training/TrainingHub';
+import TrainingCatalog from './pages/Training/TrainingCatalog';
+import TrainingAssignments from './pages/Training/TrainingAssignments';
+import TrainingCertifications from './pages/Training/TrainingCertifications';
+
+// Compensation
+import CompensationHub from './pages/Compensation/CompensationHub';
+import CompensationBenchmarks from './pages/Compensation/CompensationBenchmarks';
+import CompensationLevelsBands from './pages/Compensation/CompensationLevelsBands';
+import CompensationPlanning from './pages/Compensation/CompensationPlanning';
+import CompensationTotalRewards from './pages/Compensation/CompensationTotalRewards';
+
+// Culture
+import CultureHub from './pages/Culture/CultureHub';
+import CultureCommunity from './pages/Culture/CultureCommunity';
+import CultureRecognition from './pages/Culture/CultureRecognition';
+import CultureSurveys from './pages/Culture/CultureSurveys';
+
+// Time & Attendance
+import TimeAttendanceHub from './pages/TimeAndAttendance/TimeAttendanceHub';
+import TimeAttendanceCalendar from './pages/TimeAndAttendance/TimeAttendanceCalendar';
+import TimeAttendanceTimeOff from './pages/TimeAndAttendance/TimeAttendanceTimeOff';
+import TimeAttendanceTimesheets from './pages/TimeAndAttendance/TimeAttendanceTimesheets';
+
+// Reports
+import ReportsHub from './pages/Reports/ReportsHub';
+import ReportsStandard from './pages/Reports/ReportsStandard';
+import ReportsCustom from './pages/Reports/ReportsCustom';
+import ReportsBenchmarks from './pages/Reports/ReportsBenchmarks';
+import ReportsDashboards from './pages/Reports/ReportsDashboards';
+
+// Files
+import FilesHub from './pages/Files/FilesHub';
+import FilesAll from './pages/Files/FilesAll';
+import FilesESignatures from './pages/Files/FilesESignatures';
+
+// Apps
+import AppsHub from './pages/Apps/AppsHub';
+import AppsMarketplace from './pages/Apps/AppsMarketplace';
+import AppsInstalled from './pages/Apps/AppsInstalled';
+import AppsApiAccess from './pages/Apps/AppsApiAccess';
+
+// Settings
+import SettingsHub from './pages/Settings/SettingsHub';
+import SettingsAccount from './pages/Settings/SettingsAccount';
+import SettingsAccessLevels from './pages/Settings/SettingsAccessLevels';
+import SettingsApprovals from './pages/Settings/SettingsApprovals';
+import SettingsEmailAlerts from './pages/Settings/SettingsEmailAlerts';
+import SettingsBranding from './pages/Settings/SettingsBranding';
 
 function App() {
   return (
@@ -71,86 +141,86 @@ function App() {
                   <Route path="/hiring" element={<HiringHub />} />
                   <Route path="/hiring/job-openings" element={<HiringJobOpenings />} />
                   <Route path="/hiring/candidates" element={<HiringCandidates />} />
-                  <Route path="/hiring/talent-pools" element={<ComingSoon name="Talent Pools" />} />
-                  <Route path="/hiring/careers-site" element={<ComingSoon name="Careers Site" />} />
+                  <Route path="/hiring/talent-pools" element={<HiringTalentPools />} />
+                  <Route path="/hiring/careers-site" element={<HiringCareersSite />} />
 
                   {/* Onboarding */}
-                  <Route path="/onboarding" element={<Navigate to="/onboarding/active" replace />} />
-                  <Route path="/onboarding/active" element={<ComingSoon name="Active Onboarding" />} />
-                  <Route path="/onboarding/offboarding" element={<ComingSoon name="Active Offboarding" />} />
-                  <Route path="/onboarding/task-templates" element={<ComingSoon name="Task Templates" />} />
-                  <Route path="/onboarding/new-hire-packets" element={<ComingSoon name="New Hire Packets" />} />
+                  <Route path="/onboarding" element={<OnboardingHub />} />
+                  <Route path="/onboarding/active" element={<OnboardingActive />} />
+                  <Route path="/onboarding/offboarding" element={<OnboardingOffboarding />} />
+                  <Route path="/onboarding/task-templates" element={<OnboardingTaskTemplates />} />
+                  <Route path="/onboarding/new-hire-packets" element={<OnboardingNewHirePackets />} />
 
                   {/* Payroll */}
-                  <Route path="/payroll" element={<Navigate to="/payroll/pay-calendar" replace />} />
-                  <Route path="/payroll/pay-calendar" element={<ComingSoon name="Pay Calendar" />} />
-                  <Route path="/payroll/history" element={<ComingSoon name="Payroll History" />} />
-                  <Route path="/payroll/off-cycle" element={<ComingSoon name="Off-Cycle Payroll" />} />
-                  <Route path="/payroll/reports" element={<ComingSoon name="Payroll Reports" />} />
+                  <Route path="/payroll" element={<PayrollHub />} />
+                  <Route path="/payroll/pay-calendar" element={<PayrollPayCalendar />} />
+                  <Route path="/payroll/history" element={<PayrollHistory />} />
+                  <Route path="/payroll/off-cycle" element={<PayrollOffCycle />} />
+                  <Route path="/payroll/reports" element={<PayrollReports />} />
 
                   {/* Benefits */}
-                  <Route path="/benefits" element={<Navigate to="/benefits/plans" replace />} />
-                  <Route path="/benefits/plans" element={<ComingSoon name="Benefits Plans" />} />
-                  <Route path="/benefits/enrollment" element={<ComingSoon name="Enrollment" />} />
-                  <Route path="/benefits/carriers" element={<ComingSoon name="Carriers" />} />
+                  <Route path="/benefits" element={<BenefitsHub />} />
+                  <Route path="/benefits/plans" element={<BenefitsPlans />} />
+                  <Route path="/benefits/enrollment" element={<BenefitsEnrollment />} />
+                  <Route path="/benefits/carriers" element={<BenefitsCarriers />} />
 
                   {/* Performance */}
-                  <Route path="/performance" element={<Navigate to="/performance/goals" replace />} />
-                  <Route path="/performance/goals" element={<ComingSoon name="Goals & OKRs" />} />
-                  <Route path="/performance/reviews" element={<ComingSoon name="Reviews" />} />
-                  <Route path="/performance/feedback" element={<ComingSoon name="Feedback" />} />
-                  <Route path="/performance/one-on-ones" element={<ComingSoon name="1:1s" />} />
+                  <Route path="/performance" element={<PerformanceHub />} />
+                  <Route path="/performance/goals" element={<PerformanceGoals />} />
+                  <Route path="/performance/reviews" element={<PerformanceReviews />} />
+                  <Route path="/performance/feedback" element={<PerformanceFeedback />} />
+                  <Route path="/performance/one-on-ones" element={<PerformanceOneOnOnes />} />
 
                   {/* Training */}
-                  <Route path="/training" element={<Navigate to="/training/catalog" replace />} />
-                  <Route path="/training/catalog" element={<ComingSoon name="Training Catalog" />} />
-                  <Route path="/training/assignments" element={<ComingSoon name="Assignments" />} />
-                  <Route path="/training/certifications" element={<ComingSoon name="Certifications" />} />
+                  <Route path="/training" element={<TrainingHub />} />
+                  <Route path="/training/catalog" element={<TrainingCatalog />} />
+                  <Route path="/training/assignments" element={<TrainingAssignments />} />
+                  <Route path="/training/certifications" element={<TrainingCertifications />} />
 
                   {/* Compensation */}
-                  <Route path="/compensation" element={<Navigate to="/compensation/benchmarks" replace />} />
-                  <Route path="/compensation/benchmarks" element={<ComingSoon name="Benchmarks" />} />
-                  <Route path="/compensation/levels-and-bands" element={<ComingSoon name="Levels & Bands" />} />
-                  <Route path="/compensation/planning" element={<ComingSoon name="Compensation Planning" />} />
-                  <Route path="/compensation/total-rewards" element={<ComingSoon name="Total Rewards" />} />
+                  <Route path="/compensation" element={<CompensationHub />} />
+                  <Route path="/compensation/benchmarks" element={<CompensationBenchmarks />} />
+                  <Route path="/compensation/levels-and-bands" element={<CompensationLevelsBands />} />
+                  <Route path="/compensation/planning" element={<CompensationPlanning />} />
+                  <Route path="/compensation/total-rewards" element={<CompensationTotalRewards />} />
 
                   {/* Culture */}
-                  <Route path="/culture" element={<Navigate to="/culture/community" replace />} />
-                  <Route path="/culture/community" element={<ComingSoon name="Community" />} />
-                  <Route path="/culture/recognition" element={<ComingSoon name="Recognition" />} />
-                  <Route path="/culture/surveys" element={<ComingSoon name="Surveys & Wellbeing" />} />
+                  <Route path="/culture" element={<CultureHub />} />
+                  <Route path="/culture/community" element={<CultureCommunity />} />
+                  <Route path="/culture/recognition" element={<CultureRecognition />} />
+                  <Route path="/culture/surveys" element={<CultureSurveys />} />
 
                   {/* Time & Attendance */}
-                  <Route path="/time-and-attendance" element={<Navigate to="/time-and-attendance/calendar" replace />} />
-                  <Route path="/time-and-attendance/calendar" element={<ComingSoon name="Calendar" />} />
-                  <Route path="/time-and-attendance/time-off" element={<ComingSoon name="Time Off" />} />
-                  <Route path="/time-and-attendance/timesheets" element={<ComingSoon name="Timesheets" />} />
+                  <Route path="/time-and-attendance" element={<TimeAttendanceHub />} />
+                  <Route path="/time-and-attendance/calendar" element={<TimeAttendanceCalendar />} />
+                  <Route path="/time-and-attendance/time-off" element={<TimeAttendanceTimeOff />} />
+                  <Route path="/time-and-attendance/timesheets" element={<TimeAttendanceTimesheets />} />
 
                   {/* Reports */}
-                  <Route path="/reports" element={<Navigate to="/reports/standard" replace />} />
-                  <Route path="/reports/standard" element={<ComingSoon name="Standard Reports" />} />
-                  <Route path="/reports/custom" element={<ComingSoon name="Custom Reports" />} />
-                  <Route path="/reports/benchmarks" element={<ComingSoon name="Benchmarks" />} />
-                  <Route path="/reports/dashboards" element={<ComingSoon name="Dashboards" />} />
+                  <Route path="/reports" element={<ReportsHub />} />
+                  <Route path="/reports/standard" element={<ReportsStandard />} />
+                  <Route path="/reports/custom" element={<ReportsCustom />} />
+                  <Route path="/reports/benchmarks" element={<ReportsBenchmarks />} />
+                  <Route path="/reports/dashboards" element={<ReportsDashboards />} />
 
                   {/* Files */}
-                  <Route path="/files" element={<Navigate to="/files/all" replace />} />
-                  <Route path="/files/all" element={<ComingSoon name="All Files" />} />
-                  <Route path="/files/e-signatures" element={<ComingSoon name="E-Signatures" />} />
+                  <Route path="/files" element={<FilesHub />} />
+                  <Route path="/files/all" element={<FilesAll />} />
+                  <Route path="/files/e-signatures" element={<FilesESignatures />} />
 
                   {/* Apps */}
-                  <Route path="/apps" element={<Navigate to="/apps/marketplace" replace />} />
-                  <Route path="/apps/marketplace" element={<ComingSoon name="Marketplace" />} />
-                  <Route path="/apps/installed" element={<ComingSoon name="Installed Apps" />} />
-                  <Route path="/apps/api-access" element={<ComingSoon name="API Access" />} />
+                  <Route path="/apps" element={<AppsHub />} />
+                  <Route path="/apps/marketplace" element={<AppsMarketplace />} />
+                  <Route path="/apps/installed" element={<AppsInstalled />} />
+                  <Route path="/apps/api-access" element={<AppsApiAccess />} />
 
                   {/* Settings */}
-                  <Route path="/settings" element={<Navigate to="/settings/account" replace />} />
-                  <Route path="/settings/account" element={<ComingSoon name="Account" />} />
-                  <Route path="/settings/access-levels" element={<ComingSoon name="Access Levels" />} />
-                  <Route path="/settings/approvals" element={<ComingSoon name="Approvals" />} />
-                  <Route path="/settings/email-alerts" element={<ComingSoon name="Email Alerts" />} />
-                  <Route path="/settings/branding" element={<ComingSoon name="Branding" />} />
+                  <Route path="/settings" element={<SettingsHub />} />
+                  <Route path="/settings/account" element={<SettingsAccount />} />
+                  <Route path="/settings/access-levels" element={<SettingsAccessLevels />} />
+                  <Route path="/settings/approvals" element={<SettingsApprovals />} />
+                  <Route path="/settings/email-alerts" element={<SettingsEmailAlerts />} />
+                  <Route path="/settings/branding" element={<SettingsBranding />} />
 
                   {/* Legacy redirects */}
                   <Route path="/my-info" element={<Navigate to="/people/my-info" replace />} />

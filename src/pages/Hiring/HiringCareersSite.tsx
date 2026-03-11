@@ -95,7 +95,7 @@ export default function HiringCareersSite() {
       {activeTab === "Embed" && (
         <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-xx-weak)] p-6">
           <p className="text-sm text-[var(--text-neutral-medium)] mb-3">Embed your careers page on your website using the snippet below.</p>
-          <pre className="bg-[var(--surface-neutral-xx-weak)] rounded-[var(--radius-small)] p-4 text-xs text-[var(--text-neutral-x-strong)] overflow-auto">{"<script src="https://careers.bamboohr.com/embed.js" data-company="your-company"></script>"}</pre>
+          <pre className="bg-[var(--surface-neutral-xx-weak)] rounded-[var(--radius-small)] p-4 text-xs text-[var(--text-neutral-x-strong)] overflow-auto">{'<script src="https://careers.bamboohr.com/embed.js" data-company="your-company"></script>'}</pre>
         </div>
       )}
     </div>
