@@ -8,6 +8,7 @@ import { MyInfo } from './pages/MyInfo';
 import { Doom } from './pages/Doom';
 
 // Home
+import HomeHub from './pages/Home/HomeHub';
 import HomeInbox from './pages/Home/HomeInbox';
 import HomeCalendar from './pages/Home/HomeCalendar';
 
@@ -119,10 +120,10 @@ function App() {
             element={
               <AppLayout>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/home/inbox" replace />} />
+                  <Route path="/" element={<Navigate to="/home" replace />} />
 
                   {/* Home */}
-                  <Route path="/home" element={<Navigate to="/home/inbox" replace />} />
+                  <Route path="/home" element={<HomeHub />} />
                   <Route path="/home/inbox" element={<HomeInbox />} />
                   <Route path="/home/calendar" element={<HomeCalendar />} />
 

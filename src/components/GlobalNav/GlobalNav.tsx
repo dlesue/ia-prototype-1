@@ -44,7 +44,6 @@ const navItems: NavT1Item[] = [
     icon: 'user-group',
     hasGear: true,
     children: [
-      { path: '/people/my-info', label: 'My Info' },
       { path: '/people/my-direct-reports', label: 'My Direct Reports' },
       { path: '/people/my-department', label: 'My Department' },
       { path: '/people/my-division', label: 'My Division' },
@@ -62,7 +61,6 @@ const navItems: NavT1Item[] = [
     icon: 'id-badge',
     hasGear: true,
     children: [
-      { path: '/hiring/job-openings', label: 'Job Openings' },
       { path: '/hiring/candidates', label: 'Candidates' },
       { path: '/hiring/talent-pools', label: 'Talent Pools' },
       { path: '/hiring/careers-site', label: 'Careers Site' },
@@ -75,7 +73,6 @@ const navItems: NavT1Item[] = [
     icon: 'clipboard',
     hasGear: true,
     children: [
-      { path: '/onboarding/active', label: 'Active Onboarding' },
       { path: '/onboarding/offboarding', label: 'Active Offboarding' },
       { path: '/onboarding/task-templates', label: 'Task Templates' },
       { path: '/onboarding/new-hire-packets', label: 'New Hire Packets' },
@@ -88,7 +85,6 @@ const navItems: NavT1Item[] = [
     icon: 'circle-dollar',
     hasGear: true,
     children: [
-      { path: '/payroll/pay-calendar', label: 'Pay Calendar' },
       { path: '/payroll/history', label: 'History' },
       { path: '/payroll/off-cycle', label: 'Off-Cycle' },
       { path: '/payroll/reports', label: 'Reports' },
@@ -101,7 +97,6 @@ const navItems: NavT1Item[] = [
     icon: 'shield',
     hasGear: true,
     children: [
-      { path: '/benefits/plans', label: 'Plans' },
       { path: '/benefits/enrollment', label: 'Enrollment' },
       { path: '/benefits/carriers', label: 'Carriers' },
     ],
@@ -113,7 +108,6 @@ const navItems: NavT1Item[] = [
     icon: 'bullseye',
     hasGear: true,
     children: [
-      { path: '/performance/goals', label: 'Goals & OKRs' },
       { path: '/performance/reviews', label: 'Reviews' },
       { path: '/performance/feedback', label: 'Feedback' },
       { path: '/performance/one-on-ones', label: '1:1s' },
@@ -126,7 +120,6 @@ const navItems: NavT1Item[] = [
     icon: 'graduation-cap',
     hasGear: true,
     children: [
-      { path: '/training/catalog', label: 'Catalog' },
       { path: '/training/assignments', label: 'Assignments' },
       { path: '/training/certifications', label: 'Certifications' },
     ],
@@ -139,7 +132,6 @@ const navItems: NavT1Item[] = [
     hasGear: true,
     locked: true,
     children: [
-      { path: '/compensation/benchmarks', label: 'Benchmarks', locked: true },
       { path: '/compensation/levels-and-bands', label: 'Levels & Bands', locked: true },
       { path: '/compensation/planning', label: 'Planning', locked: true },
       { path: '/compensation/total-rewards', label: 'Total Rewards', locked: true },
@@ -152,7 +144,6 @@ const navItems: NavT1Item[] = [
     icon: 'face-smile',
     hasGear: true,
     children: [
-      { path: '/culture/community', label: 'Community' },
       { path: '/culture/recognition', label: 'Recognition' },
       { path: '/culture/surveys', label: 'Surveys & Wellbeing' },
     ],
@@ -164,7 +155,6 @@ const navItems: NavT1Item[] = [
     icon: 'clock',
     hasGear: true,
     children: [
-      { path: '/time-and-attendance/calendar', label: 'Calendar' },
       { path: '/time-and-attendance/time-off', label: 'Time Off' },
       { path: '/time-and-attendance/timesheets', label: 'Timesheets', locked: true },
     ],
@@ -176,7 +166,6 @@ const navItems: NavT1Item[] = [
     icon: 'chart-pie-simple',
     hasGear: true,
     children: [
-      { path: '/reports/standard', label: 'Standard Reports' },
       { path: '/reports/custom', label: 'Custom Reports' },
       { path: '/reports/benchmarks', label: 'Benchmarks', locked: true },
       { path: '/reports/dashboards', label: 'Dashboards' },
@@ -189,7 +178,6 @@ const navItems: NavT1Item[] = [
     icon: 'file-lines',
     hasGear: true,
     children: [
-      { path: '/files/all', label: 'All Files' },
       { path: '/files/e-signatures', label: 'E-Signatures' },
     ],
   },
@@ -200,7 +188,6 @@ const navItems: NavT1Item[] = [
     icon: 'compass',
     hasGear: true,
     children: [
-      { path: '/apps/marketplace', label: 'Marketplace' },
       { path: '/apps/installed', label: 'Installed' },
       { path: '/apps/api-access', label: 'API Access' },
     ],
@@ -212,7 +199,6 @@ const navItems: NavT1Item[] = [
     icon: 'gear',
     hasGear: false,
     children: [
-      { path: '/settings/account', label: 'Account' },
       { path: '/settings/access-levels', label: 'Access Levels' },
       { path: '/settings/approvals', label: 'Approvals' },
       { path: '/settings/email-alerts', label: 'Email Alerts' },
