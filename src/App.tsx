@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import { ChatProvider } from './contexts/ChatContext';
+import { ScenarioProvider } from './contexts/ScenarioContext';
 import { Chat } from './pages/Chat';
 
 // Legacy pages (keep working)
@@ -111,6 +112,7 @@ import SettingsBranding from './pages/Settings/SettingsBranding';
 function App() {
   return (
     <ChatProvider>
+      <ScenarioProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/chat" element={<Chat />} />
@@ -233,6 +235,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
+      </ScenarioProvider>
     </ChatProvider>
   );
 }

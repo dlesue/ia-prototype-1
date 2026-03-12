@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { useState, useEffect } from 'react';
 import { GlobalNav } from '../components/GlobalNav';
 import { AIChatPanel } from '../components/AIChatPanel';
+import { ScenarioBar } from '../components/ScenarioBar';
 
 const NAV_STORAGE_KEY = 'bhr-nav-expanded';
 const CHAT_PANEL_STORAGE_KEY = 'bhr-chat-panel-open';
@@ -77,6 +78,7 @@ function AppLayout({ children }: AppLayoutProps) {
       >
         <main className="flex-1 flex flex-col min-h-0 pr-10 pb-10 pt-6">
           <div className="flex-1 flex flex-col min-h-0 bg-[var(--surface-neutral-xx-weak)] rounded-[var(--radius-large)] overflow-y-auto">
+            <ScenarioBar />
             {children}
           </div>
         </main>

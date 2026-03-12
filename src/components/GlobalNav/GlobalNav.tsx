@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import type { IconName } from '../Icon';
 import { useTheme } from '../../contexts/ThemeContext';
+import { useScenario } from '../../contexts/ScenarioContext';
 import avatarSmall from '../../assets/images/avatar-small.png';
 
 const NAV_STORAGE_KEY = 'bhr-nav-expanded';
@@ -25,7 +26,7 @@ interface NavT1Item {
   children: NavT2Item[];
 }
 
-const navItems: NavT1Item[] = [
+const allNavItems: NavT1Item[] = [
   {
     id: 'home',
     path: '/home',
@@ -226,6 +227,46 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
+  const { scenario } = useScenario();
+
+  // Compute scenario-filtered nav items
+  const navItems = useMemo(() => {
+    const allVisible = [...scenario.visibleProducts, ...scenario.lockedProducts];
+
+    return allNavItems
+      .filter(item => allVisible.includes(item.id))
+      .map(item => {
+        const isLockedByScenario = scenario.lockedProducts.includes(item.id);
+
+        // Filter T2 children
+        let children = item.children.filter(child => {
+          if (child.separator) return true; // handle separator below
+          return !scenario.hiddenT2Paths.includes(child.path);
+        });
+
+        // Remove orphaned separators (separator with nothing before or after it)
+        const sepIdx = children.findIndex(c => c.separator);
+        if (sepIdx !== -1) {
+          const beforeSep = children.slice(0, sepIdx).filter(c => !c.separator);
+          const afterSep = children.slice(sepIdx + 1).filter(c => !c.separator);
+          if (beforeSep.length === 0 || afterSep.length === 0) {
+            children = children.filter(c => !c.separator);
+          }
+        }
+
+        // Apply locked state to T2 items from scenario
+        children = children.map(child => ({
+          ...child,
+          locked: child.locked || scenario.lockedT2Paths.includes(child.path),
+        }));
+
+        return {
+          ...item,
+          locked: isLockedByScenario || item.locked,
+          children,
+        };
+      });
+  }, [scenario]);
 
   useEffect(() => {
     if (!avatarMenuOpen) return;
@@ -259,7 +300,7 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
       location.pathname.startsWith(item.path + '/') || location.pathname === item.path
     );
     if (currentT1) setExpandedT1(currentT1.id);
-  }, [location.pathname]);
+  }, [location.pathname, navItems]);
 
   const effectiveExpanded = isTablet ? false : isExpanded;
 
