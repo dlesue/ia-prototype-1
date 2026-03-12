@@ -14,7 +14,7 @@ export default function PeopleMyDirectReports() {
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>My Direct Reports</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">My Direct Reports</h1>
           <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>5 reports · Jordan Kim, Senior Product Designer</p>
         </div>
         <button style={{ padding: '7px 14px', borderRadius: 'var(--radius-xx-small)', border: '1px solid var(--border-neutral-weak)', background: 'var(--surface-neutral-white)', color: 'var(--text-neutral-strong)', cursor: 'pointer', fontSize: 13 }}>

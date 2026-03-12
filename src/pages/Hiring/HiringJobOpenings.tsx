@@ -38,7 +38,7 @@ export default function HiringJobOpenings() {
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>Job Openings</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Job Openings</h1>
             <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>23 open positions across 8 departments</p>
           </div>
           <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 'var(--radius-xx-small)', background: 'var(--color-primary-strong)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>

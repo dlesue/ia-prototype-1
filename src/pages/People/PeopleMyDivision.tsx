@@ -18,7 +18,7 @@ export default function PeopleMyDivision() {
             <Icon name="building" size={24} style={{ color: '#8b5cf6' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>Product Division</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">My Division</h1>
             <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>VP of Product: Priya Patel · 4 departments · 24 employees</p>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 20, textAlign: 'center' }}>

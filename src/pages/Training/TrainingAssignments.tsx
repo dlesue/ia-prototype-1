@@ -32,7 +32,7 @@ export default function TrainingAssignments() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">Assignments</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Assignments</h1>
           <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Training assignments across all employees</p>
         </div>
       </div>

@@ -18,7 +18,7 @@ export default function PayrollHistory() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">Payroll History</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">History</h1>
           <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Past payroll runs and summaries</p>
         </div>
         <select value={year} onChange={e => setYear(e.target.value)} className="border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-xx-small)] px-3 py-1.5 text-sm bg-[var(--surface-neutral-white)] text-[var(--text-neutral-x-strong)] outline-none">

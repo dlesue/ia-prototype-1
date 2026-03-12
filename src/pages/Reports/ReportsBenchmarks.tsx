@@ -9,7 +9,7 @@ export default function ReportsBenchmarks() {
             ELITE TIER
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-3">Industry Benchmarks</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Benchmarks</h1>
         <p className="text-sm text-[var(--text-neutral-medium)] mb-6 leading-relaxed">
           Compare your key HR metrics against industry peers. Understand where your organization stands on headcount growth, turnover, time-to-hire, compensation, and engagement.
         </p>

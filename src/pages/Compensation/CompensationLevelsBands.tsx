@@ -16,7 +16,7 @@ function UpsellPage({ title, description, features, previewLabel }: UpsellPagePr
             ELITE TIER
           </span>
         </div>
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-3">{title}</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Levels & Bands</h1>
         <p className="text-sm text-[var(--text-neutral-medium)] mb-6 leading-relaxed">{description}</p>
 
         <div className="mb-6">

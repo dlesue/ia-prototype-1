@@ -19,7 +19,7 @@ export default function PeopleMyDepartment() {
             <Icon name="compass" size={24} style={{ color: '#6366f1' }} />
           </div>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>Product Design</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">My Department</h1>
             <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>Head: Jordan Kim · 5 members · Product Division</p>
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: 20, textAlign: 'center' }}>

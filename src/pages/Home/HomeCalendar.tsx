@@ -47,7 +47,7 @@ export default function HomeCalendar() {
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>Company Calendar</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Calendar</h1>
           <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>March 2026</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

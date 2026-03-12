@@ -45,7 +45,7 @@ export default function TimeAttendanceCalendar() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">Calendar</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Calendar</h1>
             <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Team time-off and attendance overview</p>
           </div>
           <div className="flex items-center gap-3">

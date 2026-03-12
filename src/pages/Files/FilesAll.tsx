@@ -38,7 +38,7 @@ export default function FilesAll() {
       <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">All Files</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">All Files</h1>
             <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">1,247 files across all categories</p>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-xx-small)] text-sm font-medium text-white" style={{ background: "var(--color-primary-strong)" }}>

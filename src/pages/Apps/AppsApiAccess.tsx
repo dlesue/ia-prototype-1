@@ -19,7 +19,7 @@ export default function AppsApiAccess() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">API Access</h1>
+          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">API Access</h1>
           <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Manage API keys, webhooks, and developer integrations</p>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-xx-small)] text-sm font-medium text-white" style={{ background: "var(--color-primary-strong)" }}>

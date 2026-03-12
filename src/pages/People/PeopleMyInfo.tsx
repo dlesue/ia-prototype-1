@@ -16,7 +16,7 @@ export default function PeopleMyInfo() {
             fontSize: 22, fontWeight: 700, color: '#fff', flexShrink: 0,
           }}>JK</div>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-neutral-xx-strong)', margin: 0 }}>Jordan Kim</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">My Info</h1>
             <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>Senior Product Designer · Product Design · San Francisco</p>
             <span style={{
               display: 'inline-flex', alignItems: 'center', padding: '2px 8px', borderRadius: 'var(--radius-full)',

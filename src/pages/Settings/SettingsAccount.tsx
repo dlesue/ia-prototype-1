@@ -4,7 +4,7 @@ export default function SettingsAccount() {
   return (
     <div className="p-6 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)]">Account</h1>
+        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Account</h1>
         <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Manage your BambooHR subscription and company settings</p>
       </div>
 
