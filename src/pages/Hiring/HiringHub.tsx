@@ -1,89 +1,114 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import { HubHeader } from '../../components/HubHeader';
+import type { HubAutomation } from '../../components/HubHeader';
 import { Icon } from '../../components/Icon';
 
 const metrics = [
-  { label: 'Open Positions', value: '23', trend: 'up' as const, trendValue: '+4', sparkData: [14, 16, 18, 19, 21, 20, 23] },
-  { label: 'Avg Time-to-Hire', value: '34 days', trend: 'down' as const, trendValue: '-3d', sparkData: [41, 39, 38, 37, 36, 35, 34] },
-  { label: 'Pipeline', value: '187 candidates', trend: 'up' as const, trendValue: '+22', sparkData: [145, 152, 158, 163, 171, 179, 187] },
-  { label: 'Offer Accept Rate', value: '82%', trend: 'up' as const, trendValue: '+5%', sparkData: [72, 74, 76, 78, 79, 81, 82] },
+  { label: 'Open Positions', value: '23', trend: 'up' as const, trendValue: '+4', sparkData: [14, 16, 18, 19, 21, 20, 23], vizType: 'bar' as const, linkTo: '/reports/view/Open%20Positions' },
+  { label: 'Avg Time-to-Hire', value: '34 days', trend: 'down' as const, trendValue: '-3d', dotValue: 34, dotMax: 60, vizType: 'dot' as const, linkTo: '/reports/view/Avg%20Time-to-Hire' },
+  { label: 'Pipeline', value: '187', trend: 'up' as const, trendValue: '+22', sparkData: [145, 152, 158, 163, 171, 179, 187], linkTo: '/reports/view/Pipeline' },
+  { label: 'Offer Accept Rate', value: '82%', trend: 'up' as const, trendValue: '+5%', progressPercent: 82, vizType: 'progress' as const, linkTo: '/reports/view/Offer%20Accept%20Rate' },
 ];
 
 const insights = [
-  { text: 'Senior Engineer roles average 47 days to fill — 38% above target', icon: 'chart-line' },
-  { text: 'Referral candidates have 2.4x higher offer acceptance rate', icon: 'sparkles' },
-  { text: '5 candidates have been in final interview for 10+ days', icon: 'clock' },
+  { text: 'Senior Engineer roles average 47 days to fill — 38% above target', shortText: 'Eng roles slow', icon: 'chart-line' },
+  { text: 'Referral candidates have 2.4x higher offer acceptance rate', shortText: 'Referrals excel', icon: 'sparkles' },
+  { text: '5 candidates have been in final interview for 10+ days', shortText: '5 stalled candidates', icon: 'clock' },
 ];
 
-const jobs = [
-  { title: 'Senior Software Engineer', dept: 'Platform Engineering', candidates: 24, lead: 'Alex Chen', status: 'Active', created: 'Feb 10', daysOpen: 29 },
-  { title: 'Product Manager', dept: 'Product', candidates: 18, lead: 'Priya Patel', status: 'Active', created: 'Feb 22', daysOpen: 17 },
-  { title: 'UX Designer', dept: 'Product Design', candidates: 31, lead: 'Jordan Kim', status: 'Active', created: 'Jan 28', daysOpen: 42 },
-  { title: 'Customer Success Manager', dept: 'Customer Success', candidates: 14, lead: 'Carlos Rivera', status: 'Active', created: 'Mar 1', daysOpen: 10 },
-  { title: 'Data Engineer', dept: 'Infrastructure', candidates: 9, lead: 'Sarah Chen', status: 'Active', created: 'Feb 5', daysOpen: 34 },
-  { title: 'Sales Development Rep', dept: 'Revenue', candidates: 47, lead: 'Marcus Williams', status: 'Active', created: 'Feb 18', daysOpen: 21 },
-  { title: 'Finance Analyst', dept: 'Finance', candidates: 12, lead: 'David Lee', status: 'Paused', created: 'Jan 15', daysOpen: 55 },
-  { title: 'HR Business Partner', dept: 'People Ops', candidates: 8, lead: 'Maria Santos', status: 'Active', created: 'Mar 5', daysOpen: 6 },
-  { title: 'Staff Engineer', dept: 'Platform Engineering', candidates: 6, lead: 'Alex Chen', status: 'Draft', created: 'Mar 8', daysOpen: 3 },
-  { title: 'Marketing Manager', dept: 'Marketing', candidates: 18, lead: 'Aisha Johnson', status: 'Active', created: 'Feb 14', daysOpen: 25 },
+const jobOpenings = [
+  { candidates: 4, newCandidates: 0, title: 'IT Security Engineer', dept: 'IT - Mayfaird, London, City of', lead: 'Eric Asture', created: 'Oct 1, 2023', ago: '2 years ago', status: 'Open', link: '/hiring/job-openings/it-security-engineer' },
+  { candidates: 12, newCandidates: 3, title: 'Senior Product Designer', dept: 'Product - Remote', lead: 'David Lesue', created: 'Feb 10, 2025', ago: '1 month ago', status: 'Open', link: '/hiring/job-openings/it-security-engineer' },
+  { candidates: 8, newCandidates: 1, title: 'Staff Software Engineer', dept: 'Engineering - Lindon, UT', lead: 'Adam Holt', created: 'Jan 22, 2025', ago: '2 months ago', status: 'Open', link: '/hiring/job-openings/it-security-engineer' },
+  { candidates: 0, newCandidates: 0, title: 'Customer Success Manager', dept: 'Customer Success - Remote', lead: 'Aaron Eckerly', created: 'Jan 15, 2025', ago: '2 months ago', status: 'Draft', link: '/hiring/job-openings/it-security-engineer' },
+  { candidates: 5, newCandidates: 0, title: 'Marketing Content Strategist', dept: 'Marketing - Lindon, UT', lead: 'Trent Walsh', created: 'Dec 8, 2024', ago: '3 months ago', status: 'Open', link: '/hiring/job-openings/it-security-engineer' },
+  { candidates: 3, newCandidates: 0, title: 'Data Analyst', dept: 'Analytics - Remote', lead: 'Sarah Chen', created: 'Nov 20, 2024', ago: '4 months ago', status: 'Open', link: '/hiring/job-openings/it-security-engineer' },
+];
+
+const AUTOMATIONS: HubAutomation[] = [
+  { text: 'Alert recruiters when candidates stall in final interview for 7+ days', shortText: 'Alert stalled candidates', fields: [
+    { label: 'Stall threshold', options: ['5 days', '7 days', '10 days'] },
+    { label: 'Stage', options: ['Final interview only', 'Any interview stage', 'All pipeline stages'] },
+    { label: 'Notify', options: ['Recruiter only', 'Recruiter + Hiring manager', 'Hiring manager only'] },
+  ] },
+  { text: 'Auto-advance candidates who pass screening assessment', shortText: 'Auto-advance screened', fields: [
+    { label: 'Passing score', options: ['70% or above', '80% or above', '90% or above'] },
+    { label: 'Advance to', options: ['Phone screen', 'First interview', 'Next stage'] },
+    { label: 'Notify', options: ['Recruiter only', 'Recruiter + Candidate', 'Hiring manager'] },
+  ] },
 ];
 
 export default function HiringHub() {
-  const [search, setSearch] = useState('');
-  const filtered = jobs.filter(j => j.title.toLowerCase().includes(search.toLowerCase()) || j.dept.toLowerCase().includes(search.toLowerCase()));
-
   return (
     <div>
-      <div className="px-6 pt-6">
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)]">Hiring</h1>
-      </div>
-      <HubHeader product="Hiring" metrics={metrics} insights={insights} />
-      <div className="px-6 pb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Job Openings</h2>
+      <HubHeader title="Hiring" product="Hiring" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
+      <div className="px-8 pb-8 space-y-6">
+        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)]">Job Openings</h2>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: 0 }}>23 open positions across 8 departments</p>
-          <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 'var(--radius-xx-small)', background: 'var(--color-primary-strong)', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 500 }}>
-            <Icon name="circle-plus" size={13} /> New Job Opening
-          </button>
-        </div>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, border: '1px solid var(--border-neutral-weak)', borderRadius: 'var(--radius-xx-small)', padding: '0 12px', background: 'var(--surface-neutral-white)', width: 280 }}>
-            <Icon name="magnifying-glass" size={13} style={{ color: 'var(--text-neutral-medium)' }} />
-            <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search jobs..." style={{ border: 'none', outline: 'none', padding: '8px 0', fontSize: 13, background: 'transparent', color: 'var(--text-neutral-strong)', width: '100%' }} />
+        {/* Abstract toolbar */}
+        <div className="flex items-center justify-between">
+          <div className="h-8 w-36 rounded-full bg-[var(--border-neutral-xx-weak)]" />
+          <div className="flex items-center gap-3">
+            <div className="h-3 w-24 rounded bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-8 w-28 rounded-lg bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-8 w-8 rounded bg-[var(--border-neutral-xx-weak)]" />
           </div>
         </div>
-        <div style={{ background: 'var(--surface-neutral-white)', border: '1px solid var(--border-neutral-weak)', borderRadius: 'var(--radius-small)', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ background: 'var(--surface-neutral-x-weak)' }}>
-                {['Job Title', 'Department', 'Candidates', 'Hiring Lead', 'Status', 'Created'].map(h => (
-                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontSize: 11, fontWeight: 600, color: 'var(--text-neutral-medium)', textTransform: 'uppercase', letterSpacing: '0.04em', borderBottom: '1px solid var(--border-neutral-weak)' }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((j, i) => (
-                <tr key={j.title} style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border-neutral-weak)' : 'none', cursor: 'pointer' }}>
-                  <td style={{ padding: '12px 16px' }}>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--text-neutral-xx-strong)' }}>{j.title}</p>
-                    {j.daysOpen > 40 && <p style={{ margin: 0, fontSize: 11, color: '#dc2626' }}>{j.daysOpen} days open</p>}
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-neutral-medium)' }}>{j.dept}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-neutral-strong)', fontWeight: 500 }}>{j.candidates}</td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-neutral-strong)' }}>{j.lead}</td>
-                  <td style={{ padding: '12px 16px' }}>
-                    <span style={{
-                      display: 'inline-flex', alignItems: 'center', padding: '2px 8px', borderRadius: 'var(--radius-full)', fontSize: 11, fontWeight: 600,
-                      background: j.status === 'Active' ? 'var(--color-primary-weak)' : j.status === 'Paused' ? '#fef9c3' : '#f3f4f6',
-                      color: j.status === 'Active' ? 'var(--color-primary-strong)' : j.status === 'Paused' ? '#ca8a04' : 'var(--text-neutral-medium)',
-                    }}>{j.status}</span>
-                  </td>
-                  <td style={{ padding: '12px 16px', fontSize: 13, color: 'var(--text-neutral-medium)' }}>{j.created}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+
+        {/* Table card */}
+        <div className="bg-white rounded-xl border border-[var(--border-neutral-xx-weak)] overflow-hidden">
+          {/* Abstract header row */}
+          <div className="flex gap-8 px-5 py-3 border-b border-[var(--border-neutral-xx-weak)]">
+            <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-2.5 w-24 rounded bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
+            <div className="h-2.5 w-14 rounded bg-[var(--border-neutral-xx-weak)]" />
+          </div>
+
+          {/* Real IT Security Engineer row */}
+          <Link to="/hiring/job-openings/it-security-engineer" className="flex items-center px-5 py-3.5 border-b border-[var(--border-neutral-xx-weak)] hover:bg-[var(--bg-neutral-weak)] cursor-pointer">
+            <div className="w-20">
+              <div className="flex items-center gap-1.5">
+                <Icon name="user-group" size={12} className="text-green-600" />
+                <span className="text-sm text-[var(--text-neutral-x-strong)]">4</span>
+              </div>
+            </div>
+            <div className="flex-1 min-w-0 px-4">
+              <span className="text-sm font-medium text-[var(--color-primary-strong)] hover:underline">IT Security Engineer</span>
+              <div className="text-xs text-[var(--text-neutral-weak)]">IT - Mayfaird, London, City of</div>
+            </div>
+            <div className="w-28 px-4 text-sm text-[var(--text-neutral-x-strong)]">Eric Asture</div>
+            <div className="w-28 px-4">
+              <div className="text-sm text-[var(--text-neutral-x-strong)]">Oct 1, 2023</div>
+              <div className="text-xs text-[var(--text-neutral-weak)]">2 years ago</div>
+            </div>
+            <div className="w-16 text-sm text-[var(--text-neutral-x-strong)]">Open</div>
+          </Link>
+
+          {/* Abstract remaining rows */}
+          {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="flex items-center gap-8 px-5 py-4 border-b border-[var(--border-neutral-xx-weak)] last:border-b-0">
+              <div className="w-20">
+                <div className="h-2.5 w-8 rounded bg-[var(--border-neutral-xx-weak)]" />
+              </div>
+              <div className="flex-1 min-w-0 px-4 flex flex-col gap-1.5">
+                <div className="h-2.5 w-40 rounded bg-[var(--border-neutral-xx-weak)]" />
+                <div className="h-2 w-28 rounded bg-[var(--border-neutral-xx-weak)]" />
+              </div>
+              <div className="w-28 px-4">
+                <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
+              </div>
+              <div className="w-28 px-4 flex flex-col gap-1.5">
+                <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
+                <div className="h-2 w-16 rounded bg-[var(--border-neutral-xx-weak)]" />
+              </div>
+              <div className="w-16">
+                <div className="h-2.5 w-10 rounded bg-[var(--border-neutral-xx-weak)]" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

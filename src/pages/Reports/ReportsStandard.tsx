@@ -1,96 +1,198 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Icon } from '../../components/Icon';
+import type { IconName } from '../../components/Icon';
 
-const reportCategories = [
+interface ReportRow {
+  icon: IconName;
+  name: string;
+  lastViewed?: string;
+}
+
+interface ReportCategory {
+  id: string;
+  label: string;
+  catIcon: IconName;
+  reports: ReportRow[];
+}
+
+const CATEGORIES: ReportCategory[] = [
   {
-    name: "People & Headcount",
+    id: 'benefits',
+    label: 'Benefits',
+    catIcon: 'heart',
     reports: [
-      { name: "Headcount Summary", description: "Current headcount by department, location, and employment type.", lastRun: "Mar 11, 2026" },
-      { name: "Employee Directory", description: "Full list of active employees with contact and job information.", lastRun: "Mar 10, 2026" },
-      { name: "New Hires", description: "Employees hired within a specified date range.", lastRun: "Mar 9, 2026" },
-      { name: "Terminations", description: "Employees terminated within a specified date range with departure reasons.", lastRun: "Mar 8, 2026" },
-      { name: "Tenure Analysis", description: "Breakdown of employee tenure distribution and average length of service.", lastRun: "Mar 5, 2026" },
+      { icon: 'file-lines', name: 'Benefit Summary', lastViewed: 'Oct 07, 2025' },
     ],
   },
   {
-    name: "Payroll",
+    id: 'compensation',
+    label: 'Compensation',
+    catIcon: 'chart-bar',
     reports: [
-      { name: "Payroll Summary", description: "Gross pay, deductions, taxes, and net pay by period.", lastRun: "Mar 1, 2026" },
-      { name: "Tax Liability", description: "Federal, state, and local tax obligations by period.", lastRun: "Feb 29, 2026" },
-      { name: "Deduction Detail", description: "Breakdown of all employee deductions by type and amount.", lastRun: "Mar 1, 2026" },
-      { name: "Gross-to-Net", description: "Full earnings statement reconciliation from gross to net pay.", lastRun: "Mar 1, 2026" },
+      { icon: 'chart-bar', name: 'Pay by Department', lastViewed: 'Oct 05, 2025' },
+      { icon: 'chart-bar', name: 'Pay by Location' },
+      { icon: 'chart-bar', name: 'Pay by Job Title' },
     ],
   },
   {
-    name: "Benefits",
+    id: 'data-review',
+    label: 'Data Review',
+    catIcon: 'file-lines',
     reports: [
-      { name: "Enrollment Summary", description: "Benefit enrollment counts and rates by plan type.", lastRun: "Mar 7, 2026" },
-      { name: "Plan Distribution", description: "Employee distribution across benefit plans and tiers.", lastRun: "Mar 7, 2026" },
-      { name: "Cost Analysis", description: "Total benefit cost breakdown by plan, including employer and employee contributions.", lastRun: "Mar 1, 2026" },
+      { icon: 'file-lines', name: '2-Step Login Configuration' },
+      { icon: 'file-lines', name: 'Audit Trail', lastViewed: 'Nov 05, 2025' },
+      { icon: 'file-lines', name: 'Change History', lastViewed: 'Dec 13, 2024' },
+      { icon: 'file-lines', name: 'Missing Data', lastViewed: 'Nov 14, 2024' },
+      { icon: 'clock', name: 'Point-in-Time' },
     ],
   },
   {
-    name: "Performance & Culture",
+    id: 'employee-info',
+    label: 'Employee Info',
+    catIcon: 'user-group',
     reports: [
-      { name: "Review Completion", description: "Performance review completion rates by cycle, department, and manager.", lastRun: "Mar 10, 2026" },
-      { name: "Goal Attainment", description: "Summary of goal completion rates at company, team, and individual levels.", lastRun: "Mar 8, 2026" },
-      { name: "eNPS Trend", description: "Employee Net Promoter Score over time with promoter, passive, detractor breakdown.", lastRun: "Mar 5, 2026" },
-      { name: "1:1 Coverage", description: "Percentage of manager-report pairs with recent 1:1 meetings.", lastRun: "Mar 3, 2026" },
+      { icon: 'file-lines', name: 'Age Profile', lastViewed: 'Oct 01, 2025' },
+      { icon: 'file-lines', name: 'Birthdays', lastViewed: 'Feb 04, 2025' },
+      { icon: 'file-lines', name: 'EEO Details', lastViewed: 'Jan 29, 2025' },
+      { icon: 'file-lines', name: 'EEO-1' },
+      { icon: 'file-lines', name: 'Employment Status History', lastViewed: 'Feb 27, 2024' },
+      { icon: 'file-lines', name: 'Gender Profile', lastViewed: 'Feb 04, 2025' },
+      { icon: 'file-lines', name: 'Job History', lastViewed: 'Jan 28, 2025' },
+      { icon: 'file-lines', name: 'Years of Service', lastViewed: 'Aug 31, 2024' },
     ],
   },
   {
-    name: "Hiring",
+    id: 'headcount',
+    label: 'Headcount And Turnover',
+    catIcon: 'chart-line',
     reports: [
-      { name: "Pipeline Summary", description: "Candidate pipeline by stage, job, and department.", lastRun: "Mar 11, 2026" },
-      { name: "Time-to-Hire", description: "Average days to hire by role, department, and hiring manager.", lastRun: "Mar 10, 2026" },
-      { name: "Source Effectiveness", description: "Application and hire rates by candidate source channel.", lastRun: "Mar 9, 2026" },
+      { icon: 'file-lines', name: 'Additions & Terminations', lastViewed: 'Mar 06' },
+      { icon: 'file-lines', name: 'Employee Turnover', lastViewed: 'Mar 06' },
+      { icon: 'file-lines', name: 'Headcount', lastViewed: 'Aug 31, 2024' },
     ],
   },
   {
-    name: "Training",
+    id: 'hiring',
+    label: 'Hiring',
+    catIcon: 'id-badge',
     reports: [
-      { name: "Compliance Report", description: "Required training completion status across all employees.", lastRun: "Mar 11, 2026" },
-      { name: "Certification Status", description: "Active, expiring, and expired certifications by employee.", lastRun: "Mar 10, 2026" },
-      { name: "Course Completion", description: "Training completion rates by course, department, and time period.", lastRun: "Mar 8, 2026" },
+      { icon: 'file-lines', name: 'Candidate Sources', lastViewed: 'Aug 27, 2024' },
+      { icon: 'file-lines', name: 'Candidates by Disability and Gender', lastViewed: 'Jul 08, 2024' },
+      { icon: 'file-lines', name: 'Candidates by Race and Gender', lastViewed: 'Feb 04, 2025' },
+      { icon: 'file-lines', name: 'Candidates by Veteran Status and Gender', lastViewed: 'Jul 08, 2024' },
+      { icon: 'chart-bar', name: 'Candidate Funnel', lastViewed: 'Aug 15, 2025' },
+    ],
+  },
+  {
+    id: 'payroll',
+    label: 'Payroll',
+    catIcon: 'money-bill-1',
+    reports: [
+      { icon: 'file-lines', name: 'Last Pay Change', lastViewed: 'Oct 09, 2024' },
+      { icon: 'file-lines', name: 'Direct Deposit' },
+      { icon: 'file-lines', name: 'Federal Withholding' },
+      { icon: 'file-lines', name: 'Pay Info Tab Missing Data' },
+      { icon: 'file-lines', name: 'State Withholding & Unemployment Insurance' },
+      { icon: 'file-lines', name: 'Payroll Change', lastViewed: 'Dec 10, 2024' },
+      { icon: 'file-lines', name: 'Payroll Deductions Summary' },
+      { icon: 'file-lines', name: 'Salary History', lastViewed: 'Feb 04, 2025' },
+      { icon: 'file-lines', name: 'Payroll Info Checkup' },
+      { icon: 'file-lines', name: 'Payroll Update Summary' },
+    ],
+  },
+  {
+    id: 'performance',
+    label: 'Performance And Culture',
+    catIcon: 'circle-dot',
+    reports: [
+      { icon: 'file-lines', name: 'Assessment Progress', lastViewed: 'Aug 31, 2024' },
+      { icon: 'file-lines', name: 'Company Performance', lastViewed: 'Mar 07, 2024' },
+      { icon: 'file-lines', name: 'Employee Performance', lastViewed: 'Jan 09, 2025' },
+      { icon: 'file-lines', name: 'Employee Satisfaction (eNPS)', lastViewed: 'Aug 13, 2024' },
+      { icon: 'file-lines', name: 'Goals Status', lastViewed: 'Dec 12, 2024' },
+      { icon: 'file-lines', name: 'Feedback Status', lastViewed: 'Mar 05, 2024' },
+      { icon: 'file-lines', name: 'Employee Wellbeing', lastViewed: 'Mar 10, 2025' },
+    ],
+  },
+  {
+    id: 'time-off',
+    label: 'Time Off',
+    catIcon: 'clock',
+    reports: [
+      { icon: 'file-lines', name: 'Time Off Balances', lastViewed: 'Aug 27, 2024' },
+      { icon: 'file-lines', name: 'Time Off Schedule', lastViewed: 'Aug 31, 2024' },
+      { icon: 'file-lines', name: 'Time Off Used', lastViewed: 'Aug 31, 2024' },
+    ],
+  },
+  {
+    id: 'time-tracking',
+    label: 'Time Tracking',
+    catIcon: 'clock',
+    reports: [
+      { icon: 'file-lines', name: 'Project Pay Rates', lastViewed: 'Dec 17, 2024' },
+      { icon: 'file-lines', name: 'Approved Hours', lastViewed: 'Dec 17, 2024' },
     ],
   },
 ];
 
 export default function ReportsStandard() {
+  const [searchParams] = useSearchParams();
+  const section = searchParams.get('section')?.toLowerCase();
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (section && sectionRefs.current[section]) {
+      sectionRefs.current[section]!.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [section]);
+
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Standard Reports</h1>
-          <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">Pre-built reports across all HR modules</p>
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-xx-small)] text-sm font-medium border border-[var(--border-neutral-x-weak)] text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors">
-          Schedule Report
-        </button>
-      </div>
-      <div className="flex flex-col gap-6">
-        {reportCategories.map(cat => (
-          <div key={cat.name}>
-            <div className="text-xs font-semibold text-[var(--text-neutral-medium)] uppercase tracking-wide mb-2">{cat.name}</div>
-            <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-xx-weak)] overflow-hidden">
-              {cat.reports.map((r, i) => (
-                <div key={r.name} className={`flex items-center gap-4 px-4 py-3 hover:bg-[var(--surface-neutral-xx-weak)] cursor-pointer transition-colors ${i < cat.reports.length - 1 ? "border-b border-[var(--border-neutral-xx-weak)]" : ""}`}>
-                  <div className="w-8 h-8 rounded-[var(--radius-small)] flex items-center justify-center shrink-0" style={{ background: "var(--color-primary-weak)" }}>
-                    <span className="text-base">&#128196;</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-[var(--text-neutral-xx-strong)]">{r.name}</div>
-                    <div className="text-xs text-[var(--text-neutral-medium)] truncate">{r.description}</div>
-                  </div>
-                  <div className="text-xs text-[var(--text-neutral-weak)] shrink-0">Last run {r.lastRun}</div>
-                  <button className="px-3 py-1.5 rounded-[var(--radius-xx-small)] text-xs font-medium text-white shrink-0" style={{ background: "var(--color-primary-strong)" }}>
-                    Run
-                  </button>
-                </div>
-              ))}
-            </div>
+    <div className="p-8 space-y-6">
+      <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)]">Standard Reports</h1>
+
+      {CATEGORIES.map((cat) => (
+        <div
+          key={cat.id}
+          ref={(el) => { sectionRefs.current[cat.id] = el; }}
+          className={`scroll-mt-24 rounded-xl border p-6 transition-colors ${
+            section === cat.id
+              ? 'bg-white border-[var(--color-primary-medium)] shadow-sm'
+              : 'bg-white border-[var(--border-neutral-xx-weak)]'
+          }`}
+        >
+          {/* Category header */}
+          <div className="flex items-center gap-2 mb-4">
+            <Icon name={cat.catIcon} size={16} className="text-[var(--text-neutral-x-strong)]" />
+            <h3 className="text-base font-semibold text-[var(--text-neutral-xx-strong)]">{cat.label}</h3>
           </div>
-        ))}
-      </div>
+
+          {/* Table */}
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-[var(--border-neutral-xx-weak)]">
+                <th className="text-left text-xs font-semibold text-[var(--text-neutral-weak)] uppercase tracking-wider pb-2">Name</th>
+                <th className="text-right text-xs font-semibold text-[var(--text-neutral-weak)] uppercase tracking-wider pb-2 w-[140px]">Last Viewed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cat.reports.map((r) => (
+                <tr key={r.name} className="border-b border-[var(--border-neutral-xx-weak)] last:border-b-0">
+                  <td className="py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Icon name={r.icon} size={13} className="text-[var(--color-primary-strong)]" />
+                      <span className="text-sm text-[var(--color-primary-strong)] hover:underline cursor-pointer">{r.name}</span>
+                    </div>
+                  </td>
+                  <td className="py-2.5 text-right text-sm text-[var(--text-neutral-weak)]">
+                    {r.lastViewed || ''}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ))}
     </div>
   );
 }

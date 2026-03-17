@@ -1,10 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import type { IconName } from '../Icon';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useScenario } from '../../contexts/ScenarioContext';
-import avatarSmall from '../../assets/images/avatar-small.png';
+import { getEmployee } from '../../data/currentEmployee';
+import { ProductSettingsModal } from '../ProductSettingsModal/ProductSettingsModal';
+import { NAV_HIGHLIGHT_KEY, NAV_SECTIONS } from '../DemoPanel/DemoPanel';
 
 const NAV_STORAGE_KEY = 'bhr-nav-expanded';
 const T1_EXPANDED_KEY = 'bhr-nav-t1-expanded';
@@ -33,10 +35,23 @@ const allNavItems: NavT1Item[] = [
     label: 'Home',
     icon: 'home',
     hasGear: false,
-    children: [
-      { path: '/home/inbox', label: 'Inbox' },
-      { path: '/home/calendar', label: 'Calendar' },
-    ],
+    children: [],
+  },
+  {
+    id: 'inbox',
+    path: '/home/inbox',
+    label: 'Inbox',
+    icon: 'inbox',
+    hasGear: false,
+    children: [],
+  },
+  {
+    id: 'my-info',
+    path: '/people/my-info',
+    label: 'My Info',
+    icon: 'circle-user',
+    hasGear: false,
+    children: [],
   },
   {
     id: 'people',
@@ -49,7 +64,6 @@ const allNavItems: NavT1Item[] = [
       { path: '/people/my-department', label: 'My Department' },
       { path: '/people/my-division', label: 'My Division' },
       { path: '', label: '', separator: true },
-      { path: '/people/hub', label: 'Hub' },
       { path: '/people/divisions', label: 'Divisions' },
       { path: '/people/departments', label: 'Departments' },
       { path: '/people/teams', label: 'Teams' },
@@ -74,7 +88,6 @@ const allNavItems: NavT1Item[] = [
     icon: 'clipboard',
     hasGear: true,
     children: [
-      { path: '/onboarding/offboarding', label: 'Active Offboarding' },
       { path: '/onboarding/task-templates', label: 'Task Templates' },
       { path: '/onboarding/new-hire-packets', label: 'New Hire Packets' },
     ],
@@ -83,7 +96,7 @@ const allNavItems: NavT1Item[] = [
     id: 'payroll',
     path: '/payroll',
     label: 'Payroll',
-    icon: 'circle-dollar',
+    icon: 'money-bill-1',
     hasGear: true,
     children: [
       { path: '/payroll/history', label: 'History' },
@@ -95,7 +108,7 @@ const allNavItems: NavT1Item[] = [
     id: 'benefits',
     path: '/benefits',
     label: 'Benefits',
-    icon: 'shield',
+    icon: 'heart',
     hasGear: true,
     children: [
       { path: '/benefits/enrollment', label: 'Enrollment' },
@@ -106,7 +119,7 @@ const allNavItems: NavT1Item[] = [
     id: 'performance',
     path: '/performance',
     label: 'Performance',
-    icon: 'bullseye',
+    icon: 'circle-dot',
     hasGear: true,
     children: [
       { path: '/performance/reviews', label: 'Reviews' },
@@ -118,7 +131,7 @@ const allNavItems: NavT1Item[] = [
     id: 'training',
     path: '/training',
     label: 'Training',
-    icon: 'graduation-cap',
+    icon: 'lightbulb',
     hasGear: true,
     children: [
       { path: '/training/assignments', label: 'Assignments' },
@@ -129,25 +142,38 @@ const allNavItems: NavT1Item[] = [
     id: 'compensation',
     path: '/compensation',
     label: 'Compensation',
-    icon: 'chart-line',
+    icon: 'chart-bar',
     hasGear: true,
-    locked: true,
     children: [
-      { path: '/compensation/levels-and-bands', label: 'Levels & Bands', locked: true },
-      { path: '/compensation/planning', label: 'Planning', locked: true },
-      { path: '/compensation/total-rewards', label: 'Total Rewards', locked: true },
+      { path: '/compensation/benchmarks', label: 'Benchmarks' },
+      { path: '/compensation/levels-and-bands', label: 'Levels & Bands' },
+      { path: '/compensation/planning', label: 'Planning' },
+      { path: '/compensation/total-rewards', label: 'Total Rewards' },
     ],
   },
   {
-    id: 'culture',
-    path: '/culture',
-    label: 'Culture',
+    id: 'employee-community',
+    path: '/employee-community',
+    label: 'Employee Community',
+    icon: 'comments',
+    hasGear: true,
+    children: [],
+  },
+  {
+    id: 'rewards-recognition',
+    path: '/rewards-recognition',
+    label: 'Rewards & Recognition',
+    icon: 'star',
+    hasGear: true,
+    children: [],
+  },
+  {
+    id: 'wellbeing',
+    path: '/wellbeing',
+    label: 'Wellbeing',
     icon: 'face-smile',
     hasGear: true,
-    children: [
-      { path: '/culture/recognition', label: 'Recognition' },
-      { path: '/culture/surveys', label: 'Surveys & Wellbeing' },
-    ],
+    children: [],
   },
   {
     id: 'time-and-attendance',
@@ -156,9 +182,18 @@ const allNavItems: NavT1Item[] = [
     icon: 'clock',
     hasGear: true,
     children: [
+      { path: '/home/calendar', label: 'Calendar' },
       { path: '/time-and-attendance/time-off', label: 'Time Off' },
       { path: '/time-and-attendance/timesheets', label: 'Timesheets', locked: true },
     ],
+  },
+  {
+    id: 'offboarding',
+    path: '/offboarding',
+    label: 'Offboarding',
+    icon: 'handshake',
+    hasGear: true,
+    children: [],
   },
   {
     id: 'reports',
@@ -167,8 +202,9 @@ const allNavItems: NavT1Item[] = [
     icon: 'chart-pie-simple',
     hasGear: true,
     children: [
+      { path: '/reports/standard', label: 'Standard Reports' },
       { path: '/reports/custom', label: 'Custom Reports' },
-      { path: '/reports/benchmarks', label: 'Benchmarks', locked: true },
+      { path: '/reports/benchmarks', label: 'Benchmarks' },
       { path: '/reports/dashboards', label: 'Dashboards' },
     ],
   },
@@ -192,6 +228,14 @@ const allNavItems: NavT1Item[] = [
       { path: '/apps/installed', label: 'Installed' },
       { path: '/apps/api-access', label: 'API Access' },
     ],
+  },
+  {
+    id: 'automations',
+    path: '/automations',
+    label: 'Automations',
+    icon: 'bolt',
+    hasGear: false,
+    children: [],
   },
   {
     id: 'settings',
@@ -223,28 +267,78 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
   const [hoveredT1, setHoveredT1] = useState<string | null>(null);
   const [isTablet, setIsTablet] = useState(false);
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
+  const [navHovered, setNavHovered] = useState(false);
+  const [settingsProduct, setSettingsProduct] = useState<string | null>(null);
+  const [showLocks, setShowLocks] = useState(() => localStorage.getItem('bhr-show-locks') !== 'false');
+  const [showAutomations, setShowAutomations] = useState(() => localStorage.getItem('bhr-show-automations') === 'true');
+  const [navHighlights, setNavHighlights] = useState<string[]>([]);
   const avatarMenuRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
   const { scenario } = useScenario();
+  const ee = getEmployee(scenario.persona);
+
+  // Listen for nav highlight changes
+  useEffect(() => {
+    const handler = () => {
+      const stored = localStorage.getItem(NAV_HIGHLIGHT_KEY);
+      setNavHighlights(stored ? JSON.parse(stored) : []);
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
+  // Build highlight color map from active nav sections
+  const navHighlightMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const section of NAV_SECTIONS) {
+      if (navHighlights.includes(section.id)) {
+        for (const itemId of section.items) {
+          map[itemId] = section.color;
+        }
+      }
+    }
+    return map;
+  }, [navHighlights]);
+
+  // Listen for locks toggle changes
+  useEffect(() => {
+    const handler = () => {
+      setShowLocks(localStorage.getItem('bhr-show-locks') !== 'false');
+      setShowAutomations(localStorage.getItem('bhr-show-automations') === 'true');
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
 
   // Compute scenario-filtered nav items
   const navItems = useMemo(() => {
-    const allVisible = [...scenario.visibleProducts, ...scenario.lockedProducts];
+    // When locks are on: show locked products with lock icons
+    // When locks are off: hide locked products entirely
+    const allVisible = showLocks
+      ? [...scenario.visibleProducts, ...scenario.lockedProducts]
+      : scenario.visibleProducts;
 
     return allNavItems
-      .filter(item => allVisible.includes(item.id))
+      .filter(item => {
+        // Automations T1: only show for HR Admin when toggle is on
+        if (item.id === 'automations') return showAutomations && scenario.persona === 'hr-admin';
+        return allVisible.includes(item.id);
+      })
       .map(item => {
         const isLockedByScenario = scenario.lockedProducts.includes(item.id);
 
         // Filter T2 children
         let children = item.children.filter(child => {
-          if (child.separator) return true; // handle separator below
-          return !scenario.hiddenT2Paths.includes(child.path);
+          if (child.separator) return true;
+          if (scenario.hiddenT2Paths.includes(child.path)) return false;
+          // When locks off, hide locked T2 items
+          if (!showLocks && (child.locked || scenario.lockedT2Paths.includes(child.path))) return false;
+          return true;
         });
 
-        // Remove orphaned separators (separator with nothing before or after it)
+        // Remove orphaned separators
         const sepIdx = children.findIndex(c => c.separator);
         if (sepIdx !== -1) {
           const beforeSep = children.slice(0, sepIdx).filter(c => !c.separator);
@@ -254,19 +348,50 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
           }
         }
 
-        // Apply locked state to T2 items from scenario
-        children = children.map(child => ({
-          ...child,
-          locked: child.locked || scenario.lockedT2Paths.includes(child.path),
-        }));
+        // Apply locked state to T2 items (only when locks are on)
+        if (showLocks) {
+          children = children.map(child => ({
+            ...child,
+            locked: child.locked || scenario.lockedT2Paths.includes(child.path),
+          }));
+          // Move locked T2s to the bottom
+          const unlockedChildren = children.filter(c => !c.locked && !c.separator);
+          const lockedChildren = children.filter(c => c.locked);
+          children = [...unlockedChildren, ...lockedChildren];
+        }
 
         return {
           ...item,
-          locked: isLockedByScenario || item.locked,
+          locked: showLocks ? (isLockedByScenario || item.locked) : false,
           children,
         };
       });
-  }, [scenario]);
+  }, [scenario, showLocks, showAutomations]);
+
+  // Track newly appeared T1 items for staggered entrance animation
+  const prevNavIdsRef = useRef<Set<string>>(new Set(navItems.map(i => i.id)));
+  const [animatingIds, setAnimatingIds] = useState<Map<string, number>>(new Map());
+
+  useEffect(() => {
+    const currentIds = new Set(navItems.map(i => i.id));
+    const prevIds = prevNavIdsRef.current;
+    const newIdSet = new Set(navItems.filter(i => !prevIds.has(i.id)).map(i => i.id));
+    prevNavIdsRef.current = currentIds;
+
+    if (newIdSet.size > 0) {
+      // Assign stagger index based on position in full nav order (top to bottom)
+      const map = new Map<string, number>();
+      let staggerIdx = 0;
+      for (const item of navItems) {
+        if (newIdSet.has(item.id)) {
+          map.set(item.id, staggerIdx++);
+        }
+      }
+      setAnimatingIds(map);
+      const timer = setTimeout(() => setAnimatingIds(new Map()), 800 + newIdSet.size * 100);
+      return () => clearTimeout(timer);
+    }
+  }, [navItems]);
 
   useEffect(() => {
     if (!avatarMenuOpen) return;
@@ -296,42 +421,53 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
 
   // Auto-expand T1 based on current route
   useEffect(() => {
-    const currentT1 = navItems.find(item =>
-      location.pathname.startsWith(item.path + '/') || location.pathname === item.path
-    );
+    const currentT1 = navItems.find(item => isT1Active(item));
     if (currentT1) setExpandedT1(currentT1.id);
   }, [location.pathname, navItems]);
 
   const effectiveExpanded = isTablet ? false : isExpanded;
 
   const handleT1Click = (item: NavT1Item) => {
-    navigate(item.path);
-    setExpandedT1(item.id);
+    if (item.locked) {
+      navigate(`/upsell/${item.id}`);
+    } else {
+      navigate(item.path);
+      setExpandedT1(item.id);
+    }
   };
 
   const handleGearClick = (e: React.MouseEvent, _item: NavT1Item) => {
     e.stopPropagation();
   };
 
-  const isT1Active = (item: NavT1Item) =>
-    location.pathname.startsWith(item.path + '/') || location.pathname === item.path;
+  const isT1Active = (item: NavT1Item) => {
+    const onPath = location.pathname.startsWith(item.path + '/') || location.pathname === item.path;
+    // My Info lives under /people/my-info but is its own T1 — don't let People claim it
+    if (item.id === 'people' && location.pathname.startsWith('/people/my-info')) return false;
+    // Inbox lives under /home/inbox but is its own T1 — don't let Home claim it
+    if (item.id === 'home' && location.pathname.startsWith('/home/inbox')) return false;
+    return onPath;
+  };
 
   return (
+    <>
     <nav
       className={`
-        fixed left-0 top-0 h-full z-50 flex flex-col
-        bg-[var(--surface-neutral-white)]
+        absolute left-0 top-0 h-full z-50 flex flex-col
+        bg-[var(--surface-neutral-xx-weak)]
         border-r border-[var(--border-neutral-xx-weak)]
         transition-[width] duration-300 ease-in-out
         ${effectiveExpanded ? 'w-[260px]' : 'w-[72px]'}
         ${className}
       `}
       style={{ overflow: 'hidden' }}
+      onMouseEnter={() => setNavHovered(true)}
+      onMouseLeave={() => setNavHovered(false)}
     >
       {/* Top Chrome */}
-      <div className={`shrink-0 ${effectiveExpanded ? 'px-4 pt-5 pb-3' : 'px-3 pt-5 pb-3'}`}>
+      <div className={`shrink-0 ${effectiveExpanded ? 'px-4 pt-5 pb-1' : 'px-3 pt-5 pb-1'}`}>
         {/* Row 1: Logo + Help */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-1.5">
           {effectiveExpanded ? (
             <>
               <button onClick={() => navigate('/home')} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -340,49 +476,71 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
                 </div>
                 <span className="font-semibold text-sm text-[var(--text-neutral-xx-strong)] whitespace-nowrap">Acme Corp</span>
               </button>
-              <button className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[var(--surface-neutral-xx-weak)] transition-colors shrink-0" title="Help">
-                <Icon name="circle-question" size={16} className="text-[var(--icon-neutral-strong)]" variant="regular" />
+              <div className="flex items-center gap-1">
+              <button
+                className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-[var(--surface-neutral-xx-weak)] transition-colors shrink-0"
+                title="Help"
+                onClick={() => {
+                  const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true';
+                  if (isOpen) {
+                    localStorage.setItem('bhr-chat-panel-open', 'false');
+                  } else {
+                    const payload = { type: 'help', ts: Date.now() };
+                    localStorage.setItem('bhr-help-payload', JSON.stringify(payload));
+                    localStorage.setItem('bhr-chat-panel-open', 'true');
+                  }
+                  window.dispatchEvent(new Event('storage'));
+                }}
+              >
+                <Icon name="circle-question" size={16} className="text-[var(--text-neutral-weak)]" variant="regular" />
               </button>
+              <button
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white border border-[var(--border-neutral-x-weak)] text-[13px] font-medium text-[var(--text-neutral-xx-strong)] hover:border-[var(--border-neutral-weak)] shadow-[0_1px_2px_rgba(0,0,0,0.06)] active:shadow-none active:translate-y-px transition-all shrink-0"
+                onClick={() => { const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true'; if (!isOpen) { localStorage.setItem('bhr-ask-reset', JSON.stringify({ ts: Date.now() })); } localStorage.setItem('bhr-chat-panel-open', String(!isOpen)); window.dispatchEvent(new Event('storage')); }}
+              >
+                <Icon name="sparkles" size={12} className="text-[var(--text-neutral-medium)]" />
+                <span>Ask</span>
+              </button>
+              </div>
             </>
           ) : (
-            <button onClick={() => navigate('/home')} className="w-10 h-10 rounded-md flex items-center justify-center mx-auto hover:opacity-80 transition-opacity" style={{ background: 'var(--color-primary-strong)' }}>
-              <span className="text-white text-sm font-bold">A</span>
-            </button>
+            <div className="flex flex-col items-center gap-2">
+              <button onClick={() => navigate('/home')} className="w-10 h-10 rounded-md flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: 'var(--color-primary-strong)' }}>
+                <span className="text-white text-sm font-bold">A</span>
+              </button>
+              <button
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-[var(--border-neutral-x-weak)] hover:border-[var(--border-neutral-weak)] shadow-[0_1px_2px_rgba(0,0,0,0.06)] active:shadow-none active:translate-y-px transition-all"
+                title="Ask"
+                onClick={() => { const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true'; if (!isOpen) { localStorage.setItem('bhr-ask-reset', JSON.stringify({ ts: Date.now() })); } localStorage.setItem('bhr-chat-panel-open', String(!isOpen)); window.dispatchEvent(new Event('storage')); }}
+              >
+                <Icon name="sparkles" size={13} className="text-[var(--text-neutral-medium)]" />
+              </button>
+            </div>
           )}
         </div>
+      </div>
 
-        {/* Row 2: Ask button */}
-        {effectiveExpanded ? (
-          <button
-            className="w-full flex items-center gap-2 px-3 py-2 mb-2 rounded-[var(--radius-xx-small)] text-sm font-medium transition-colors"
-            style={{ background: 'var(--color-primary-weak)', color: 'var(--color-primary-strong)' }}
-            onClick={() => { localStorage.setItem('bhr-chat-panel-open', 'true'); window.dispatchEvent(new Event('storage')); }}
-          >
-            <Icon name="sparkles" size={14} />
-            <span>Ask BambooHR</span>
-          </button>
-        ) : (
-          <button
-            className="w-10 h-10 flex items-center justify-center mx-auto rounded-[var(--radius-xx-small)] mb-2 transition-colors hover:opacity-90"
-            style={{ background: 'var(--color-primary-weak)', color: 'var(--color-primary-strong)' }}
-            title="Ask BambooHR"
-            onClick={() => { localStorage.setItem('bhr-chat-panel-open', 'true'); window.dispatchEvent(new Event('storage')); }}
-          >
-            <Icon name="sparkles" size={14} />
-          </button>
-        )}
-
-        {/* Row 3: Search */}
-        {effectiveExpanded ? (
-          <div className="relative mb-1">
-            <Icon name="magnifying-glass" size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--icon-neutral-strong)] pointer-events-none" />
-            <input type="text" placeholder="Search..." className="w-full pl-8 pr-3 py-2 text-sm rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-x-strong)] placeholder:text-[var(--text-neutral-weak)] focus:outline-none focus:border-[var(--color-primary-medium)] transition-colors" />
-          </div>
-        ) : (
-          <button className="w-10 h-10 flex items-center justify-center mx-auto rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors" title="Search">
-            <Icon name="magnifying-glass" size={16} className="text-[var(--icon-neutral-strong)]" />
-          </button>
-        )}
+      {/* Search — styled like a T1 item, in same padding context */}
+      <div className="shrink-0 px-2 py-1">
+        <div
+          className={`
+            relative flex items-center cursor-pointer group
+            transition-colors duration-150
+            ${effectiveExpanded ? 'px-3 py-1.5' : 'w-12 h-10 justify-center mx-auto'}
+            rounded-[10px]
+            hover:bg-white/50
+          `}
+          title="Search"
+          onClick={() => window.dispatchEvent(new Event('bhr-open-search'))}
+        >
+          <Icon name="magnifying-glass" size={16} className="shrink-0 text-[var(--icon-neutral-x-strong)]" />
+          {effectiveExpanded && (
+            <>
+              <span className="ml-2.5 flex-1 text-[13px] font-medium text-[var(--text-neutral-xx-strong)]">Search</span>
+              <span className="text-[10px] text-[var(--text-neutral-weak)] opacity-0 group-hover:opacity-100 transition-opacity">⌘K</span>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Separator */}
@@ -391,106 +549,182 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
       {/* Product Nav - Scrollable */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none' }}>
         <div className="px-2 py-1 space-y-0.5">
-          {navItems.map((item) => {
-            const t1Active = isT1Active(item);
-            const isT1Expanded = expandedT1 === item.id;
+          {(() => {
+            const unlocked = navItems.filter(i => !i.locked);
+            const locked = navItems.filter(i => i.locked);
+            const sorted = [...unlocked, ...locked];
 
-            return (
-              <div key={item.id}>
-                {/* T1 Row */}
-                <div
-                  className={`
-                    relative flex items-center rounded-[10px] cursor-pointer
-                    transition-colors duration-150 group
-                    ${effectiveExpanded ? 'px-3 py-2' : 'w-12 h-10 justify-center mx-auto'}
-                    ${t1Active ? 'bg-[var(--surface-neutral-x-weak)]' : 'hover:bg-[var(--surface-neutral-xx-weak)]'}
-                  `}
-                  onClick={() => handleT1Click(item)}
-                  onMouseEnter={() => setHoveredT1(item.id)}
-                  onMouseLeave={() => setHoveredT1(null)}
-                >
-                  <Icon
-                    name={item.icon}
-                    size={18}
-                    variant={t1Active ? 'solid' : 'regular'}
-                    className={`shrink-0 transition-colors duration-200 ${t1Active ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}`}
-                  />
-                  {effectiveExpanded && (
-                    <>
-                      <span className={`ml-2.5 flex-1 text-sm font-medium whitespace-nowrap truncate ${t1Active ? 'text-[var(--text-neutral-xx-strong)]' : 'text-[var(--text-neutral-x-strong)]'}`}>
-                        {item.label}
-                      </span>
-                      <div className="flex items-center gap-1 ml-1 shrink-0">
-                        {item.locked && <Icon name="lock" size={12} className="text-[var(--text-neutral-weak)]" />}
-                        {item.hasGear && !item.locked && (
-                          <button
-                            onClick={(e) => handleGearClick(e, item)}
-                            className={`w-5 h-5 flex items-center justify-center rounded hover:bg-[var(--border-neutral-xx-weak)] transition-all ${hoveredT1 === item.id ? 'opacity-100' : 'opacity-0'}`}
-                            title={`Configure ${item.label}`}
-                          >
-                            <Icon name="gear" size={12} className="text-[var(--icon-neutral-strong)]" />
-                          </button>
-                        )}
-                      </div>
-                    </>
+            // Group items into sections
+            const sectionStartIds = new Set(['hiring', 'reports']);
+            const groups: { sectionId: string; items: typeof sorted }[] = [];
+            let currentGroup: typeof sorted = [];
+            let currentSectionIdx = 0;
+            const sectionIds = ['core', 'lifecycle', 'cross-product'];
+
+            for (const item of sorted) {
+              if (!item.locked && sectionStartIds.has(item.id) && currentGroup.length > 0) {
+                groups.push({ sectionId: sectionIds[currentSectionIdx], items: currentGroup });
+                currentSectionIdx++;
+                currentGroup = [];
+              }
+              currentGroup.push(item);
+            }
+            if (currentGroup.length > 0) {
+              groups.push({ sectionId: sectionIds[currentSectionIdx] || 'locked', items: currentGroup });
+            }
+
+            // If there are locked items, they form their own group at the end
+            if (locked.length > 0) {
+              const lastGroup = groups[groups.length - 1];
+              const hasLocked = lastGroup.items.some(i => i.locked);
+              if (hasLocked) {
+                const unlockedInLast = lastGroup.items.filter(i => !i.locked);
+                const lockedItems = lastGroup.items.filter(i => i.locked);
+                if (unlockedInLast.length > 0) {
+                  lastGroup.items = unlockedInLast;
+                  groups.push({ sectionId: 'locked', items: lockedItems });
+                }
+              }
+            }
+
+            return groups.map((group, gi) => {
+              const sectionHighlight = NAV_SECTIONS.find(s => s.id === group.sectionId);
+              const isHighlighted = sectionHighlight && navHighlights.includes(group.sectionId);
+              const highlightColor = isHighlighted ? sectionHighlight.color : null;
+
+              return (
+                <React.Fragment key={group.sectionId}>
+                  {gi > 0 && (
+                    <div className="h-px bg-[var(--border-neutral-xx-weak)] mx-1 my-1.5" />
                   )}
-                </div>
+                  <div
+                    className={`space-y-0.5 transition-all duration-200 ${highlightColor ? 'rounded-xl p-1' : ''}`}
+                    style={highlightColor ? {
+                      outline: `2px solid ${highlightColor}`,
+                      outlineOffset: '0px',
+                      backgroundColor: `${highlightColor}10`,
+                    } : undefined}
+                  >
+                    {group.items.map((item) => {
+                      const t1Active = isT1Active(item);
+                      const isT1Expanded = expandedT1 === item.id;
+                      const animIndex = animatingIds.get(item.id);
+                      const isAnimating = animIndex !== undefined;
 
-                {/* T2 Children */}
-                {effectiveExpanded && isT1Expanded && (
-                  <div className="mt-0.5 ml-2 pl-5 space-y-0.5 border-l border-[var(--border-neutral-xx-weak)]">
-                    {item.children.map((child, idx) => {
-                      if (child.separator) {
-                        return <div key={`sep-${idx}`} className="h-px bg-[var(--border-neutral-xx-weak)] my-1.5" />;
-                      }
-                      const t2Active = location.pathname === child.path;
                       return (
-                        <NavLink
-                          key={child.path}
-                          to={child.path}
-                          className={`
-                            flex items-center justify-between px-2 py-1.5 rounded-[8px]
-                            text-sm transition-colors duration-150
-                            ${t2Active
-                              ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-xx-strong)] font-medium'
-                              : 'text-[var(--text-neutral-medium)] hover:bg-[var(--surface-neutral-xx-weak)] hover:text-[var(--text-neutral-x-strong)]'
-                            }
-                          `}
+                        <div
+                          key={item.id}
+                          className={isAnimating ? 'animate-navSlideIn' : ''}
+                          style={isAnimating ? {
+                            animationDelay: `${animIndex * 100}ms`,
+                          } : undefined}
                         >
-                          <span className="truncate">{child.label}</span>
-                          {child.locked && <Icon name="lock" size={11} className="shrink-0 ml-1 text-[var(--text-neutral-weak)]" />}
-                        </NavLink>
+                          {/* T1 Row */}
+                          <div
+                            className={`
+                              relative flex items-center cursor-pointer
+                              transition-all duration-150 group
+                              ${effectiveExpanded ? 'px-3 py-1.5' : 'w-12 h-10 justify-center mx-auto'}
+                              rounded-[10px]
+                              ${t1Active ? 'bg-white' : 'hover:bg-white/50'}
+                            `}
+                            onClick={() => handleT1Click(item)}
+                            onMouseEnter={() => setHoveredT1(item.id)}
+                            onMouseLeave={() => setHoveredT1(null)}
+                          >
+                            <Icon
+                              name={item.icon}
+                              size={16}
+                              variant={t1Active ? 'solid' : 'regular'}
+                              className={`shrink-0 transition-colors duration-200 ${t1Active ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}`}
+                            />
+                            {effectiveExpanded && (
+                              <>
+                                <span className={`ml-2.5 flex-1 text-[13px] whitespace-nowrap truncate ${t1Active ? 'font-semibold text-[var(--color-primary-strong)]' : 'font-medium text-[var(--text-neutral-xx-strong)]'}`}>
+                                  {item.label}
+                                </span>
+                                {item.locked && <Icon name="lock" size={12} className="shrink-0 ml-1 text-[var(--text-neutral-weak)]" />}
+                                {!item.locked && item.hasGear && scenario.persona === 'hr-admin' && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); setSettingsProduct(item.label); }}
+                                    className={`relative group/gear w-5 h-5 flex items-center justify-center rounded hover:bg-[var(--border-neutral-xx-weak)] transition-all shrink-0 ml-1 ${hoveredT1 === item.id ? 'opacity-100' : 'opacity-0'}`}
+                                  >
+                                    <Icon name="gear" size={11} className="text-[var(--icon-neutral-strong)]" />
+                                    <span className="pointer-events-none absolute right-0 -top-8 px-2 py-1 text-[11px] font-medium text-white bg-[#1e1e1e] rounded whitespace-nowrap opacity-0 group-hover/gear:opacity-100 transition-opacity z-50">
+                                      {item.label} Settings
+                                    </span>
+                                  </button>
+                                )}
+                              </>
+                            )}
+                          </div>
+
+                          {/* T2 Children */}
+                          {effectiveExpanded && isT1Expanded && (
+                            <div className="ml-[34px] mt-0.5 mb-1 space-y-0.5">
+                              {item.children.map((child, idx) => {
+                                if (child.separator) {
+                                  return <div key={`sep-${idx}`} className="h-px bg-[var(--border-neutral-xx-weak)] my-1.5" />;
+                                }
+                                const t2Active = location.pathname === child.path;
+                                const t2Slug = child.path.split('/').pop() || '';
+                                const t2Href = child.locked ? `/upsell/${t2Slug}` : child.path;
+                                return (
+                                  <NavLink
+                                    key={child.path}
+                                    to={t2Href}
+                                    className={`
+                                      flex items-center justify-between px-2 py-1
+                                      text-[13px] transition-colors duration-150
+                                      ${t2Active
+                                        ? 'text-[var(--color-primary-strong)] font-semibold'
+                                        : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)]'
+                                      }
+                                    `}
+                                  >
+                                    <span className="truncate">{child.label}</span>
+                                    {child.locked && <Icon name="lock" size={11} className="shrink-0 ml-1 text-[var(--text-neutral-weak)]" />}
+                                  </NavLink>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </React.Fragment>
+              );
+            });
+          })()}
         </div>
       </div>
 
-      {/* Bottom Chrome */}
-      <div className={`shrink-0 border-t border-[var(--border-neutral-xx-weak)] ${effectiveExpanded ? 'px-3 py-3' : 'px-2 py-3'}`}>
-        <button
-          onClick={toggleTheme}
-          className={`flex items-center rounded-[10px] transition-colors hover:bg-[var(--surface-neutral-xx-weak)] mb-1 ${effectiveExpanded ? 'w-full px-3 py-2 gap-2.5' : 'w-10 h-10 justify-center mx-auto'}`}
-          title={isDark ? 'Light mode' : 'Dark mode'}
-        >
-          <Icon name={isDark ? 'sun' : 'moon'} size={16} className="shrink-0 text-[var(--icon-neutral-x-strong)]" />
-          {effectiveExpanded && <span className="text-sm text-[var(--text-neutral-x-strong)] font-medium">{isDark ? 'Light mode' : 'Dark mode'}</span>}
-        </button>
+      {/* Collapse/Expand */}
+      {!isTablet && (
+        <div className="shrink-0 px-2">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className={`flex items-center rounded-[10px] transition-colors hover:bg-[var(--surface-neutral-xx-weak)] ${effectiveExpanded ? 'px-3 py-1.5' : 'w-12 h-8 justify-center mx-auto'}`}
+            title={effectiveExpanded ? 'Collapse' : 'Expand'}
+          >
+            <Icon name={effectiveExpanded ? 'arrow-left-from-line' : 'arrow-right-from-line'} size={15} className="shrink-0 text-[var(--text-neutral-weak)]" />
+          </button>
+        </div>
+      )}
 
+      {/* Bottom Chrome */}
+      <div className={`shrink-0 border-t border-[var(--border-neutral-xx-weak)] px-2 py-2`}>
         <div ref={avatarMenuRef} className="relative">
           <button
             onClick={() => setAvatarMenuOpen(!avatarMenuOpen)}
             className={`flex items-center rounded-[10px] transition-colors hover:bg-[var(--surface-neutral-xx-weak)] ${effectiveExpanded ? 'w-full px-2 py-2 gap-2.5' : 'w-10 h-10 justify-center mx-auto'}`}
           >
-            <img src={avatarSmall} alt="Sam Rivera" className="w-7 h-7 shrink-0 rounded-md object-cover" />
+            <img src={ee.avatar} alt={`${ee.preferredName} ${ee.lastName}`} className="w-7 h-7 shrink-0 rounded-md object-cover" />
             {effectiveExpanded && (
               <div className="flex flex-col items-start min-w-0">
-                <span className="text-sm font-medium text-[var(--text-neutral-xx-strong)] truncate leading-tight">Sam Rivera</span>
-                <span className="text-xs text-[var(--text-neutral-medium)] truncate leading-tight">UX Manager</span>
+                <span className="text-sm font-medium text-[var(--text-neutral-xx-strong)] truncate leading-tight">{ee.preferredName} {ee.lastName}</span>
+                <span className="text-xs text-[var(--text-neutral-medium)] truncate leading-tight">{ee.title}</span>
               </div>
             )}
           </button>
@@ -503,19 +737,14 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
             </div>
           )}
         </div>
-
-        {!isTablet && (
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`flex items-center rounded-[10px] transition-colors hover:bg-[var(--surface-neutral-xx-weak)] mt-1 ${effectiveExpanded ? 'w-full px-3 py-2 gap-2.5' : 'w-10 h-10 justify-center mx-auto'}`}
-            title={effectiveExpanded ? 'Collapse' : 'Expand'}
-          >
-            <Icon name={effectiveExpanded ? 'arrow-left-from-line' : 'arrow-right-from-line'} size={16} className="shrink-0 text-[var(--icon-neutral-x-strong)]" />
-            {effectiveExpanded && <span className="text-sm text-[var(--text-neutral-x-strong)] font-medium">Collapse</span>}
-          </button>
-        )}
       </div>
     </nav>
+    <ProductSettingsModal
+      productLabel={settingsProduct || ''}
+      isOpen={!!settingsProduct}
+      onClose={() => setSettingsProduct(null)}
+    />
+    </>
   );
 }
 

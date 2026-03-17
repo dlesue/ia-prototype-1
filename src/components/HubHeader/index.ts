@@ -1,2 +1,2 @@
 export { HubHeader } from './HubHeader';
-export type { HubMetric, HubInsight, HubHeaderProps } from './HubHeader';
+export type { HubMetric, HubInsight, HubAutomation, HubHeaderProps } from './HubHeader';

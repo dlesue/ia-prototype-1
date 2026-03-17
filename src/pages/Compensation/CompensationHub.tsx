@@ -1,82 +1,40 @@
-import React from 'react';
+import { HubHeader } from '../../components/HubHeader';
+import type { HubAutomation } from '../../components/HubHeader';
+import { Placeholder } from '../../components/Placeholder/Placeholder';
 
-interface UpsellPageProps {
-  title: string;
-  description: string;
-  features: string[];
-  previewLabel: string;
-}
+const metrics = [
+  { label: 'Median Salary', value: '$94,200', icon: 'circle-dollar', trend: 'up' as const, trendValue: '+3.2%', sparkData: [88,89,91,92,93,94,94.2], linkTo: '/reports/view/Pay%20by%20Department' },
+  { label: 'Avg Compa-Ratio', value: '0.97', icon: 'gauge-high', trend: 'flat' as const, trendValue: '0.0', sparkData: [0.95,0.96,0.96,0.97,0.97,0.96,0.97], linkTo: '/reports/view/Compa-Ratio%20Analysis' },
+  { label: 'In-Band %', value: '84%', icon: 'chart-bar', trend: 'up' as const, trendValue: '+2%', sparkData: [78,79,80,81,82,83,84], linkTo: '/reports/view/Pay%20Band%20Distribution' },
+  { label: 'Next Cycle', value: 'Apr 1', icon: 'calendar', linkTo: '/reports/view/Compensation%20Cycle' },
+];
 
-function UpsellPage({ title, description, features, previewLabel }: UpsellPageProps) {
-  return (
-    <div className="p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="px-2.5 py-1 rounded-full text-xs font-bold text-white" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
-            ELITE TIER
-          </span>
-        </div>
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-3">{title}</h1>
-        <p className="text-sm text-[var(--text-neutral-medium)] mb-6 leading-relaxed">{description}</p>
+const insights = [
+  { text: '12 employees are above their pay band ceiling', shortText: '12 above band', icon: 'circle-info' },
+  { text: 'Engineering compa-ratios are 8% below company avg', shortText: 'Eng compa low', icon: 'chart-line' },
+  { text: 'Merit cycle planning opens in 3 weeks', shortText: 'Merit cycle soon', icon: 'calendar' },
+];
 
-        <div className="mb-6">
-          <div className="text-xs font-semibold text-[var(--text-neutral-medium)] uppercase tracking-wide mb-3">Key Features</div>
-          <ul className="flex flex-col gap-2">
-            {features.map((f, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm text-[var(--text-neutral-x-strong)]">
-                <span className="text-[var(--color-primary-strong)] mt-0.5">&#10003;</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="flex gap-3 mb-8">
-          <button className="px-5 py-2.5 rounded-[var(--radius-xx-small)] text-sm font-semibold text-white" style={{ background: "linear-gradient(135deg, #7c3aed, #4f46e5)" }}>
-            Contact Sales
-          </button>
-          <button className="px-5 py-2.5 rounded-[var(--radius-xx-small)] text-sm font-semibold border border-[var(--border-neutral-x-weak)] text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors">
-            Learn More
-          </button>
-        </div>
-
-        <div className="relative rounded-[var(--radius-large)] border border-[var(--border-neutral-xx-weak)] overflow-hidden">
-          <div className="absolute inset-0 backdrop-blur-sm bg-white/60 z-10 flex flex-col items-center justify-center gap-3">
-            <span className="text-2xl">&#128274;</span>
-            <span className="text-sm font-medium text-[var(--text-neutral-medium)]">Upgrade to unlock {previewLabel}</span>
-          </div>
-          <div className="p-6 opacity-30 select-none pointer-events-none">
-            <div className="h-48 bg-[var(--surface-neutral-x-weak)] rounded-[var(--radius-medium)] flex items-center justify-center">
-              <div className="flex flex-col items-center gap-3 w-full px-8">
-                <div className="h-3 w-full bg-[var(--border-neutral-x-weak)] rounded-full" />
-                <div className="h-3 w-4/5 bg-[var(--border-neutral-x-weak)] rounded-full" />
-                <div className="h-3 w-3/5 bg-[var(--border-neutral-x-weak)] rounded-full" />
-                <div className="mt-4 w-full h-24 bg-[var(--border-neutral-xx-weak)] rounded-[var(--radius-small)]" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const AUTOMATIONS: HubAutomation[] = [
+  { text: 'Alert when an employee exceeds their pay band ceiling', shortText: 'Alert on band ceiling', fields: [
+    { label: 'Alert when', options: ['At ceiling', '95% of ceiling', '90% of ceiling'] },
+    { label: 'Notify', options: ['Manager only', 'Manager + HR', 'Comp team'] },
+    { label: 'Scope', options: ['All employees', 'Exempt only', 'Non-exempt only'] },
+  ] },
+  { text: 'Auto-flag compa-ratios below 0.85', shortText: 'Flag low compa-ratios', fields: [
+    { label: 'Threshold', options: ['Below 0.80', 'Below 0.85', 'Below 0.90'] },
+    { label: 'Notify', options: ['Manager only', 'Manager + Comp team', 'HR Business Partner'] },
+  ] },
+];
 
 export default function CompensationHub() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-1">Compensation</h1>
-      <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Benchmarks</h2>
-      <UpsellPage
-        title="Compensation Benchmarks"
-        description="Compare your compensation against market data by role, level, and geography. See where your employees fall relative to market percentiles."
-        features={[
-          "Market pay percentile data by job title and level",
-          "Geographic pay adjustments and cost-of-living overlays",
-          "Pay equity analysis across gender, ethnicity, and tenure",
-          "Salary range recommendations based on market data",
-        ]}
-        previewLabel="market benchmarks"
-      />
+    <div>
+      <HubHeader title="Compensation" product="Compensation" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
+      <div className="px-8 pb-8">
+        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Overview</h2>
+        <Placeholder />
+      </div>
     </div>
   );
 }

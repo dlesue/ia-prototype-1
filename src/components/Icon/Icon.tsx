@@ -13,6 +13,7 @@ import {
   faGear,
   faPenToSquare,
   faFaceSmile,
+  faFaceFrown,
   faArrowUpFromBracket,
   faTableCells,
   faFolder,
@@ -46,6 +47,9 @@ import {
   faPalette,
   faDoorOpen,
   faRightToBracket,
+  faShareFromSquare,
+  faHand,
+  faHandshake,
   faChartLine,
   faPlane,
   faGraduationCap,
@@ -88,6 +92,21 @@ import {
   faSpinner,
   faArrowLeft,
   faRotateLeft,
+  faGaugeHigh,
+  faLightbulb,
+  faMoneyBill1,
+  faChartBar,
+  faCircleDot,
+  faComments,
+  faLeaf,
+  faBolt,
+  faPuzzlePiece,
+  faFileSignature,
+  faHardDrive,
+  faTrophy,
+  faClipboardCheck,
+  faUserPlus,
+  faBook,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -100,6 +119,18 @@ import {
   faClock as faClockRegular,
   faCircle as faCircleRegular,
   faCircleQuestion as faCircleQuestionRegular,
+  faClipboard as faClipboardRegular,
+  faCompass as faCompassRegular,
+  faHeart as faHeartRegular,
+  faLightbulb as faLightbulbRegular,
+  faMoneyBill1 as faMoneyBill1Regular,
+  faChartBar as faChartBarRegular,
+  faCircleDot as faCircleDotRegular,
+  faStar as faStarRegular,
+  faComments as faCommentsRegular,
+  faShareFromSquare as faShareFromSquareRegular,
+  faHandshake as faHandshakeRegular,
+  faHand as faHandRegular,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   PanelLeftClose,
@@ -120,6 +151,7 @@ import {
   Settings,
   CirclePlus,
   Gamepad2,
+  Zap,
 } from 'lucide-react';
 
 export type IconName =
@@ -138,6 +170,7 @@ export type IconName =
   | 'gear'
   | 'pen-to-square'
   | 'face-smile'
+  | 'face-frown'
   | 'arrow-up-from-bracket'
   | 'table-cells'
   | 'folder'
@@ -172,6 +205,10 @@ export type IconName =
   | 'palette'
   | 'door-open'
   | 'door-closed'
+  | 'share-from-square'
+  | 'hand'
+  | 'handshake'
+  | 'comments'
   | 'chart-line'
   | 'plane'
   | 'graduation-cap'
@@ -231,7 +268,22 @@ export type IconName =
   | 'spinner'
   | 'arrow-left'
   | 'rotate-left'
-  | 'gamepad';
+  | 'gamepad'
+  | 'gauge-high'
+  | 'lightbulb'
+  | 'money-bill-1'
+  | 'chart-bar'
+  | 'circle-dot'
+  | 'leaf'
+  | 'bolt'
+  | 'puzzle-piece'
+  | 'file-signature'
+  | 'hard-drive'
+  | 'trophy'
+  | 'clipboard-check'
+  | 'user-plus'
+  | 'dollar-sign'
+  | 'book';
 
 interface IconProps {
   name: IconName;
@@ -259,6 +311,7 @@ const faIconMap = {
   'gear': faGear,
   'pen-to-square': faPenToSquare,
   'face-smile': faFaceSmile,
+  'face-frown': faFaceFrown,
   'face-smile-regular': faFaceSmileRegular,
   'arrow-up-from-bracket': faArrowUpFromBracket,
   'table-cells': faTableCells,
@@ -297,6 +350,7 @@ const faIconMap = {
   'palette': faPalette,
   'door-open': faDoorOpen,
   'door-closed': faRightToBracket,
+  'share-from-square': faShareFromSquare,
   'chart-line': faChartLine,
   'plane': faPlane,
   'graduation-cap': faGraduationCap,
@@ -343,6 +397,36 @@ const faIconMap = {
   'spinner': faSpinner,
   'arrow-left': faArrowLeft,
   'rotate-left': faRotateLeft,
+  'gauge-high': faGaugeHigh,
+  'lightbulb': faLightbulb,
+  'lightbulb-regular': faLightbulbRegular,
+  'money-bill-1': faMoneyBill1,
+  'money-bill-1-regular': faMoneyBill1Regular,
+  'clipboard-regular': faClipboardRegular,
+  'compass-regular': faCompassRegular,
+  'heart-regular': faHeartRegular,
+  'chart-bar': faChartBar,
+  'chart-bar-regular': faChartBarRegular,
+  'circle-dot': faCircleDot,
+  'circle-dot-regular': faCircleDotRegular,
+  'leaf': faLeaf,
+  'star-regular': faStarRegular,
+  'share-from-square-regular': faShareFromSquareRegular,
+  'comments': faComments,
+  'comments-regular': faCommentsRegular,
+  'hand': faHand,
+  'hand-regular': faHandRegular,
+  'handshake': faHandshake,
+  'handshake-regular': faHandshakeRegular,
+  'bolt': faBolt,
+  'puzzle-piece': faPuzzlePiece,
+  'file-signature': faFileSignature,
+  'hard-drive': faHardDrive,
+  'trophy': faTrophy,
+  'clipboard-check': faClipboardCheck,
+  'user-plus': faUserPlus,
+  'dollar-sign': faDollarSign,
+  'book': faBook,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
@@ -452,6 +536,10 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'gamepad' && variant === 'solid') {
     return <Gamepad2 size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+
+  if (name === 'bolt' && variant === 'regular') {
+    return <Zap size={size} className={className} strokeWidth={2.25} style={style} />;
   }
 
   // Handle Font Awesome icons

@@ -10,9 +10,9 @@ const metrics = [
 ];
 
 const insights = [
-  { text: '3 employees celebrating work anniversaries this week', icon: 'star' },
-  { text: 'Engineering turnover is 2.1x above company average', icon: 'chart-line' },
-  { text: '5 open roles have been unfilled for 60+ days', icon: 'circle-info' },
+  { text: '3 employees celebrating work anniversaries this week', shortText: '3 anniversaries', icon: 'star' },
+  { text: 'Engineering turnover is 2.1x above company average', shortText: 'Eng turnover high', icon: 'chart-line' },
+  { text: '5 open roles have been unfilled for 60+ days', shortText: '5 roles unfilled', icon: 'circle-info' },
 ];
 
 const employees = [
@@ -46,7 +46,7 @@ export default function PeopleHubPage() {
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>
-            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-4">Hub</h1>
+            <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-6">Hub</h1>
             <p style={{ fontSize: 13, color: 'var(--text-neutral-medium)', margin: '2px 0 0' }}>All 847 employees across 14 departments</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>

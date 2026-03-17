@@ -1,100 +1,84 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { HubHeader } from '../../components/HubHeader';
+import type { HubAutomation } from '../../components/HubHeader';
+
+const METRICS_KEY = 'bhr-show-metrics';
 
 const metrics = [
-  { label: "Next Payroll", value: "Mar 15" },
-  { label: "Employees", value: "847", trend: "up" as const, trendValue: "+12" },
-  { label: "Pending Timesheets", value: "34" },
-  { label: "Gross Cost (Period)", value: "$2.1M" },
+  { label: "Next Payroll", value: "Mar 15", icon: "calendar", linkTo: '/reports/view/Next%20Payroll' },
+  { label: "Employees", value: "847", icon: "user-group", trend: "up" as const, trendValue: "+12", sparkData: [810, 818, 822, 828, 835, 840, 847], linkTo: '/reports/view/Employees' },
+  { label: "Pending Timesheets", value: "34", icon: "clock", sparkData: [42, 38, 45, 40, 36, 39, 34], linkTo: '/reports/view/Pending%20Timesheets' },
+  { label: "Gross Cost (Period)", value: "$2.1M", icon: "circle-dollar", sparkData: [1.9, 1.95, 2.0, 2.0, 2.05, 2.08, 2.1], linkTo: '/reports/view/Gross%20Cost' },
 ];
 
 const insights = [
-  { text: "34 timesheets not yet approved" },
-  { text: "3 new hires added to this payroll run" },
-  { text: "Year-to-date payroll cost: $6.3M" },
+  { text: "34 timesheets not yet approved", shortText: "34 timesheets pending", icon: "clipboard-check" },
+  { text: "3 new hires added to this payroll run", shortText: "3 new hires", icon: "user-plus" },
+  { text: "Year-to-date payroll cost: $6.3M", shortText: "YTD cost $6.3M", icon: "dollar-sign" },
 ];
 
-const payDates = [
-  { date: "Mar 15, 2026", schedule: "Bi-weekly", employees: 847, amount: "$2.1M", status: "Upcoming" },
-  { date: "Mar 29, 2026", schedule: "Bi-weekly", employees: 847, amount: "$2.1M est.", status: "Upcoming" },
-  { date: "Apr 15, 2026", schedule: "Semi-monthly", employees: 847, amount: "$2.1M est.", status: "Upcoming" },
+const AUTOMATIONS: HubAutomation[] = [
+  { text: 'Auto-approve timesheets under 40 hours', shortText: 'Auto-approve <40hrs', fields: [
+    { label: 'Threshold', options: ['Under 40 hours', 'Under 35 hours', 'Under 45 hours'] },
+    { label: 'Applies to', options: ['All employees', 'Hourly only', 'My direct reports'] },
+    { label: 'Notify', options: ['Manager only', 'Manager + Employee', 'No one'] },
+  ] },
+  { text: 'Notify finance when payroll variance exceeds 5%', shortText: 'Alert on variance >5%', fields: [
+    { label: 'Variance threshold', options: ['Over 3%', 'Over 5%', 'Over 10%'] },
+    { label: 'Compare to', options: ['Previous period', 'Same period last year', 'Rolling average'] },
+    { label: 'Notify', options: ['Finance team', 'Payroll admin', 'Finance + HR'] },
+  ] },
 ];
-
-const marDays = Array.from({ length: 31 }, (_, i) => i + 1);
-const payDateNums = [15, 29];
-const dayOffset = 0;
 
 export default function PayrollHub() {
+  const [showMetrics, setShowMetrics] = useState(() => localStorage.getItem(METRICS_KEY) !== 'false');
+
+  useEffect(() => {
+    const handler = () => setShowMetrics(localStorage.getItem(METRICS_KEY) !== 'false');
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
   return (
     <div>
-      <div className="px-6 pt-6">
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)]">Payroll</h1>
-      </div>
-      <HubHeader product="Payroll" metrics={metrics} insights={insights} />
-      <div className="px-6 pb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Pay Calendar</h2>
-
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">March 2026 payroll schedule</p>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-xx-small)] text-sm font-medium text-white" style={{ background: "var(--color-primary-strong)" }}>
-            Start Payroll
-          </button>
+      <HubHeader title="Payroll" product="Payroll" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
+      <div className="px-8 pb-8 space-y-6">
+        {/* Header row with abstract title + real Payroll Reports button */}
+        <div className="flex items-center justify-between">
+          <div className="h-4 w-28 rounded bg-[var(--border-neutral-xx-weak)]" />
+          <div className="flex items-center gap-3">
+            <div className="h-3 w-28 rounded bg-[var(--border-neutral-xx-weak)]" />
+            {!showMetrics && (
+              <Link to="/payroll/reports" className="h-9 px-4 rounded-full border border-[var(--color-primary-strong)] bg-green-50 flex items-center justify-center text-sm font-medium text-[var(--color-primary-strong)] hover:bg-green-100 transition-colors shadow-[0_0_12px_rgba(0,128,0,0.15)]">
+                Payroll Reports
+              </Link>
+            )}
+            <div className="h-9 w-36 rounded-full bg-[var(--border-neutral-xx-weak)]" />
+          </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-xx-weak)] p-4">
-            <div className="text-sm font-semibold text-[var(--text-neutral-xx-strong)] mb-3 text-center">March 2026</div>
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
-                <div key={d} className="text-center text-xs font-medium text-[var(--text-neutral-medium)] py-1">{d}</div>
-              ))}
+        {/* Abstract pay calendar cards */}
+        <div className="flex gap-3">
+          {[1, 2, 3, 4, 5, 6, 7].map(i => (
+            <div key={i} className={`flex-1 rounded-xl p-4 flex flex-col items-center gap-2 ${i === 1 ? 'border-2 border-[var(--border-neutral-xx-weak)]' : 'border border-[var(--border-neutral-xx-weak)]'}`}>
+              <div className="w-10 h-10 rounded-lg bg-[var(--border-neutral-xx-weak)]" />
+              <div className="h-2.5 w-10 rounded bg-[var(--border-neutral-xx-weak)]" />
+              <div className="h-2 w-14 rounded bg-[var(--border-neutral-xx-weak)]" />
             </div>
-            <div className="grid grid-cols-7 gap-1">
-              {Array.from({ length: dayOffset }).map((_, i) => (
-                <div key={"empty-" + i} />
-              ))}
-              {marDays.map(day => (
-                <div key={day} className={`h-9 flex items-center justify-center text-sm rounded-[var(--radius-small)] font-medium cursor-pointer transition-colors ${
-                  payDateNums.includes(day)
-                    ? "text-white font-bold"
-                    : day === 11 ? "bg-[var(--color-primary-weak)] text-[var(--color-primary-strong)] font-semibold"
-                    : "hover:bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-x-strong)]"
-                }`} style={payDateNums.includes(day) ? { background: "var(--color-primary-strong)" } : {}}>
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="mt-3 flex gap-4 text-xs text-[var(--text-neutral-medium)]">
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "var(--color-primary-strong)" }} />
-                Pay Date
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-3 h-3 rounded-sm inline-block" style={{ background: "var(--color-primary-weak)" }} />
-                Today
-              </div>
-            </div>
-          </div>
+          ))}
+        </div>
 
-          <div className="flex flex-col gap-3">
-            <div className="text-sm font-semibold text-[var(--text-neutral-x-strong)] mb-1">Upcoming Pay Dates</div>
-            {payDates.map(pd => (
-              <div key={pd.date} className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-xx-weak)] p-4">
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <div className="text-sm font-semibold text-[var(--text-neutral-xx-strong)]">{pd.date}</div>
-                    <div className="text-xs text-[var(--text-neutral-medium)]">{pd.schedule}</div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-primary-weak)] text-[var(--color-primary-strong)]">{pd.status}</span>
-                </div>
-                <div className="flex justify-between text-xs text-[var(--text-neutral-medium)] mb-3">
-                  <span>{pd.employees} employees</span>
-                  <span className="font-medium text-[var(--text-neutral-xx-strong)]">{pd.amount}</span>
-                </div>
-                <button className="w-full py-1.5 rounded-[var(--radius-xx-small)] text-xs font-medium border border-[var(--border-neutral-x-weak)] text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors">
-                  View Details
-                </button>
-              </div>
+        {/* Abstract content blocks */}
+        <div className="flex gap-6">
+          <div className="flex-1 min-w-0 rounded-xl border border-[var(--border-neutral-xx-weak)] bg-white p-6 space-y-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className={`rounded bg-[var(--border-neutral-xx-weak)] ${i <= 2 ? 'h-3' : 'h-2.5'} ${i === 1 ? 'w-48' : i === 2 ? 'w-32' : i === 3 ? 'w-full' : i === 4 ? 'w-3/4' : i === 5 ? 'w-2/3' : 'w-1/2'}`} />
+            ))}
+          </div>
+          <div className="w-[280px] shrink-0 rounded-xl border border-[var(--border-neutral-xx-weak)] bg-white p-6 space-y-4">
+            {[1, 2, 3, 4, 5].map(i => (
+              <div key={i} className={`rounded bg-[var(--border-neutral-xx-weak)] ${i === 1 ? 'h-10 rounded-full' : 'h-2.5'} ${i === 1 ? 'w-full' : i === 2 ? 'w-full' : i === 3 ? 'w-3/4' : i === 4 ? 'w-full' : 'w-2/3'}`} />
             ))}
           </div>
         </div>

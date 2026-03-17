@@ -224,6 +224,40 @@ body {
   animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes slideFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slideFadeIn {
+  animation: slideFadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) backwards;
+}
+
+@keyframes navSlideIn {
+  0% {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-6px);
+  }
+  40% {
+    opacity: 0;
+    max-height: 48px;
+  }
+  100% {
+    opacity: 1;
+    max-height: 48px;
+    transform: translateY(0);
+  }
+}
+
+.animate-navSlideIn {
+  overflow: hidden;
+  animation: navSlideIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) backwards;
+}
+
+.animate-navSlideIn * {
+  transition: none !important;
+}
+
 /* AI Inline Message */
 .ai-inline-message {
   background: linear-gradient(122.835deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%);
@@ -314,3 +348,4 @@ h1 {
   --radius-large: 24px;
   --radius-full: 1000px;
 }
+

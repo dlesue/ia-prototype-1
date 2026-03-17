@@ -1,117 +1,40 @@
 import React from 'react';
 import { HubHeader } from '../../components/HubHeader';
+import type { HubAutomation } from '../../components/HubHeader';
+import Placeholder from '../../components/Placeholder/Placeholder';
 
 const metrics = [
-  { label: "Enrollment", value: "94%", ringPercent: 94 },
-  { label: "Active Plans", value: "12" },
-  { label: "COBRA", value: "3" },
-  { label: "Cost / Employee", value: "$847/mo" },
+  { label: "Enrollment", value: "94%", progressPercent: 94, vizType: 'progress' as const, linkTo: '/reports/view/Enrollment' },
+  { label: "Active Plans", value: "12", sparkData: [10, 10, 11, 11, 12, 12, 12], linkTo: '/reports/view/Active%20Plans' },
+  { label: "COBRA", value: "3", trend: 'down' as const, trendValue: '-2', sparkData: [5, 4, 4, 3, 3, 3, 3], linkTo: '/reports/view/COBRA' },
+  { label: "Cost / Employee", value: "$847/mo", trend: 'up' as const, trendValue: '+$12', sparkData: [810, 818, 825, 830, 838, 842, 847], linkTo: '/reports/view/Cost%20per%20Employee' },
 ];
 
 const insights = [
-  { text: "Open enrollment closes in 14 days" },
-  { text: "HDHP adoption up 12% vs last year" },
-  { text: "3 employees missing dependent information" },
+  { text: "Open enrollment closes in 14 days", shortText: "Enrollment closing", icon: 'calendar' },
+  { text: "HDHP adoption up 12% vs last year", shortText: "HDHP up 12%", icon: 'chart-line' },
+  { text: "3 employees missing dependent information", shortText: "3 missing dependents", icon: 'circle-info' },
 ];
 
-const planGroups = [
-  {
-    type: "Medical",
-    plans: [
-      { carrier: "Blue Shield", plan: "PPO 500", tiers: { employee: "$180", spouse: "$340", family: "$480" }, enrolled: 412 },
-      { carrier: "Blue Shield", plan: "HDHP 1500", tiers: { employee: "$95", spouse: "$185", family: "$260" }, enrolled: 287 },
-      { carrier: "Kaiser", plan: "HMO", tiers: { employee: "$145", spouse: "$275", family: "$390" }, enrolled: 148 },
-    ],
-  },
-  {
-    type: "Dental",
-    plans: [
-      { carrier: "Delta Dental", plan: "PPO Plus", tiers: { employee: "$28", spouse: "$52", family: "$76" }, enrolled: 710 },
-      { carrier: "Delta Dental", plan: "Basic", tiers: { employee: "$15", spouse: "$28", family: "$42" }, enrolled: 137 },
-    ],
-  },
-  {
-    type: "Vision",
-    plans: [
-      { carrier: "VSP Vision", plan: "Standard", tiers: { employee: "$8", spouse: "$14", family: "$20" }, enrolled: 634 },
-      { carrier: "VSP Vision", plan: "Enhanced", tiers: { employee: "$14", spouse: "$24", family: "$34" }, enrolled: 213 },
-    ],
-  },
-  {
-    type: "Life Insurance",
-    plans: [
-      { carrier: "Principal Life", plan: "Basic Life 1x", tiers: { employee: "$0", spouse: "N/A", family: "N/A" }, enrolled: 847 },
-      { carrier: "Principal Life", plan: "Supplemental Life", tiers: { employee: "$12", spouse: "$8", family: "N/A" }, enrolled: 284 },
-    ],
-  },
-  {
-    type: "401(k)",
-    plans: [
-      { carrier: "Fidelity", plan: "401(k) with 4% match", tiers: { employee: "Varies", spouse: "N/A", family: "N/A" }, enrolled: 743 },
-    ],
-  },
-  {
-    type: "HSA",
-    plans: [
-      { carrier: "Fidelity", plan: "HSA (HDHP eligible)", tiers: { employee: "$0", spouse: "N/A", family: "N/A" }, enrolled: 287 },
-    ],
-  },
+const AUTOMATIONS: HubAutomation[] = [
+  { text: 'Remind employees 7 days before open enrollment closes', shortText: 'Enrollment reminders', fields: [
+    { label: 'Remind before', options: ['3 days', '7 days', '14 days'] },
+    { label: 'Repeat', options: ['Once', 'Daily until enrolled', 'Every 3 days'] },
+    { label: 'Channel', options: ['Email only', 'Email + Slack', 'Email + In-app notification'] },
+  ] },
+  { text: 'Auto-notify employees with missing dependent information', shortText: 'Alert missing dependents', fields: [
+    { label: 'Check frequency', options: ['Daily', 'Weekly', 'Bi-weekly'] },
+    { label: 'Notify', options: ['Employee only', 'Employee + HR', 'Employee + Manager'] },
+  ] },
 ];
 
 export default function BenefitsHub() {
   return (
     <div>
-      <div className="px-6 pt-6">
-        <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)]">Benefits</h1>
-      </div>
-      <HubHeader product="Benefits" metrics={metrics} insights={insights} />
+      <HubHeader title="Benefits" product="Benefits" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
       <div className="px-6 pb-6">
         <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Plans</h2>
-
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-[var(--text-neutral-medium)] mt-0.5">All active benefit plans by category</p>
-          <button className="flex items-center gap-2 px-4 py-2 rounded-[var(--radius-xx-small)] text-sm font-medium text-white" style={{ background: "var(--color-primary-strong)" }}>
-            + Add Plan
-          </button>
-        </div>
-        <div className="flex flex-col gap-4">
-          {planGroups.map(g => (
-            <div key={g.type}>
-              <div className="text-xs font-semibold text-[var(--text-neutral-medium)] uppercase tracking-wide mb-2">{g.type}</div>
-              <div className="flex flex-col gap-2">
-                {g.plans.map(p => (
-                  <div key={p.plan} className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-xx-weak)] p-4 flex items-center gap-6">
-                    <div className="w-10 h-10 rounded-[var(--radius-small)] bg-[var(--surface-neutral-x-weak)] flex items-center justify-center shrink-0">
-                      <span className="text-lg">&#127973;</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-[var(--text-neutral-xx-strong)]">{p.carrier}</div>
-                      <div className="text-xs text-[var(--text-neutral-medium)]">{p.plan}</div>
-                    </div>
-                    <div className="flex gap-6 text-xs">
-                      <div className="text-center">
-                        <div className="text-[var(--text-neutral-medium)] mb-0.5">Employee</div>
-                        <div className="font-semibold text-[var(--text-neutral-xx-strong)]">{p.tiers.employee}<span className="font-normal text-[var(--text-neutral-medium)]">/mo</span></div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[var(--text-neutral-medium)] mb-0.5">+Spouse</div>
-                        <div className="font-semibold text-[var(--text-neutral-xx-strong)]">{p.tiers.spouse !== "N/A" ? p.tiers.spouse + "/mo" : "—"}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[var(--text-neutral-medium)] mb-0.5">+Family</div>
-                        <div className="font-semibold text-[var(--text-neutral-xx-strong)]">{p.tiers.family !== "N/A" ? p.tiers.family + "/mo" : "—"}</div>
-                      </div>
-                    </div>
-                    <div className="text-center shrink-0">
-                      <div className="text-xs text-[var(--text-neutral-medium)] mb-0.5">Enrolled</div>
-                      <span className="px-2 py-0.5 rounded-full text-xs font-medium" style={{ background: "var(--color-primary-weak)", color: "var(--color-primary-strong)" }}>{p.enrolled}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <Placeholder variant="table" />
       </div>
     </div>
   );

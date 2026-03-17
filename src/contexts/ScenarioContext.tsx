@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
 
 export type PersonaType = 'employee' | 'manager' | 'hr-admin' | 'exec';
 export type PackageType = 'core' | 'pro' | 'elite';
@@ -11,186 +11,279 @@ export interface ScenarioConfig {
   persona: PersonaType;
   package: PackageType;
   addons: AddonType[];
-  /** T1 product IDs that appear in the nav (unlocked) */
   visibleProducts: string[];
-  /** T1 product IDs that appear in the nav with a lock icon (HR Admin view of upsell items) */
   lockedProducts: string[];
-  /** Full T2 paths to hide from the nav entirely */
   hiddenT2Paths: string[];
-  /** Full T2 paths to show in the nav with a lock icon */
   lockedT2Paths: string[];
 }
 
-export const SCENARIOS: ScenarioConfig[] = [
-  {
-    id: 'employee',
-    label: 'Employee',
-    description: 'Core plan — no add-ons',
-    persona: 'employee',
-    package: 'core',
-    addons: [],
-    visibleProducts: ['home', 'people', 'benefits', 'training', 'time-and-attendance'],
-    lockedProducts: [],
-    hiddenT2Paths: [
-      // People: employee only sees My Info (absorbed into hub), hide all others
-      '/people/my-direct-reports',
-      '/people/my-department',
-      '/people/my-division',
-      '/people/hub',
-      '/people/divisions',
-      '/people/departments',
-      '/people/teams',
-      // Benefits: employee sees enrollment only
-      '/benefits/carriers',
-      // Training: catalog absorbed into hub, no other T2
-      '/training/assignments',
-      '/training/certifications',
-      // Time & Attendance: no timesheets (add-on)
-      '/time-and-attendance/timesheets',
-    ],
-    lockedT2Paths: [],
-  },
-  {
-    id: 'manager',
-    label: 'Manager',
-    description: 'Pro plan + Payroll & Benefits',
-    persona: 'manager',
-    package: 'pro',
-    addons: ['payroll', 'benefits'],
-    visibleProducts: [
-      'home', 'people', 'hiring', 'onboarding',
-      'payroll', 'benefits', 'performance', 'training',
-      'culture', 'time-and-attendance',
-    ],
-    lockedProducts: [],
-    hiddenT2Paths: [
-      // People: manager sees My Info (hub) + My Direct Reports; no dept/division, no admin
-      '/people/my-department',
-      '/people/my-division',
-      '/people/hub',
-      '/people/divisions',
-      '/people/departments',
-      '/people/teams',
-      // Time & Attendance: no timesheets (add-on not purchased)
-      '/time-and-attendance/timesheets',
-    ],
-    lockedT2Paths: [],
-  },
-  {
-    id: 'hr-admin-core',
-    label: 'HR Admin — Core',
-    description: 'Core plan — no add-ons',
-    persona: 'hr-admin',
-    package: 'core',
-    addons: [],
-    // HR Admin sees ALL products — locked ones show with lock icon
-    visibleProducts: [
+const ALL_PRODUCTS = [
+  'home', 'people', 'hiring', 'onboarding',
+  'payroll', 'benefits', 'performance', 'training',
+  'compensation', 'employee-community', 'rewards-recognition', 'wellbeing', 'time-and-attendance', 'offboarding',
+  'reports', 'files', 'apps', 'settings',
+];
+
+/** Products that require a certain package tier or addon to unlock */
+const PACKAGE_GATED: Record<string, PackageType> = {
+  hiring: 'core',
+  onboarding: 'core',
+  offboarding: 'core',
+  training: 'core',
+  'time-and-attendance': 'core',
+  performance: 'pro',
+  'employee-community': 'pro',
+  'rewards-recognition': 'pro',
+  'wellbeing': 'pro',
+  compensation: 'core',
+};
+
+const ADDON_GATED: Record<string, AddonType> = {
+  payroll: 'payroll',
+  benefits: 'benefits',
+};
+
+function packageTierValue(pkg: PackageType): number {
+  return pkg === 'core' ? 0 : pkg === 'pro' ? 1 : 2;
+}
+
+function isPackageUnlocked(product: string, pkg: PackageType): boolean {
+  const required = PACKAGE_GATED[product];
+  if (!required) return true;
+  return packageTierValue(pkg) >= packageTierValue(required);
+}
+
+function deriveScenarioConfig(
+  persona: PersonaType,
+  pkg: PackageType,
+  addons: AddonType[],
+): ScenarioConfig {
+  const hasAddon = (a: AddonType) => addons.includes(a);
+  const hasTimeTracking = hasAddon('time-tracking');
+
+  // --- Derive visible & locked products ---
+  let visibleProducts: string[];
+  let lockedProducts: string[] = [];
+
+  if (persona === 'hr-admin') {
+    // HR Admin always sees all products — package/addons determine locked state
+    visibleProducts = [];
+    lockedProducts = [];
+    for (const p of ALL_PRODUCTS) {
+      const addonReq = ADDON_GATED[p];
+      const pkgUnlocked = isPackageUnlocked(p, pkg);
+      const addonUnlocked = addonReq ? hasAddon(addonReq) : true;
+
+      if (pkgUnlocked && addonUnlocked) {
+        visibleProducts.push(p);
+      } else {
+        // Show as locked in nav
+        lockedProducts.push(p);
+        visibleProducts.push(p);
+      }
+    }
+    // lockedProducts should only contain the locked ones, visibleProducts the unlocked
+    visibleProducts = visibleProducts.filter(p => !lockedProducts.includes(p));
+  } else if (persona === 'employee') {
+    visibleProducts = ['home', 'people', 'training', 'time-and-attendance', 'files'];
+  } else if (persona === 'manager') {
+    visibleProducts = [
       'home', 'people', 'hiring', 'onboarding', 'training',
-      'time-and-attendance', 'reports', 'files', 'apps', 'settings',
-    ],
-    lockedProducts: ['payroll', 'benefits', 'performance', 'compensation', 'culture'],
-    hiddenT2Paths: [
-      // No conditional People items for HR Admin default (lands on Hub)
-      '/people/my-direct-reports',
-      '/people/my-department',
-      '/people/my-division',
-    ],
-    lockedT2Paths: [
-      '/time-and-attendance/timesheets',
-      '/reports/benchmarks',
-    ],
-  },
-  {
-    id: 'hr-admin-pro',
-    label: 'HR Admin — Pro',
-    description: 'Pro plan + Payroll & Benefits',
-    persona: 'hr-admin',
-    package: 'pro',
-    addons: ['payroll', 'benefits'],
-    visibleProducts: [
-      'home', 'people', 'hiring', 'onboarding',
-      'payroll', 'benefits', 'performance', 'training',
-      'culture', 'time-and-attendance', 'reports', 'files', 'apps', 'settings',
-    ],
-    lockedProducts: ['compensation'],
-    hiddenT2Paths: [
-      '/people/my-direct-reports',
-      '/people/my-department',
-      '/people/my-division',
-    ],
-    lockedT2Paths: [
-      '/time-and-attendance/timesheets',
-      '/reports/benchmarks',
-    ],
-  },
-  {
-    id: 'hr-admin-elite',
-    label: 'HR Admin — Elite',
-    description: 'Elite plan + all add-ons',
-    persona: 'hr-admin',
-    package: 'elite',
-    addons: ['payroll', 'benefits', 'time-tracking'],
-    visibleProducts: [
-      'home', 'people', 'hiring', 'onboarding',
-      'payroll', 'benefits', 'performance', 'training',
-      'compensation', 'culture', 'time-and-attendance',
-      'reports', 'files', 'apps', 'settings',
-    ],
-    lockedProducts: [],
-    hiddenT2Paths: [
-      '/people/my-direct-reports',
-      '/people/my-department',
-      '/people/my-division',
-    ],
-    lockedT2Paths: [],
-  },
-  {
-    id: 'exec',
-    label: 'Exec',
-    description: 'Elite plan + Payroll & Benefits',
-    persona: 'exec',
-    package: 'elite',
-    addons: ['payroll', 'benefits'],
-    visibleProducts: [
-      'home', 'people', 'hiring', 'onboarding',
-      'payroll', 'benefits', 'performance', 'training',
-      'compensation', 'culture', 'time-and-attendance', 'reports',
-    ],
-    lockedProducts: [],
-    hiddenT2Paths: [
-      // Exec sees My Division (not My Direct Reports or My Department)
-      '/people/my-direct-reports',
-      '/people/my-department',
-      // No timesheets (add-on not in this scenario)
-      '/time-and-attendance/timesheets',
-    ],
-    lockedT2Paths: [],
-  },
+      'time-and-attendance', 'offboarding',
+    ];
+    if (isPackageUnlocked('performance', pkg)) visibleProducts.push('performance');
+    if (isPackageUnlocked('employee-community', pkg)) { visibleProducts.push('employee-community', 'rewards-recognition', 'wellbeing'); }
+    if (isPackageUnlocked('compensation', pkg)) visibleProducts.push('compensation');
+    if (hasAddon('payroll')) visibleProducts.push('payroll');
+    if (hasAddon('benefits')) visibleProducts.push('benefits');
+  } else {
+    // Exec
+    visibleProducts = [
+      'home', 'people', 'hiring', 'onboarding', 'training',
+      'time-and-attendance', 'offboarding', 'reports',
+    ];
+    if (isPackageUnlocked('performance', pkg)) visibleProducts.push('performance');
+    if (isPackageUnlocked('employee-community', pkg)) { visibleProducts.push('employee-community', 'rewards-recognition', 'wellbeing'); }
+    if (isPackageUnlocked('compensation', pkg)) visibleProducts.push('compensation');
+    if (hasAddon('payroll')) visibleProducts.push('payroll');
+    if (hasAddon('benefits')) visibleProducts.push('benefits');
+  }
+
+  // My Info is always visible for all personas
+  visibleProducts.push('my-info');
+  visibleProducts.push('inbox');
+
+  // --- Derive hidden T2 paths ---
+  const hiddenT2Paths: string[] = [];
+  const lockedT2Paths: string[] = [];
+
+  // People paths based on persona
+  if (persona === 'employee') {
+    hiddenT2Paths.push(
+      '/people/my-direct-reports', '/people/my-department', '/people/my-division',
+      '/people/divisions', '/people/departments', '/people/teams',
+    );
+  } else if (persona === 'manager') {
+    hiddenT2Paths.push(
+      '/people/my-department', '/people/my-division',
+      '/people/divisions', '/people/departments', '/people/teams',
+    );
+  } else if (persona === 'hr-admin') {
+    hiddenT2Paths.push(
+      '/people/my-direct-reports', '/people/my-department', '/people/my-division',
+    );
+  } else {
+    // Exec
+    hiddenT2Paths.push(
+      '/people/my-direct-reports', '/people/my-department',
+    );
+  }
+
+  // Employee-specific hidden paths
+  if (persona === 'employee') {
+    hiddenT2Paths.push('/benefits/carriers');
+    hiddenT2Paths.push('/training/assignments', '/training/certifications');
+  }
+
+  // Timesheets: hidden for non-time-tracking, locked for HR Admin without addon
+  if (!hasTimeTracking) {
+    if (persona === 'hr-admin') {
+      lockedT2Paths.push('/time-and-attendance/timesheets');
+    } else {
+      hiddenT2Paths.push('/time-and-attendance/timesheets');
+    }
+  }
+
+  // Compensation: Planning locked below Elite for all personas
+  // Reports: Benchmarks locked below Elite
+  if (pkg !== 'elite') {
+    lockedT2Paths.push('/compensation/planning');
+    lockedT2Paths.push('/compensation/benchmarks');
+  }
+
+  const id = `${persona}-${pkg}-${addons.sort().join('-') || 'none'}`;
+
+  return {
+    id,
+    label: `${persona} / ${pkg}`,
+    description: '',
+    persona,
+    package: pkg,
+    addons,
+    visibleProducts,
+    lockedProducts,
+    hiddenT2Paths,
+    lockedT2Paths,
+  };
+}
+
+// Keep legacy SCENARIOS export for any code that references it
+export const SCENARIOS: ScenarioConfig[] = [
+  deriveScenarioConfig('employee', 'core', []),
+  deriveScenarioConfig('manager', 'pro', ['payroll', 'benefits']),
+  deriveScenarioConfig('hr-admin', 'core', []),
+  deriveScenarioConfig('hr-admin', 'pro', ['payroll', 'benefits']),
+  deriveScenarioConfig('hr-admin', 'elite', ['payroll', 'benefits', 'time-tracking']),
+  deriveScenarioConfig('exec', 'elite', ['payroll', 'benefits']),
 ];
 
 interface ScenarioContextValue {
   scenario: ScenarioConfig;
+  persona: PersonaType;
+  pkg: PackageType;
+  addons: AddonType[];
+  hiddenProducts: string[];
+  setPersona: (p: PersonaType) => void;
+  setPkg: (p: PackageType) => void;
+  toggleAddon: (a: AddonType) => void;
+  toggleProductHidden: (p: string | string[]) => void;
+  /** Legacy — sets all three at once from a preset */
   setScenarioId: (id: string) => void;
 }
 
 const ScenarioContext = createContext<ScenarioContextValue | null>(null);
 
-const SCENARIO_STORAGE_KEY = 'bhr-scenario';
+const PERSONA_KEY = 'bhr-persona';
+const PACKAGE_KEY = 'bhr-package';
+const ADDONS_KEY = 'bhr-addons';
+const HIDDEN_PRODUCTS_KEY = 'bhr-hidden-products';
 
 export function ScenarioProvider({ children }: { children: ReactNode }) {
-  const [scenarioId, setScenarioIdState] = useState<string>(() => {
-    return localStorage.getItem(SCENARIO_STORAGE_KEY) || 'hr-admin-elite';
+  const [persona, setPersonaState] = useState<PersonaType>(
+    () => (localStorage.getItem(PERSONA_KEY) as PersonaType) || 'hr-admin',
+  );
+  const [pkg, setPkgState] = useState<PackageType>(
+    () => (localStorage.getItem(PACKAGE_KEY) as PackageType) || 'elite',
+  );
+  const [addons, setAddonsState] = useState<AddonType[]>(() => {
+    const stored = localStorage.getItem(ADDONS_KEY);
+    return stored ? JSON.parse(stored) : ['payroll', 'benefits', 'time-tracking'];
+  });
+  const [hiddenProducts, setHiddenProductsState] = useState<string[]>(() => {
+    const stored = localStorage.getItem(HIDDEN_PRODUCTS_KEY);
+    return stored ? JSON.parse(stored) : [];
   });
 
-  const scenario = SCENARIOS.find(s => s.id === scenarioId) ?? SCENARIOS[4];
+  const scenario = useMemo(() => {
+    const config = deriveScenarioConfig(persona, pkg, addons);
+    config.visibleProducts = config.visibleProducts.filter(p => !hiddenProducts.includes(p));
+    config.lockedProducts = config.lockedProducts.filter(p => !hiddenProducts.includes(p));
+    return config;
+  }, [persona, pkg, addons, hiddenProducts]);
 
+  const setPersona = (p: PersonaType) => {
+    localStorage.setItem(PERSONA_KEY, p);
+    setPersonaState(p);
+  };
+
+  const setPkg = (p: PackageType) => {
+    localStorage.setItem(PACKAGE_KEY, p);
+    setPkgState(p);
+  };
+
+  const toggleAddon = (a: AddonType) => {
+    const next = addons.includes(a) ? addons.filter(x => x !== a) : [...addons, a];
+    localStorage.setItem(ADDONS_KEY, JSON.stringify(next));
+    setAddonsState(next);
+  };
+
+  const toggleProductHidden = (p: string | string[]) => {
+    const ids = Array.isArray(p) ? p : [p];
+    // Use the first id to determine direction (show or hide)
+    const shouldHide = !hiddenProducts.includes(ids[0]);
+    let next = [...hiddenProducts];
+    for (const id of ids) {
+      if (shouldHide) {
+        if (!next.includes(id)) next.push(id);
+      } else {
+        next = next.filter(x => x !== id);
+      }
+    }
+    localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify(next));
+    setHiddenProductsState(next);
+  };
+
+  // Legacy support: map old scenario IDs to persona/pkg/addon combos
   const setScenarioId = (id: string) => {
-    localStorage.setItem(SCENARIO_STORAGE_KEY, id);
-    setScenarioIdState(id);
+    const presets: Record<string, [PersonaType, PackageType, AddonType[]]> = {
+      'employee': ['employee', 'core', []],
+      'manager': ['manager', 'pro', ['payroll', 'benefits']],
+      'hr-admin-core': ['hr-admin', 'core', []],
+      'hr-admin-pro': ['hr-admin', 'pro', ['payroll', 'benefits']],
+      'hr-admin-elite': ['hr-admin', 'elite', ['payroll', 'benefits', 'time-tracking']],
+      'exec': ['exec', 'elite', ['payroll', 'benefits']],
+    };
+    const preset = presets[id];
+    if (preset) {
+      setPersona(preset[0]);
+      setPkg(preset[1]);
+      localStorage.setItem(ADDONS_KEY, JSON.stringify(preset[2]));
+      setAddonsState(preset[2]);
+    }
   };
 
   return (
-    <ScenarioContext.Provider value={{ scenario, setScenarioId }}>
+    <ScenarioContext.Provider value={{ scenario, persona, pkg, addons, hiddenProducts, setPersona, setPkg, toggleAddon, toggleProductHidden, setScenarioId }}>
       {children}
     </ScenarioContext.Provider>
   );
