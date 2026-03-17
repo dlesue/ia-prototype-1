@@ -229,7 +229,7 @@ export function DemoPanel({ isOpen }: DemoPanelProps) {
                   }`}
                   style={{
                     backgroundColor: isActive ? `${cat.color}20` : 'transparent',
-                    ringColor: isActive ? cat.color : undefined,
+                    borderColor: isActive ? cat.color : undefined,
                   }}
                 >
                   <div
@@ -277,7 +277,7 @@ export function DemoPanel({ isOpen }: DemoPanelProps) {
                   }`}
                   style={{
                     backgroundColor: isActive ? `${section.color}20` : 'transparent',
-                    ringColor: isActive ? section.color : undefined,
+                    borderColor: isActive ? section.color : undefined,
                   }}
                 >
                   <div

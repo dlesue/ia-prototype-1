@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import type { JSX } from 'react';
 import { PEOPLE, CURRENT_USER } from '../data/people';
 import type { Person } from '../data/people';
 import { PersonCard } from '../components/Space/PersonCard';
@@ -3767,7 +3768,7 @@ export function SpaceLayout() {
   const [showAddPicker, setShowAddPicker] = useState(false);
   const [resizingId, setResizingId] = useState<string | null>(null);
   const [resizeStartInfo, setResizeStartInfo] = useState<{ x: number; y: number; cols: number; rows: number } | null>(null);
-  const contextMenuTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const contextMenuTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Match body bg to space bg so no white bleeds through gaps
@@ -4163,7 +4164,7 @@ export function SpaceLayout() {
     ...WIDGET_DEFS,
     ...addedWidgets.map((w, i) => ({ id: `added-${i}` as AppId, label: w.name, defaultSize: '2x2' as WidgetSize, aiBadge: true })),
   ];
-  const widgetMap = new Map(allWidgetDefs.map(w => [w.id, w]));
+  const widgetMap = new Map<string, WidgetDef>(allWidgetDefs.map(w => [w.id, w]));
   const orderedWidgets = widgetOrder
     .filter(id => !removedWidgetIds.has(id) && widgetMap.has(id))
     .map(id => widgetMap.get(id)!);

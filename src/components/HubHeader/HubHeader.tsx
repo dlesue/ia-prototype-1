@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon } from '../Icon';
+import type { IconName } from '../Icon';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useScenario } from '../../contexts/ScenarioContext';
 
@@ -234,7 +235,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
                       className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-xx-weak)] hover:border-[var(--border-neutral-weak)] transition-colors whitespace-nowrap truncate"
                       onClick={(e) => { e.stopPropagation(); handleInsightClick(ins); }}
                     >
-                      {ins.icon && <Icon name={ins.icon} size={10} className="text-[var(--text-neutral-weak)] shrink-0" />}
+                      {ins.icon && <Icon name={ins.icon as IconName} size={10} className="text-[var(--text-neutral-weak)] shrink-0" />}
                       <span className="truncate">{ins.shortText || ins.text}</span>
                     </button>
                   ))}
@@ -276,7 +277,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
                           className="flex-1 flex items-start gap-1.5 px-3 py-2 rounded-lg text-[12px] leading-[16px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-xx-weak)] hover:border-[var(--border-neutral-weak)] transition-colors text-left"
                           onClick={(e) => { e.stopPropagation(); handleInsightClick(ins); }}
                         >
-                          {ins.icon && <Icon name={ins.icon} size={10} className="text-[var(--text-neutral-weak)] shrink-0 mt-0.5" />}
+                          {ins.icon && <Icon name={ins.icon as IconName} size={10} className="text-[var(--text-neutral-weak)] shrink-0 mt-0.5" />}
                           <span className="line-clamp-2">{ins.text}</span>
                         </button>
                       ))}
@@ -377,7 +378,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
                         className="flex-1 min-w-0 flex items-center gap-1.5 px-3 py-2 rounded-full text-[13px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-xx-weak)] hover:border-[var(--border-neutral-weak)] transition-colors whitespace-nowrap truncate"
                         onClick={(e) => { e.stopPropagation(); handleInsightClick(ins); }}
                       >
-                        {ins.icon && <Icon name={ins.icon} size={11} className="text-[var(--text-neutral-weak)] shrink-0" />}
+                        {ins.icon && <Icon name={ins.icon as IconName} size={11} className="text-[var(--text-neutral-weak)] shrink-0" />}
                         <span className="truncate">{ins.shortText || ins.text}</span>
                       </button>
                     ))}
@@ -419,7 +420,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
                             className="flex-1 flex items-start gap-1.5 px-3 py-2 rounded-lg text-[13px] leading-[17px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-xx-weak)] hover:border-[var(--border-neutral-weak)] transition-colors text-left"
                             onClick={(e) => { e.stopPropagation(); handleInsightClick(ins); }}
                           >
-                            {ins.icon && <Icon name={ins.icon} size={11} className="text-[var(--text-neutral-weak)] shrink-0 mt-0.5" />}
+                            {ins.icon && <Icon name={ins.icon as IconName} size={11} className="text-[var(--text-neutral-weak)] shrink-0 mt-0.5" />}
                             <span className="line-clamp-2">{ins.text}</span>
                           </button>
                         ))}

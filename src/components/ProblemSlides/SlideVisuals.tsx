@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../Icon';
+import type { IconName } from '../Icon';
 
 type Mode = 'problem' | 'solution';
 
@@ -286,7 +287,7 @@ function SettingsDamageVisual({ mode }: { mode: Mode }) {
               {/* Profile header with avatar */}
               <div className="flex items-center gap-4 px-5 py-4 bg-white/[0.05] border-b border-white/[0.12]">
                 <div className="w-14 h-14 rounded bg-white/[0.12] border border-white/[0.12] flex items-center justify-center shrink-0">
-                  <Icon name="user" size={22} className="text-white/35" />
+                  <Icon name="circle-user" size={22} className="text-white/35" />
                 </div>
                 <div className="flex-1 text-left">
                   <div className="text-[17px] text-white/50 font-semibold">Jane Smith</div>

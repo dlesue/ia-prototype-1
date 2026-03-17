@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
+import type { IconName } from '../Icon';
 
 interface CommandItem {
   id: string;
@@ -164,7 +165,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       onMouseEnter={() => setSelectedIndex(idx)}
                     >
                       <Icon
-                        name={item.icon}
+                        name={item.icon as IconName}
                         size={14}
                         className={idx === selectedIndex ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-strong)]'}
                       />

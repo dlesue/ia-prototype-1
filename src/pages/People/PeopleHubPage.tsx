@@ -42,7 +42,7 @@ export default function PeopleHubPage() {
 
   return (
     <div>
-      <HubHeader product="People" metrics={metrics} insights={insights} />
+      <HubHeader title="People" product="People" metrics={metrics} insights={insights} />
       <div style={{ padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
           <div>

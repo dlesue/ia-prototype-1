@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
+import type { IconName } from '../../components/Icon';
 
 interface FlowNode {
   type: 'trigger' | 'condition' | 'action' | 'notify';
@@ -303,7 +304,7 @@ export default function AutomationDetail() {
               <div className="flex items-center gap-3 px-6 py-2.5">
                 <p className={`text-[11px] font-semibold uppercase tracking-wide ${config.color} w-[72px] text-right shrink-0`}>{config.label}</p>
                 <div className={`w-8 h-8 flex items-center justify-center rounded-lg ${config.iconBg} shrink-0`}>
-                  <Icon name={config.icon} size={14} className={config.color} />
+                  <Icon name={config.icon as IconName} size={14} className={config.color} />
                 </div>
                 <select
                   value={values[i]}

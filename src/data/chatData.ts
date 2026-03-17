@@ -3,6 +3,8 @@ export interface ChatMessage {
   type: 'user' | 'ai';
   text: string;
   suggestions?: string[];
+  automationForm?: { name: string; fields: { label: string; options: string[] }[] };
+  automationCard?: { name: string };
 }
 
 export interface ChatConversation {

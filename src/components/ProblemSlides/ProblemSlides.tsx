@@ -105,7 +105,7 @@ export function ProblemSlides() {
     if (stored === 'space') return 'space';
     return 'new';
   });
-  const closingTimeout = useRef<ReturnType<typeof setTimeout>>();
+  const closingTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   // Sync nav mode from localStorage
   useEffect(() => {
