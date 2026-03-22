@@ -3963,7 +3963,7 @@ function BlankStateOnboarding({ spaceNavExpanded, onToggleNav }: { spaceNavExpan
   // Chat / welcome / upload / processing phases
   return (
     <div className="flex flex-1 min-h-0">
-      <SpaceNav expanded={spaceNavExpanded} onToggle={onToggleNav} hideToggle={phase !== 'done'} />
+      <SpaceNav expanded={spaceNavExpanded} onToggle={onToggleNav} hideToggle={(phase as string) !== 'done'} />
       <div className="flex-1 flex flex-col min-h-0 relative" style={{ backgroundColor: bg }}>
         {/* Landscape background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0, opacity: landscapeFading ? 0 : 1, transition: 'opacity 1.8s ease-in-out' }}>
@@ -4259,7 +4259,7 @@ function BlankStateOnboarding({ spaceNavExpanded, onToggleNav }: { spaceNavExpan
           )}
 
           {/* Input bar — bottom, chat phases only */}
-          {phase !== 'welcome' && phase !== 'done' && phase !== 'processing' && !(phase === 'upload' && droppedFiles.length > 0) && (
+          {(phase as string) !== 'welcome' && (phase as string) !== 'done' && (phase as string) !== 'processing' && !(phase === 'upload' && droppedFiles.length > 0) && (
             <div className="px-4 pb-6 pt-2" style={{ zIndex: 2, animation: 'fadeIn 0.4s ease-out' }}>
               <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
               <div className="max-w-lg mx-auto">
@@ -4274,7 +4274,7 @@ function BlankStateOnboarding({ spaceNavExpanded, onToggleNav }: { spaceNavExpan
                     value={inputVal}
                     onChange={e => setInputVal(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={phase === 'welcome' ? "We're a 50-person startup focused on..." : "Type your reply..."}
+                    placeholder={(phase as string) === 'welcome' ? "We're a 50-person startup focused on..." : "Type your reply..."}
                     className="flex-1 bg-transparent text-[15px] focus:outline-none"
                     style={{ color: textPrimary }}
                     autoFocus

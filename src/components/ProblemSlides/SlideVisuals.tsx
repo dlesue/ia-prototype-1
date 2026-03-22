@@ -1850,7 +1850,7 @@ function computeScatteredLayout() {
     { label: 'Assets', icon: 'laptop', x: 58, y: 80, rot: -5, fam: 2 },
     { label: 'New Hires', icon: 'user-plus', x: 14, y: 90, rot: -7, fam: 5 },
     { label: 'Talent Pools', icon: 'users-rectangle', x: 45, y: 44, rot: 3, fam: 2 },
-    { label: 'Surveys', icon: 'square-poll-vertical', x: 70, y: 55, rot: 4, fam: 3 },
+    { label: 'Surveys', icon: 'chart-pie' as any, x: 70, y: 55, rot: 4, fam: 3 },
   ];
 
   // Reassign positions: most familiar items get positions closest to center
