@@ -3538,57 +3538,9 @@ function PrimitivesPage() {
 
 // ─── Space Nav ───
 
-interface SpaceNavItem {
-  id: string;
-  label: string;
-  icon: IconName;
-  children?: { label: string }[];
-}
-
-const SPACE_NAV_ITEMS: SpaceNavItem[] = [
-  { id: 'home', label: 'Home', icon: 'home' },
-  { id: 'inbox', label: 'Inbox', icon: 'inbox' },
-  { id: 'my-info', label: 'My Info', icon: 'circle-user' },
-  { id: 'people', label: 'People', icon: 'user-group', children: [
-    { label: 'My Direct Reports' }, { label: 'My Department' }, { label: 'My Division' },
-  ]},
-  { id: 'hiring', label: 'Hiring', icon: 'id-badge', children: [
-    { label: 'Candidates' }, { label: 'Talent Pools' }, { label: 'Careers Site' },
-  ]},
-  { id: 'onboarding', label: 'Onboarding', icon: 'clipboard', children: [
-    { label: 'Task Templates' }, { label: 'New Hire Packets' },
-  ]},
-  { id: 'payroll', label: 'Payroll', icon: 'money-bill-1', children: [
-    { label: 'History' }, { label: 'Off-Cycle' }, { label: 'Reports' },
-  ]},
-  { id: 'benefits', label: 'Benefits', icon: 'heart', children: [
-    { label: 'Enrollment' }, { label: 'Carriers' },
-  ]},
-  { id: 'performance', label: 'Performance', icon: 'circle-dot', children: [
-    { label: 'Reviews' }, { label: 'Feedback' }, { label: '1:1s' },
-  ]},
-  { id: 'training', label: 'Training', icon: 'lightbulb', children: [
-    { label: 'Assignments' }, { label: 'Certifications' },
-  ]},
-  { id: 'compensation', label: 'Compensation', icon: 'chart-bar', children: [
-    { label: 'Benchmarks' }, { label: 'Levels & Bands' }, { label: 'Planning' },
-  ]},
-  { id: 'time-and-attendance', label: 'Time & Attendance', icon: 'clock', children: [
-    { label: 'Calendar' }, { label: 'Time Off' }, { label: 'Timesheets' },
-  ]},
-  { id: 'reports', label: 'Reports', icon: 'chart-pie-simple', children: [
-    { label: 'Standard Reports' }, { label: 'Custom Reports' }, { label: 'Dashboards' },
-  ]},
-  { id: 'files', label: 'Files', icon: 'file-lines', children: [
-    { label: 'E-Signatures' },
-  ]},
-  { id: 'apps', label: 'Apps', icon: 'compass', children: [
-    { label: 'Installed' }, { label: 'API Access' },
-  ]},
-  { id: 'settings', label: 'Settings', icon: 'gear', children: [
-    { label: 'Access Levels' }, { label: 'Approvals' }, { label: 'Email Alerts' },
-  ]},
-];
+// Nav items imported from GlobalNavV2 — shared T1/T2 structure
+import { navItems } from '../components/GlobalNav/GlobalNavV2';
+import type { NavT1Item } from '../components/GlobalNav/GlobalNavV2';
 
 const CHAT_HISTORY = [
   { label: 'PTO balance check', time: '2h ago' },
@@ -3601,7 +3553,7 @@ const CHAT_HISTORY = [
 const spaceNavCollapsedW = 0;
 const spaceNavExpandedW = 230;
 
-function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => void }) {
+function SpaceNav({ expanded, onToggle, hideToggle = false }: { expanded: boolean; onToggle: () => void; hideToggle?: boolean }) {
   const [activeT1, setActiveT1] = useState('home');
   const [expandedT1, setExpandedT1] = useState<string | null>(null);
 
@@ -3610,10 +3562,10 @@ function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => v
   const navTextHover = '#2C5468';
   const navTextActive = '#1A4050';
   const navActiveBg = '#D0DDE6';
-  const navHoverBg = 'rgba(0,0,0,0.04)';
+  const navHoverBg = '#DCE8EF';
   const navDivider = 'rgba(0,0,0,0.06)';
 
-  const handleT1Click = (item: SpaceNavItem) => {
+  const handleT1Click = (item: NavT1Item) => {
     setActiveT1(item.id);
     if (item.children && item.children.length > 0) {
       setExpandedT1(prev => prev === item.id ? null : item.id);
@@ -3627,11 +3579,14 @@ function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => v
     {/* Toggle button — always fixed in same spot */}
     <button
       onClick={onToggle}
-      className="fixed z-40 w-9 h-9 rounded-full flex items-center justify-center transition-colors"
+      className="fixed z-40 w-9 h-9 rounded-full flex items-center justify-center"
       style={{
-        top: 'calc(33px + 16px + 6px)',
+        top: 'calc(var(--scenario-bar-h, 33px) + 16px + 6px)',
         left: 12,
         color: expanded ? navText : surfaceBlueTertiary,
+        opacity: hideToggle ? 0 : 1,
+        pointerEvents: hideToggle ? 'none' : 'auto',
+        transition: 'opacity 0.8s ease-in-out, background-color 0.15s, color 0.15s',
       }}
       onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.06)'; e.currentTarget.style.color = expanded ? navTextHover : surfaceBlueHover; }}
       onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = expanded ? navText : surfaceBlueTertiary; }}
@@ -3654,9 +3609,9 @@ function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => v
       {expanded && (
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-2" style={{ scrollbarWidth: 'none' }}>
         <div className="flex flex-col gap-0.5">
-          {SPACE_NAV_ITEMS.map(item => {
+          {navItems.map(item => {
             const isActive = activeT1 === item.id;
-            const isT1Expanded = expanded && expandedT1 === item.id && item.children && item.children.length > 0;
+            const isT1Expanded = expanded && expandedT1 === item.id && item.children.length > 0;
 
             return (
               <div key={item.id}>
@@ -3689,7 +3644,7 @@ function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => v
                 {/* T2 children */}
                 {isT1Expanded && (
                   <div className="ml-[30px] mt-0.5 mb-1 flex flex-col gap-0.5">
-                    {item.children!.map(child => (
+                    {item.children.map(child => (
                       <button
                         key={child.label}
                         className="text-left text-[12px] py-1 px-2 rounded-md transition-colors whitespace-nowrap overflow-hidden"
@@ -3740,6 +3695,607 @@ function SpaceNav({ expanded, onToggle }: { expanded: boolean; onToggle: () => v
   );
 }
 
+// ─── Blank State Onboarding ───
+
+type OnboardingPhase = 'welcome' | 'chat' | 'upload' | 'processing' | 'done';
+
+interface OnboardingMsg {
+  from: 'user' | 'bot';
+  text: string;
+}
+
+const BOT_RESPONSES = [
+  "Nice! Tell me a bit more — how many people are on your team?",
+  "Got it. And are you handling payroll today, or is that something you'd like help with?",
+  "Great, I think I have a good picture. If you have any existing employee data — spreadsheets, org charts, anything really — drop them below and I'll get everything set up.",
+];
+
+const GETTING_STARTED_ITEMS = [
+  { label: 'Add your first employees', desc: 'Import or manually add your team members', icon: 'users' },
+  { label: 'Set up departments', desc: 'Organize your company structure', icon: 'sitemap' },
+  { label: 'Configure time off policies', desc: 'PTO, sick leave, holidays', icon: 'calendar' },
+  { label: 'Set up payroll', desc: 'Connect your payroll provider or use ours', icon: 'money-bill' },
+  { label: 'Invite your team', desc: 'Send invitations to your employees', icon: 'envelope' },
+  { label: 'Customize your branding', desc: 'Add your logo and company colors', icon: 'palette' },
+];
+
+function BlankStateOnboarding({ spaceNavExpanded, onToggleNav }: { spaceNavExpanded: boolean; onToggleNav: () => void }) {
+  const [phase, setPhase] = useState<OnboardingPhase>('welcome');
+  const [messages, setMessages] = useState<OnboardingMsg[]>([]);
+  const [inputVal, setInputVal] = useState('');
+  const [botTyping, setBotTyping] = useState(false);
+  const [botResponseIndex, setBotResponseIndex] = useState(0);
+  const [dragOver, setDragOver] = useState(false);
+  const [droppedFiles, setDroppedFiles] = useState<string[]>([]);
+  const [processingPct, setProcessingPct] = useState(0);
+  const [welcomeFading, setWelcomeFading] = useState(false);
+  const [landscapeFading, setLandscapeFading] = useState(false);
+  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+  const chatEndRef = useRef<HTMLDivElement>(undefined);
+  const inputRef = useRef<HTMLInputElement>(undefined);
+
+  const broadcastProgress = useCallback((p: OnboardingPhase, msgCount: number) => {
+    localStorage.setItem('bhr-space-onboard-phase', p);
+    localStorage.setItem('bhr-space-onboard-msgs', String(msgCount));
+    window.dispatchEvent(new Event('storage'));
+  }, []);
+
+  // Broadcast progress whenever phase or messages change
+  useEffect(() => {
+    broadcastProgress(phase, messages.length);
+  }, [phase, messages.length, broadcastProgress]);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, botTyping, phase]);
+
+  const addBotResponse = (index: number) => {
+    setBotTyping(true);
+    const delay = 1200 + Math.random() * 800;
+    setTimeout(() => {
+      setBotTyping(false);
+      setMessages(prev => [...prev, { from: 'bot', text: BOT_RESPONSES[index] }]);
+      const nextIdx = index + 1;
+      setBotResponseIndex(nextIdx);
+      if (nextIdx >= BOT_RESPONSES.length) {
+        setTimeout(() => setPhase('upload'), 600);
+      }
+    }, delay);
+  };
+
+  const handleSend = () => {
+    const text = inputVal.trim();
+    if (!text || botTyping) return;
+    if (phase === 'welcome') {
+      setWelcomeFading(true);
+      setTimeout(() => {
+        setPhase('chat');
+        setMessages([{ from: 'user', text }]);
+        setInputVal('');
+        addBotResponse(0);
+      }, 400);
+      return;
+    }
+    setMessages(prev => [...prev, { from: 'user', text }]);
+    setInputVal('');
+    if (botResponseIndex < BOT_RESPONSES.length) {
+      addBotResponse(botResponseIndex);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const names: string[] = [];
+    if (e.dataTransfer.files) {
+      for (let i = 0; i < e.dataTransfer.files.length; i++) {
+        names.push(e.dataTransfer.files[i].name);
+      }
+    }
+    if (names.length === 0) names.push('employees.xlsx');
+    setDroppedFiles(names);
+  };
+
+  const handleFileSend = () => {
+    setMessages(prev => [...prev, { from: 'user', text: `📎 ${droppedFiles.join(', ')}` }]);
+    setPhase('processing');
+    setBotTyping(true);
+    setTimeout(() => {
+      setBotTyping(false);
+      setMessages(prev => [...prev, { from: 'bot', text: "Got it! Let me set everything up for you..." }]);
+      let pct = 0;
+      const interval = setInterval(() => {
+        pct += Math.random() * 15 + 5;
+        if (pct >= 100) {
+          pct = 100;
+          clearInterval(interval);
+          setLandscapeFading(true);
+          setTimeout(() => setPhase('done'), 2000);
+        }
+        setProcessingPct(Math.min(100, Math.round(pct)));
+      }, 400);
+    }, 1500);
+  };
+
+  const handleSkipUpload = () => {
+    setPhase('processing');
+    setBotTyping(true);
+    setTimeout(() => {
+      setBotTyping(false);
+      setMessages(prev => [...prev, { from: 'bot', text: "No worries! Let me set up your workspace..." }]);
+      let pct = 0;
+      const interval = setInterval(() => {
+        pct += Math.random() * 15 + 5;
+        if (pct >= 100) {
+          pct = 100;
+          clearInterval(interval);
+          setLandscapeFading(true);
+          setTimeout(() => setPhase('done'), 2000);
+        }
+        setProcessingPct(Math.min(100, Math.round(pct)));
+      }, 400);
+    }, 1000);
+  };
+
+  const toggleChecked = (i: number) => {
+    setCheckedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
+  };
+
+  // Fresh start home
+  if (phase === 'done') {
+    return (
+      <div className="flex flex-1 min-h-0">
+        <SpaceNav expanded={spaceNavExpanded} onToggle={onToggleNav} hideToggle={false} />
+        <div className="flex-1 flex flex-col min-h-0" style={{ backgroundColor: bg }}>
+          {/* Top bar */}
+          <div className="sticky top-0 z-30 px-3 sm:px-6 pt-3 sm:pt-4 pb-3 pointer-events-none" style={{ background: `linear-gradient(${bg} 0%, ${bg} 60%, transparent 100%)` }}>
+            <div className="max-w-md sm:max-w-lg mx-auto pointer-events-auto flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}` }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: accent }}>
+                <img src={bambooIcon} alt="BambooHR" className="w-[18px]" style={{ filter: 'brightness(0) invert(1)', aspectRatio: '24 / 19' }} />
+              </div>
+              <div className="flex-1 flex items-center gap-2">
+                <IconSearch />
+                <input type="text" placeholder="Search people, apps, anything..." className="flex-1 bg-transparent text-[14px] focus:outline-none" style={{ color: textPrimary }} />
+              </div>
+              <Avatar person={CURRENT_USER} size={32} fontSize={11} />
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 sm:px-8 pb-4 max-w-3xl mx-auto w-full" style={{ animation: 'fadeSlideUp 0.6s ease-out' }}>
+            <style>{`
+              @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+              @keyframes checkPop { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+            `}</style>
+            <h1 className="text-[28px] sm:text-[32px] font-medium leading-snug mt-4 mb-1" style={{ color: accent }}>
+              You're all set!
+            </h1>
+            <p className="text-[16px] mb-8" style={{ color: textSecondary }}>
+              Here's a few things to do to get the most out of BambooHR.
+            </p>
+
+            <div className="flex flex-col gap-3">
+              {GETTING_STARTED_ITEMS.map((item, i) => {
+                const done = checkedItems.has(i);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => toggleChecked(i)}
+                    className="flex items-center gap-4 px-5 py-4 rounded-xl border text-left transition-all"
+                    style={{
+                      backgroundColor: done ? inactiveBg : cardBg,
+                      borderColor: done ? contextBorder : cardBorder,
+                      boxShadow: done ? 'none' : cardShadow,
+                      opacity: done ? 0.6 : 1,
+                    }}
+                  >
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors"
+                      style={{ backgroundColor: done ? contextBorder : accentLight }}
+                    >
+                      {done ? (
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ animation: 'checkPop 0.3s ease-out' }}>
+                          <path d="M4 9.5l3.5 3.5L14 5" stroke={accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : (
+                        <Icon name={item.icon as any} size={18} style={{ color: accent }} />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[15px] font-medium" style={{ color: done ? textTertiary : textPrimary, textDecoration: done ? 'line-through' : 'none' }}>
+                        {item.label}
+                      </div>
+                      <div className="text-[13px] mt-0.5" style={{ color: textTertiary }}>
+                        {item.desc}
+                      </div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: textTertiary }} className="shrink-0">
+                      <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Chat bar at bottom */}
+          <div className="px-4 pb-6 pt-2">
+            <div className="max-w-lg mx-auto">
+              <div
+                className="flex items-center gap-3 pl-5 pr-3 py-3 rounded-full border shadow-sm"
+                style={{ backgroundColor: cardBg, borderColor: cardBorder }}
+              >
+                <IconChat />
+                <input
+                  type="text"
+                  placeholder="Ask BambooHR anything..."
+                  className="flex-1 bg-transparent text-[15px] focus:outline-none"
+                  style={{ color: textPrimary }}
+                />
+                <button
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 cursor-pointer"
+                  style={{ backgroundColor: accent, opacity: 0.4 }}
+                >
+                  <IconSend />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Chat / welcome / upload / processing phases
+  return (
+    <div className="flex flex-1 min-h-0">
+      <SpaceNav expanded={spaceNavExpanded} onToggle={onToggleNav} hideToggle={phase !== 'done'} />
+      <div className="flex-1 flex flex-col min-h-0 relative" style={{ backgroundColor: bg }}>
+        {/* Landscape background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0, opacity: landscapeFading ? 0 : 1, transition: 'opacity 1.8s ease-in-out' }}>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMax slice" className="w-full h-full" style={{ position: 'absolute', bottom: 0, left: 0 }}>
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#E8F0F5"/>
+                <stop offset="65%" stopColor="#EEF3EE"/>
+                <stop offset="100%" stopColor="#F5F4E8"/>
+              </linearGradient>
+              <radialGradient id="sunGlow" cx="50%" cy="72%" r="38%">
+                <stop offset="0%" stopColor="#FDF8C4" stopOpacity="1"/>
+                <stop offset="25%" stopColor="#F6F0A0" stopOpacity="0.85"/>
+                <stop offset="50%" stopColor="#F0E880" stopOpacity="0.5"/>
+                <stop offset="75%" stopColor="#ECEB9A" stopOpacity="0.25"/>
+                <stop offset="100%" stopColor="#ECEB9A" stopOpacity="0"/>
+              </radialGradient>
+              <linearGradient id="cloudWhite" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.88"/>
+                <stop offset="100%" stopColor="#F8FBFD" stopOpacity="0.7"/>
+              </linearGradient>
+              <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="18"/>
+              </filter>
+              <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.5"/>
+              </filter>
+              <g id="cloud1" fill="url(#cloudWhite)" filter="url(#cloudBlur)">
+                <circle cx="0" cy="0" r="36"/>
+                <circle cx="34" cy="-12" r="48"/>
+                <circle cx="82" cy="-2" r="38"/>
+                <circle cx="122" cy="10" r="28"/>
+                <ellipse cx="62" cy="18" rx="115" ry="34"/>
+              </g>
+              <g id="cloud2" fill="url(#cloudWhite)" filter="url(#cloudBlur)">
+                <circle cx="0" cy="0" r="24"/>
+                <circle cx="25" cy="-10" r="32"/>
+                <circle cx="58" cy="-2" r="26"/>
+                <ellipse cx="35" cy="10" rx="72" ry="22"/>
+              </g>
+            </defs>
+
+            <rect width="1536" height="1024" fill="url(#skyGrad)" className="sky-bg"/>
+
+            <style>{`
+              .sky-bg { opacity: 0.4; animation: skyReveal 3s ease-out forwards; }
+              @keyframes skyReveal { to { opacity: 1; } }
+              .sun-group { transform: translateY(120px); opacity: 0; animation: sunRise 2s ease-out 1.6s forwards; }
+              @keyframes sunRise { to { transform: translateY(0); opacity: 1; } }
+              .sun-rings { transform: scale(0.6); opacity: 0; transform-origin: 768px 724px; animation: ringsExpand 2s ease-out 2.2s forwards; }
+              @keyframes ringsExpand { to { transform: scale(1); opacity: 1; } }
+              .mtns-back { opacity: 0; transform: translateY(80px); animation: layerRise 0.8s ease-out 0.3s forwards; }
+              .mtns-peaks { opacity: 0; transform: translateY(60px); animation: layerRise 0.8s ease-out 0.5s forwards; }
+              .mtns-mid { opacity: 0; transform: translateY(40px); animation: layerRise 0.8s ease-out 0.7s forwards; }
+              .mtns-fore { opacity: 0; transform: translateY(30px); animation: layerRise 0.7s ease-out 0.9s forwards; }
+              @keyframes layerRise { to { opacity: 1; transform: translateY(0); } }
+              @keyframes cloudIn1 { 0% { transform: translate(20px, 440px) scale(2.2); opacity: 0; } 100% { transform: translate(80px, 440px) scale(2.2); opacity: 0.9; } }
+              @keyframes cloudIn2 { 0% { transform: translate(1160px, 480px) scale(2.4); opacity: 0; } 100% { transform: translate(1100px, 480px) scale(2.4); opacity: 0.85; } }
+              @keyframes cloudIn3 { 0% { transform: translate(400px, 530px) scale(2.0); opacity: 0; } 100% { transform: translate(450px, 530px) scale(2.0); opacity: 0.8; } }
+              @keyframes drift1 { 0% { transform: translate(80px, 440px) scale(2.2); } 50% { transform: translate(140px, 438px) scale(2.2); } 100% { transform: translate(80px, 440px) scale(2.2); } }
+              @keyframes drift2 { 0% { transform: translate(1100px, 480px) scale(2.4); } 50% { transform: translate(1040px, 478px) scale(2.4); } 100% { transform: translate(1100px, 480px) scale(2.4); } }
+              @keyframes drift3 { 0% { transform: translate(450px, 530px) scale(2.0); } 50% { transform: translate(500px, 528px) scale(2.0); } 100% { transform: translate(450px, 530px) scale(2.0); } }
+              .cloud-1 { opacity: 0; animation: cloudIn1 1.5s ease-out 2.5s forwards, drift1 45s ease-in-out 4s infinite; }
+              .cloud-2 { opacity: 0; animation: cloudIn2 1.5s ease-out 2.8s forwards, drift2 55s ease-in-out 4.3s infinite; }
+              .cloud-3 { opacity: 0; animation: cloudIn3 1.5s ease-out 3.1s forwards, drift3 38s ease-in-out 4.6s infinite; }
+              .atmo-haze { opacity: 0; animation: hazeIn 2s ease-out 3s forwards; }
+              @keyframes hazeIn { to { opacity: 0.2; } }
+
+            `}</style>
+
+            {/* Clouds — wrapped for sunset fade */}
+            <g>
+              <use href="#cloud1" className="cloud-1"/><use href="#cloud1" className="cloud-2"/><use href="#cloud2" className="cloud-3"/>
+            </g>
+
+            {/* Sun glow */}
+            <g className="sun-group">
+              <ellipse cx="768" cy="710" rx="500" ry="300" fill="url(#sunGlow)"/>
+            </g>
+
+            {/* Sun rings */}
+            <g className="sun-rings">
+              <circle cx="768" cy="724" r="500" fill="#F5E88A" opacity="0.06"/>
+              <circle cx="768" cy="724" r="420" fill="#F7EC8E" opacity="0.12"/>
+              <circle cx="768" cy="724" r="350" fill="#F9F0A0" opacity="0.19"/>
+              <circle cx="768" cy="724" r="285" fill="#FBF4B0" opacity="0.27"/>
+              <circle cx="768" cy="724" r="230" fill="#FDF8C4" opacity="0.36"/>
+              <circle cx="768" cy="724" r="180" fill="#FDF8C4" opacity="0.46"/>
+              <circle cx="768" cy="724" r="140" fill="#FFF9D0" opacity="0.58"/>
+              <circle cx="768" cy="724" r="105" fill="#FFF9D0" opacity="0.70"/>
+              <circle cx="768" cy="724" r="75" fill="#FFFBE0" opacity="0.85"/>
+              <circle cx="768" cy="724" r="50" fill="#FFFBE0"/>
+            </g>
+
+            {/* Background mountains */}
+            <g className="mtns-back">
+              <path d="M0 550 L70 520 L140 548 L220 530 L300 500 L390 530 L470 560 L555 620 L650 700 L760 750 L840 700 L930 620 L1015 560 L1098 530 L1180 500 L1268 520 L1360 548 L1452 520 L1536 550 L1536 1024 L0 1024Z" fill="#E5EF74" opacity="0.9"/>
+              <path d="M0 580 L110 540 L220 590 L335 570 L445 610 L540 650 L655 720 L768 780 L905 720 L1010 650 L1128 570 L1260 580 L1388 548 L1536 580 L1536 1024 L0 1024Z" fill="#D8EA63" opacity="0.78"/>
+              <path d="M0 610 L95 580 L220 640 L345 660 L470 700 L615 750 L760 800 L890 750 L1025 700 L1140 640 L1288 590 L1410 610 L1536 600 L1536 1024 L0 1024Z" fill="#CBE45C" opacity="0.62"/>
+            </g>
+
+            {/* Side peaks */}
+            <g className="mtns-peaks">
+              <path d="M0 380 L78 470 L150 540 L250 620 L335 640 L390 610 L448 650 L550 750 L0 750Z" fill="#CDE65A" opacity="0.92"/>
+              <path d="M1536 360 L1478 460 L1368 570 L1258 620 L1176 650 L1080 820 L1536 820Z" fill="#DDEA57" opacity="0.95"/>
+            </g>
+
+            {/* Midground hills */}
+            <g className="mtns-mid">
+              <path d="M0 600 L92 640 L180 680 L270 660 L388 710 L470 770 L598 830 L690 850 L778 860 L862 850 L956 830 L1042 770 L1138 680 L1245 660 L1378 640 L1536 600 L1536 1024 L0 1024Z" fill="#B7DD62" opacity="0.9"/>
+              <path d="M0 680 L142 730 L290 740 L412 790 L522 840 L642 870 L736 890 L848 870 L976 840 L1092 740 L1215 740 L1310 730 L1440 680 L1536 650 L1536 1024 L0 1024Z" fill="#A9D35B" opacity="0.85"/>
+              <path d="M0 730 L135 770 L255 780 L350 830 L492 870 L626 910 L760 920 L902 910 L1018 830 L1178 780 L1298 750 L1408 700 L1536 680 L1536 1024 L0 1024Z" fill="#99CC59" opacity="0.72"/>
+            </g>
+
+            {/* Foreground hills */}
+            <g className="mtns-fore">
+              <path d="M0 700 L85 780 L186 810 L300 780 L388 800 L468 840 L556 880 L654 890 L772 900 L882 890 L980 860 L1100 780 L1210 760 L1320 780 L1448 720 L1536 680 L1536 1024 L0 1024Z" fill="#86C45B" opacity="0.82"/>
+              <path d="M0 790 L120 830 L208 890 L328 930 L420 940 L530 950 L660 970 L790 960 L930 930 L1065 910 L1192 880 L1320 860 L1418 820 L1536 740 L1536 1024 L0 1024Z" fill="#7BBC57" opacity="0.86"/>
+              <path d="M0 820 L104 950 L238 978 L364 960 L505 980 L660 1024 L0 1024Z" fill="#4EAB6D" opacity="0.92"/>
+              <path d="M1536 740 L1455 780 L1378 840 L1276 900 L1155 950 L1002 975 L848 1005 L1536 1024Z" fill="#95C857" opacity="0.9"/>
+            </g>
+
+            {/* Atmospheric haze */}
+            <ellipse cx="768" cy="706" rx="520" ry="210" fill="#F5F5DE" className="atmo-haze" filter="url(#softBlur)"/>
+          </svg>
+        </div>
+
+        {/* Content overlay */}
+        <div className="flex-1 flex flex-col relative" style={{ zIndex: 1 }}>
+
+          {/* Welcome hero + centered chat bar — fades up on send */}
+          {phase === 'welcome' && (
+            <div
+              className="flex-1 flex flex-col items-center justify-center px-4"
+              style={{
+                opacity: welcomeFading ? 0 : 1,
+                transform: welcomeFading ? 'translateY(-30px)' : 'translateY(0)',
+                transition: 'opacity 0.5s ease-out, transform 0.5s ease-out',
+              }}
+            >
+              <div className="text-center" style={{ marginBottom: 20, marginTop: -40 }}>
+                <div className="mx-auto mb-4 flex items-center justify-center rounded-full" style={{ width: 72, height: 72, backgroundColor: accent }}>
+                  <svg viewBox="0 0 24 19.02" style={{ width: 36, height: 'auto' }}>
+                    <path d="M17.52 5.85c-2.31 0-3.55.8-4.42 1.66l-.24.25V0h-2v12.68c0 3.9 3.01 6.34 6.46 6.34 3.8 0 6.68-2.92 6.68-6.68 0-3.49-3-6.49-6.48-6.49zm-.2 11.35c-2.51 0-4.63-1.98-4.63-4.63s1.79-4.83 4.68-4.83 4.59 2.34 4.59 4.78c0 2.66-1.8 4.68-4.64 4.68z" fill="white"/>
+                    <path d="M6.86 1.53C6.35.99 4.41-.19 4.65.07c2.45 2.64 3.7 5.85 4.19 6.73-.44-.54-.96-1.02-1.56-1.62a14.5 14.5 0 00-1.53-1.28c-.33-.21-.52-.32-.85-.49A9.3 9.3 0 001.36 2c-.69-.17-1.36-.21-1.36-.21S2.19 3.64 3.12 4.81s1.89 2.23 2.95 2.66c1.06.43 1.43.56 2.25.68.72.11 1.59.27 1.59.27l-.89-2.91c-.52-1.53-.68-2.41-2.17-3.98z" fill="white"/>
+                  </svg>
+                </div>
+                <h1 className="text-[28px] sm:text-[36px] font-medium leading-snug" style={{ color: accent }}>
+                  Welcome to BambooHR!
+                </h1>
+                <div className="text-[24px] font-medium mt-0.5" style={{ color: textSecondary, fontFamily: "'Fields', system-ui, sans-serif" }}>
+                  Tell us a bit about your business.<br />
+                  We'll handle the rest.
+                </div>
+              </div>
+              <div className="w-full max-w-lg">
+                <div
+                  className="flex items-center gap-3 pl-5 pr-3 py-3 rounded-full border shadow-sm backdrop-blur-md"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderColor: cardBorder }}
+                >
+                  <IconChat />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputVal}
+                    onChange={e => setInputVal(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="We're a 50-person startup focused on..."
+                    className="flex-1 bg-transparent text-[15px] focus:outline-none"
+                    style={{ color: textPrimary }}
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleSend()}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 transition-opacity cursor-pointer"
+                    style={{ backgroundColor: accent, opacity: inputVal.trim() && !botTyping ? 1 : 0.4 }}
+                  >
+                    <IconSend />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Chat messages area */}
+          {phase !== 'welcome' && (
+            <div className="flex-1 overflow-y-auto px-4 pt-8 pb-4">
+              <div className="max-w-lg mx-auto flex flex-col gap-3">
+                {messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'}`} style={{ animation: 'msgIn 0.3s ease-out' }}>
+                    {msg.from === 'bot' && (
+                      <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mr-2 mt-1" style={{ backgroundColor: accent }}>
+                        <img src={bambooIcon} alt="" className="w-[14px]" style={{ filter: 'brightness(0) invert(1)', aspectRatio: '24 / 19' }} />
+                      </div>
+                    )}
+                    <div
+                      className="px-4 py-2.5 rounded-2xl text-[14px] leading-relaxed max-w-[80%]"
+                      style={{
+                        backgroundColor: msg.from === 'user' ? accent : 'rgba(255,255,255,0.92)',
+                        color: msg.from === 'user' ? '#fff' : textPrimary,
+                        borderBottomRightRadius: msg.from === 'user' ? 4 : undefined,
+                        borderBottomLeftRadius: msg.from === 'bot' ? 4 : undefined,
+                        boxShadow: msg.from === 'bot' ? '0 1px 6px rgba(0,0,0,0.08)' : undefined,
+                        backdropFilter: 'blur(8px)',
+                      }}
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+
+                {botTyping && (
+                  <div className="flex justify-start" style={{ animation: 'msgIn 0.3s ease-out' }}>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mr-2 mt-1" style={{ backgroundColor: accent }}>
+                      <img src={bambooIcon} alt="" className="w-[14px]" style={{ filter: 'brightness(0) invert(1)', aspectRatio: '24 / 19' }} />
+                    </div>
+                    <div className="px-4 py-3 rounded-2xl flex gap-1.5 items-center" style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderBottomLeftRadius: 4, boxShadow: '0 1px 6px rgba(0,0,0,0.08)' }}>
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: textTertiary, animation: 'dotBounce 1.2s ease-in-out infinite' }} />
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: textTertiary, animation: 'dotBounce 1.2s ease-in-out 0.2s infinite' }} />
+                      <span className="w-2 h-2 rounded-full" style={{ backgroundColor: textTertiary, animation: 'dotBounce 1.2s ease-in-out 0.4s infinite' }} />
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload drop zone */}
+                {phase === 'upload' && droppedFiles.length === 0 && (
+                  <div
+                    className="mt-4 rounded-xl border-2 border-dashed p-8 text-center transition-colors"
+                    style={{
+                      borderColor: dragOver ? accent : cardBorder,
+                      backgroundColor: dragOver ? 'rgba(45,106,53,0.06)' : 'rgba(255,255,255,0.7)',
+                      backdropFilter: 'blur(8px)',
+                      animation: 'msgIn 0.3s ease-out',
+                    }}
+                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                  >
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" className="mx-auto mb-3">
+                      <path d="M20 6v20M12 14l8-8 8 8" stroke={dragOver ? accent : textTertiary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M6 28v4a2 2 0 002 2h24a2 2 0 002-2v-4" stroke={dragOver ? accent : textTertiary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <div className="text-[15px] font-medium mb-1" style={{ color: dragOver ? accent : textPrimary }}>
+                      Drop your files here
+                    </div>
+                    <div className="text-[13px]" style={{ color: textTertiary }}>
+                      Spreadsheets, PDFs, org charts — anything helps
+                    </div>
+                    <button onClick={handleSkipUpload} className="mt-4 text-[13px] underline" style={{ color: textTertiary }}>
+                      Skip this step
+                    </button>
+                  </div>
+                )}
+
+                {/* Dropped files preview */}
+                {phase === 'upload' && droppedFiles.length > 0 && (
+                  <div className="mt-4 flex flex-col gap-2" style={{ animation: 'msgIn 0.3s ease-out' }}>
+                    {droppedFiles.map((f, i) => (
+                      <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}`, backdropFilter: 'blur(8px)' }}>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 2h8l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke={accent} strokeWidth="1.5" /><path d="M12 2v4h4" stroke={accent} strokeWidth="1.5" /></svg>
+                        <span className="text-[14px] flex-1" style={{ color: textPrimary }}>{f}</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-6" stroke={accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </div>
+                    ))}
+                    <button
+                      onClick={handleFileSend}
+                      className="mt-2 px-6 py-2.5 rounded-full text-[14px] font-medium text-white self-end"
+                      style={{ backgroundColor: accent }}
+                    >
+                      Send files
+                    </button>
+                  </div>
+                )}
+
+                {/* Processing bar */}
+                {phase === 'processing' && processingPct > 0 && (
+                  <div className="mt-4 rounded-xl p-5" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}`, backdropFilter: 'blur(8px)', animation: 'msgIn 0.3s ease-out' }}>
+                    <div className="text-[14px] font-medium mb-3" style={{ color: textPrimary }}>Setting things up for you...</div>
+                    <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: inactiveBg }}>
+                      <div className="h-full rounded-full transition-all duration-300" style={{ width: `${processingPct}%`, backgroundColor: accent }} />
+                    </div>
+                    <div className="text-[12px] mt-2 text-right" style={{ color: textTertiary }}>{processingPct}%</div>
+                  </div>
+                )}
+
+                <div ref={chatEndRef} />
+              </div>
+              <style>{`
+                @keyframes msgIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+                @keyframes dotBounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-4px); } }
+              `}</style>
+            </div>
+          )}
+
+          {/* Input bar — bottom, chat phases only */}
+          {phase !== 'welcome' && phase !== 'done' && phase !== 'processing' && !(phase === 'upload' && droppedFiles.length > 0) && (
+            <div className="px-4 pb-6 pt-2" style={{ zIndex: 2, animation: 'fadeIn 0.4s ease-out' }}>
+              <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
+              <div className="max-w-lg mx-auto">
+                <div
+                  className="flex items-center gap-3 pl-5 pr-3 py-3 rounded-full border shadow-sm backdrop-blur-md"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderColor: cardBorder }}
+                >
+                  <IconChat />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={inputVal}
+                    onChange={e => setInputVal(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder={phase === 'welcome' ? "We're a 50-person startup focused on..." : "Type your reply..."}
+                    className="flex-1 bg-transparent text-[15px] focus:outline-none"
+                    style={{ color: textPrimary }}
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => handleSend()}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0 transition-opacity cursor-pointer"
+                    style={{ backgroundColor: accent, opacity: inputVal.trim() && !botTyping ? 1 : 0.4 }}
+                  >
+                    <IconSend />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── SpaceLayout ───
 
 export function SpaceLayout() {
@@ -3771,6 +4327,9 @@ export function SpaceLayout() {
   const contextMenuTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
   const gridRef = useRef<HTMLDivElement>(null);
 
+  const [demoPanelOpen, setDemoPanelOpen] = useState(() => localStorage.getItem('bhr-demo-panel-open') === 'true');
+  const demoPanelW = demoPanelOpen ? 340 : 0;
+
   // Match body bg to space bg so no white bleeds through gaps
   useEffect(() => {
     const prev = document.body.style.backgroundColor;
@@ -3782,6 +4341,7 @@ export function SpaceLayout() {
     const onStorage = () => {
       const stored = localStorage.getItem('bhr-space-stage');
       setSpaceStage(stored === 'blank' ? 'blank' : stored === 'library' ? 'library' : 'established');
+      setDemoPanelOpen(localStorage.getItem('bhr-demo-panel-open') === 'true');
     };
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
@@ -3915,202 +4475,7 @@ export function SpaceLayout() {
 
   // Onboarding / Blank state view
   if (spaceStage === 'blank') {
-    return (
-      <div className="flex flex-1 min-h-0">
-        <SpaceNav expanded={spaceNavExpanded} onToggle={() => setSpaceNavExpanded(p => !p)} />
-        <div className="flex-1 flex flex-col min-h-0 relative" style={{ backgroundColor: bg }}>
-          {/* Floating top bar */}
-          <div className="fixed top-[33px] right-0 z-30 px-3 sm:px-6 pr-14 sm:pr-6 pt-3 sm:pt-4 pb-10 pointer-events-none" style={{ left: spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)', background: `linear-gradient(${bg} 0%, ${bg} 40%, transparent 100%)` }}>
-            <div className="max-w-md sm:max-w-lg mx-auto pointer-events-auto flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}` }}>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: accent }}>
-                <img src={bambooIcon} alt="BambooHR" className="w-[18px]" style={{ filter: 'brightness(0) invert(1)', aspectRatio: '24 / 19' }} />
-              </div>
-              <div className="flex-1 flex items-center gap-2">
-                <IconSearch />
-                <input type="text" placeholder="Search people, apps, anything..." className="flex-1 bg-transparent text-[14px] focus:outline-none" style={{ color: textPrimary }} />
-              </div>
-              <button className="relative w-9 h-9 rounded-full flex items-center justify-center transition-colors" onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(0,0,0,0.05)')} onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}>
-                <IconBell />
-              </button>
-              <Avatar person={CURRENT_USER} size={32} fontSize={11} />
-            </div>
-          </div>
-
-          {/* Landscape background */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMax slice" className="w-full h-full" style={{ position: 'absolute', bottom: 0, left: 0 }}>
-              <defs>
-                <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#E8F0F5"/>
-                  <stop offset="65%" stopColor="#EEF3EE"/>
-                  <stop offset="100%" stopColor="#F5F4E8"/>
-                </linearGradient>
-                <radialGradient id="sunGlow" cx="50%" cy="72%" r="38%">
-                  <stop offset="0%" stopColor="#FDF8C4" stopOpacity="1"/>
-                  <stop offset="25%" stopColor="#F6F0A0" stopOpacity="0.85"/>
-                  <stop offset="50%" stopColor="#F0E880" stopOpacity="0.5"/>
-                  <stop offset="75%" stopColor="#ECEB9A" stopOpacity="0.25"/>
-                  <stop offset="100%" stopColor="#ECEB9A" stopOpacity="0"/>
-                </radialGradient>
-                <linearGradient id="roadGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#F7F1AE"/>
-                  <stop offset="100%" stopColor="#FFF6D2"/>
-                </linearGradient>
-                <linearGradient id="cloudWhite" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.88"/>
-                  <stop offset="100%" stopColor="#F8FBFD" stopOpacity="0.7"/>
-                </linearGradient>
-                <filter id="softBlur" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="18"/>
-                </filter>
-                <filter id="cloudBlur" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="1.5"/>
-                </filter>
-                <g id="cloud1" fill="url(#cloudWhite)" filter="url(#cloudBlur)">
-                  <circle cx="0" cy="0" r="36"/>
-                  <circle cx="34" cy="-12" r="48"/>
-                  <circle cx="82" cy="-2" r="38"/>
-                  <circle cx="122" cy="10" r="28"/>
-                  <ellipse cx="62" cy="18" rx="115" ry="34"/>
-                </g>
-                <g id="cloud2" fill="url(#cloudWhite)" filter="url(#cloudBlur)">
-                  <circle cx="0" cy="0" r="24"/>
-                  <circle cx="25" cy="-10" r="32"/>
-                  <circle cx="58" cy="-2" r="26"/>
-                  <ellipse cx="35" cy="10" rx="72" ry="22"/>
-                </g>
-              </defs>
-
-              <rect width="1536" height="1024" fill="url(#skyGrad)" className="sky-bg"/>
-
-              {/* Sunrise animation styles */}
-              <style>{`
-                /* Sky starts darker, lightens */
-                .sky-bg { opacity: 0.4; animation: skyReveal 3s ease-out forwards; }
-                @keyframes skyReveal { to { opacity: 1; } }
-
-                /* Sun rises after mountains are in place */
-                .sun-group { transform: translateY(120px); opacity: 0; animation: sunRise 2s ease-out 1.6s forwards; }
-                @keyframes sunRise { to { transform: translateY(0); opacity: 1; } }
-
-                /* Sun rings scale in after sun appears */
-                .sun-rings { transform: scale(0.6); opacity: 0; transform-origin: 768px 724px; animation: ringsExpand 2s ease-out 2.2s forwards; }
-                @keyframes ringsExpand { to { transform: scale(1); opacity: 1; } }
-
-                /* Mountain layers rise up and fade in back-to-front with stagger */
-                .mtns-back { opacity: 0; transform: translateY(80px); animation: layerRise 0.8s ease-out 0.3s forwards; }
-                .mtns-peaks { opacity: 0; transform: translateY(60px); animation: layerRise 0.8s ease-out 0.5s forwards; }
-                .mtns-mid { opacity: 0; transform: translateY(40px); animation: layerRise 0.8s ease-out 0.7s forwards; }
-                .mtns-fore { opacity: 0; transform: translateY(30px); animation: layerRise 0.7s ease-out 0.9s forwards; }
-                @keyframes layerRise { to { opacity: 1; transform: translateY(0); } }
-
-                /* Clouds drift in and then float */
-                @keyframes cloudIn1 { 0% { transform: translate(20px, 440px) scale(2.2); opacity: 0; } 100% { transform: translate(80px, 440px) scale(2.2); opacity: 0.9; } }
-                @keyframes cloudIn2 { 0% { transform: translate(1160px, 480px) scale(2.4); opacity: 0; } 100% { transform: translate(1100px, 480px) scale(2.4); opacity: 0.85; } }
-                @keyframes cloudIn3 { 0% { transform: translate(400px, 530px) scale(2.0); opacity: 0; } 100% { transform: translate(450px, 530px) scale(2.0); opacity: 0.8; } }
-                @keyframes drift1 { 0% { transform: translate(80px, 440px) scale(2.2); } 50% { transform: translate(140px, 438px) scale(2.2); } 100% { transform: translate(80px, 440px) scale(2.2); } }
-                @keyframes drift2 { 0% { transform: translate(1100px, 480px) scale(2.4); } 50% { transform: translate(1040px, 478px) scale(2.4); } 100% { transform: translate(1100px, 480px) scale(2.4); } }
-                @keyframes drift3 { 0% { transform: translate(450px, 530px) scale(2.0); } 50% { transform: translate(500px, 528px) scale(2.0); } 100% { transform: translate(450px, 530px) scale(2.0); } }
-                .cloud-1 { opacity: 0; animation: cloudIn1 1.5s ease-out 2.5s forwards, drift1 45s ease-in-out 4s infinite; }
-                .cloud-2 { opacity: 0; animation: cloudIn2 1.5s ease-out 2.8s forwards, drift2 55s ease-in-out 4.3s infinite; }
-                .cloud-3 { opacity: 0; animation: cloudIn3 1.5s ease-out 3.1s forwards, drift3 38s ease-in-out 4.6s infinite; }
-
-                /* Haze fades in late */
-                .atmo-haze { opacity: 0; animation: hazeIn 2s ease-out 3s forwards; }
-                @keyframes hazeIn { to { opacity: 0.2; } }
-              `}</style>
-
-              {/* Clouds */}
-              <g>
-                <use href="#cloud1" className="cloud-1"/>
-                <use href="#cloud1" className="cloud-2"/>
-                <use href="#cloud2" className="cloud-3"/>
-              </g>
-
-              {/* Sun glow — rises up */}
-              <g className="sun-group">
-                <ellipse cx="768" cy="710" rx="500" ry="300" fill="url(#sunGlow)"/>
-              </g>
-
-              {/* Sun rings — scale in */}
-              <g className="sun-rings">
-                <circle cx="768" cy="724" r="500" fill="#F5E88A" opacity="0.06"/>
-                <circle cx="768" cy="724" r="420" fill="#F7EC8E" opacity="0.12"/>
-                <circle cx="768" cy="724" r="350" fill="#F9F0A0" opacity="0.19"/>
-                <circle cx="768" cy="724" r="285" fill="#FBF4B0" opacity="0.27"/>
-                <circle cx="768" cy="724" r="230" fill="#FDF8C4" opacity="0.36"/>
-                <circle cx="768" cy="724" r="180" fill="#FDF8C4" opacity="0.46"/>
-                <circle cx="768" cy="724" r="140" fill="#FFF9D0" opacity="0.58"/>
-                <circle cx="768" cy="724" r="105" fill="#FFF9D0" opacity="0.70"/>
-                <circle cx="768" cy="724" r="75" fill="#FFFBE0" opacity="0.85"/>
-                <circle cx="768" cy="724" r="50" fill="#FFFBE0"/>
-              </g>
-
-              {/* Background mountain layers — V-valley */}
-              <g className="mtns-back">
-                <path d="M0 550 L70 520 L140 548 L220 530 L300 500 L390 530 L470 560 L555 620 L650 700 L760 750 L840 700 L930 620 L1015 560 L1098 530 L1180 500 L1268 520 L1360 548 L1452 520 L1536 550 L1536 1024 L0 1024Z" fill="#E5EF74" opacity="0.9"/>
-                <path d="M0 580 L110 540 L220 590 L335 570 L445 610 L540 650 L655 720 L768 780 L905 720 L1010 650 L1128 570 L1260 580 L1388 548 L1536 580 L1536 1024 L0 1024Z" fill="#D8EA63" opacity="0.78"/>
-                <path d="M0 610 L95 580 L220 640 L345 660 L470 700 L615 750 L760 800 L890 750 L1025 700 L1140 640 L1288 590 L1410 610 L1536 600 L1536 1024 L0 1024Z" fill="#CBE45C" opacity="0.62"/>
-              </g>
-
-              {/* Side peaks */}
-              <g className="mtns-peaks">
-                <path d="M0 380 L78 470 L150 540 L250 620 L335 640 L390 610 L448 650 L550 750 L0 750Z" fill="#CDE65A" opacity="0.92"/>
-                <path d="M1536 360 L1478 460 L1368 570 L1258 620 L1176 650 L1080 820 L1536 820Z" fill="#DDEA57" opacity="0.95"/>
-              </g>
-
-              {/* Midground rolling hills — slope toward center */}
-              <g className="mtns-mid">
-                <path d="M0 600 L92 640 L180 680 L270 660 L388 710 L470 770 L598 830 L690 850 L778 860 L862 850 L956 830 L1042 770 L1138 680 L1245 660 L1378 640 L1536 600 L1536 1024 L0 1024Z" fill="#B7DD62" opacity="0.9"/>
-                <path d="M0 680 L142 730 L290 740 L412 790 L522 840 L642 870 L736 890 L848 870 L976 840 L1092 740 L1215 740 L1310 730 L1440 680 L1536 650 L1536 1024 L0 1024Z" fill="#A9D35B" opacity="0.85"/>
-                <path d="M0 730 L135 770 L255 780 L350 830 L492 870 L626 910 L760 920 L902 910 L1018 830 L1178 780 L1298 750 L1408 700 L1536 680 L1536 1024 L0 1024Z" fill="#99CC59" opacity="0.72"/>
-              </g>
-
-              {/* Foreground hills */}
-              <g className="mtns-fore">
-                <path d="M0 700 L85 780 L186 810 L300 780 L388 800 L468 840 L556 880 L654 890 L772 900 L882 890 L980 860 L1100 780 L1210 760 L1320 780 L1448 720 L1536 680 L1536 1024 L0 1024Z" fill="#86C45B" opacity="0.82"/>
-                <path d="M0 790 L120 830 L208 890 L328 930 L420 940 L530 950 L660 970 L790 960 L930 930 L1065 910 L1192 880 L1320 860 L1418 820 L1536 740 L1536 1024 L0 1024Z" fill="#7BBC57" opacity="0.86"/>
-                <path d="M0 820 L104 950 L238 978 L364 960 L505 980 L660 1024 L0 1024Z" fill="#4EAB6D" opacity="0.92"/>
-                <path d="M1536 740 L1455 780 L1378 840 L1276 900 L1155 950 L1002 975 L848 1005 L1536 1024Z" fill="#95C857" opacity="0.9"/>
-              </g>
-
-              {/* Soft atmospheric haze */}
-              <ellipse cx="768" cy="706" rx="520" ry="210" fill="#F5F5DE" className="atmo-haze" filter="url(#softBlur)"/>
-            </svg>
-          </div>
-
-          {/* Centered welcome content */}
-          <div className="flex-1 flex flex-col items-center justify-center px-4 relative" style={{ zIndex: 1 }}>
-            <div className="text-center" style={{ marginBottom: 28 }}>
-              <h1 className="text-[28px] sm:text-[36px] font-medium leading-snug" style={{ color: accent }}>
-                Welcome to BambooHR!
-              </h1>
-              <div className="text-[24px] font-medium mt-0.5" style={{ color: textSecondary, fontFamily: "'Fields', system-ui, sans-serif" }}>
-                Tell us a bit about your business.<br />
-                We'll handle the rest.
-              </div>
-            </div>
-            <div className="w-full max-w-lg">
-              <div
-                className="flex items-center gap-3 px-5 py-3 rounded-full border shadow-sm backdrop-blur-md"
-                style={{ backgroundColor: 'rgba(255,255,255,0.9)', borderColor: cardBorder }}
-              >
-                <IconChat />
-                <input
-                  type="text"
-                  placeholder="We're a 50-person startup focused on..."
-                  className="flex-1 bg-transparent text-[15px] focus:outline-none"
-                  style={{ color: textPrimary }}
-                />
-                <button className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0" style={{ backgroundColor: accent }}>
-                  <IconSend />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <BlankStateOnboarding spaceNavExpanded={spaceNavExpanded} onToggleNav={() => setSpaceNavExpanded(p => !p)} />;
   }
 
   // Design Library
@@ -4200,7 +4565,7 @@ export function SpaceLayout() {
       `}</style>
 
       {/* Floating top bar */}
-      <div className="fixed top-[33px] right-0 z-30 px-3 sm:px-6 pr-14 sm:pr-6 pt-3 sm:pt-4 pb-10 pointer-events-none" style={{ left: spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)', background: `linear-gradient(${bg} 0%, ${bg} 40%, transparent 100%)` }}>
+      <div className="fixed z-30 px-3 sm:px-6 pr-14 sm:pr-6 pt-3 sm:pt-4 pb-10 pointer-events-none" style={{ top: 'var(--scenario-bar-h, 33px)', left: `calc(var(--chrome-sidebar-w, 0px) + ${spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW}px)`, right: demoPanelW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), right 0.5s ease-in-out', background: `linear-gradient(${bg} 0%, ${bg} 40%, transparent 100%)` }}>
         <div className="max-w-md sm:max-w-lg mx-auto pointer-events-auto flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}` }}>
           {/* Logo mark */}
           <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: accent }}>
@@ -4231,7 +4596,7 @@ export function SpaceLayout() {
         onClick={() => setEditMode(prev => !prev)}
         className="fixed z-30 rounded-full text-[13px] font-medium transition-colors w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-1.5 flex items-center justify-center sm:gap-1.5"
         style={{
-          top: 'calc(33px + 16px + 6px)',
+          top: 'calc(var(--scenario-bar-h, 33px) + 16px + 6px)',
           right: 12,
           backgroundColor: editMode ? accent : 'transparent',
           color: editMode ? '#FFFFFF' : surfaceBlueTertiary,
@@ -4403,7 +4768,7 @@ export function SpaceLayout() {
       </div>
 
       {/* Floating bottom chat bar */}
-      <div className="fixed bottom-0 right-0 z-30 px-3 sm:px-6 pb-4 sm:pb-5 pt-3 pointer-events-none" style={{ left: spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1)', background: `linear-gradient(transparent, ${bg} 40%)` }}>
+      <div className="fixed bottom-0 z-30 px-3 sm:px-6 pb-4 sm:pb-5 pt-3 pointer-events-none" style={{ left: `calc(var(--chrome-sidebar-w, 0px) + ${spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW}px)`, right: demoPanelW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), right 0.5s ease-in-out', background: `linear-gradient(transparent, ${bg} 40%)` }}>
         <div className="max-w-md sm:max-w-lg mx-auto pointer-events-auto">
           <button
             onClick={() => setChatOpen(true)}

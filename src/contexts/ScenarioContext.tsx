@@ -1,8 +1,14 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
+import {
+  type PersonaType,
+  type PackageType,
+  type AddonType,
+  PACKAGE_GATED,
+  ADDON_GATED,
+  isPackageUnlocked,
+} from '../data/personas-and-packaging';
 
-export type PersonaType = 'employee' | 'manager' | 'hr-admin' | 'exec';
-export type PackageType = 'core' | 'pro' | 'elite';
-export type AddonType = 'payroll' | 'benefits' | 'time-tracking';
+export type { PersonaType, PackageType, AddonType };
 
 export interface ScenarioConfig {
   id: string;
@@ -23,35 +29,6 @@ const ALL_PRODUCTS = [
   'compensation', 'employee-community', 'rewards-recognition', 'wellbeing', 'time-and-attendance', 'offboarding',
   'reports', 'files', 'apps', 'settings',
 ];
-
-/** Products that require a certain package tier or addon to unlock */
-const PACKAGE_GATED: Record<string, PackageType> = {
-  hiring: 'core',
-  onboarding: 'core',
-  offboarding: 'core',
-  training: 'core',
-  'time-and-attendance': 'core',
-  performance: 'pro',
-  'employee-community': 'pro',
-  'rewards-recognition': 'pro',
-  'wellbeing': 'pro',
-  compensation: 'core',
-};
-
-const ADDON_GATED: Record<string, AddonType> = {
-  payroll: 'payroll',
-  benefits: 'benefits',
-};
-
-function packageTierValue(pkg: PackageType): number {
-  return pkg === 'core' ? 0 : pkg === 'pro' ? 1 : 2;
-}
-
-function isPackageUnlocked(product: string, pkg: PackageType): boolean {
-  const required = PACKAGE_GATED[product];
-  if (!required) return true;
-  return packageTierValue(pkg) >= packageTierValue(required);
-}
 
 function deriveScenarioConfig(
   persona: PersonaType,

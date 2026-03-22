@@ -6,15 +6,16 @@ import { useScenario } from '../../contexts/ScenarioContext';
 import { getEmployee } from '../../data/currentEmployee';
 import { ProductSettingsModal } from '../ProductSettingsModal/ProductSettingsModal';
 
+const PLATFORM_T1_IDS = new Set(['apps', 'analytics', 'settings']);
 const NAV_STORAGE_KEY = 'bhr-nav-v2-expanded';
 const T1_EXPANDED_KEY = 'bhr-nav-v2-t1-expanded';
 
-interface NavT2Item {
+export interface NavT2Item {
   path: string;
   label: string;
 }
 
-interface NavT1Item {
+export interface NavT1Item {
   id: string;
   path: string;
   label: string;
@@ -23,12 +24,13 @@ interface NavT1Item {
   children: NavT2Item[];
 }
 
-const topItems: NavT1Item[] = [];
-
-const navItems: NavT1Item[] = [
-  { id: 'home', path: '/home', label: 'Home', icon: 'home', children: [] },
+const topItems: NavT1Item[] = [
   { id: 'inbox', path: '/home/inbox', label: 'Inbox', icon: 'inbox', children: [] },
   { id: 'my-info', path: '/people/my-info', label: 'My Info', icon: 'circle-user', children: [] },
+];
+
+export const navItems: NavT1Item[] = [
+  { id: 'home', path: '/home', label: 'Home', icon: 'home', children: [] },
   {
     id: 'people', path: '/people', label: 'People', icon: 'user-group', hasGear: true,
     children: [
@@ -260,8 +262,9 @@ export function GlobalNavV2({ className = '' }: GlobalNavV2Props) {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="shrink-0 px-2 py-1">
+      {/* T0 Chrome: Search + Inbox + My Info */}
+      <div className="shrink-0 px-2 py-0.5 space-y-0.5">
+        {/* Search */}
         <div
           className={`
             relative flex items-center cursor-pointer group
@@ -281,10 +284,6 @@ export function GlobalNavV2({ className = '' }: GlobalNavV2Props) {
             </>
           )}
         </div>
-      </div>
-
-      {/* Top Items (My Info, Inbox) */}
-      <div className="shrink-0 px-2 py-0.5 space-y-0.5">
         {topItems.map((item) => {
           const active = isTopItemActive(item);
           return (
@@ -321,7 +320,7 @@ export function GlobalNavV2({ className = '' }: GlobalNavV2Props) {
       {/* Product Nav - Scrollable */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none' }}>
         <div className="px-2 py-1 space-y-0.5">
-          {navItems.map((item) => {
+          {navItems.filter(item => !PLATFORM_T1_IDS.has(item.id)).map((item) => {
             const t1Active = isT1Active(item);
             const isT1Expanded = expandedT1 === item.id;
 
@@ -367,6 +366,83 @@ export function GlobalNavV2({ className = '' }: GlobalNavV2Props) {
                 </div>
 
                 {/* T2 Children */}
+                {effectiveExpanded && isT1Expanded && item.children.length > 0 && (
+                  <div className="ml-[34px] mt-0.5 mb-1 space-y-0.5">
+                    {item.children.map((t2) => {
+                      const t2Active = location.pathname === t2.path || location.pathname.startsWith(t2.path + '/');
+                      return (
+                        <NavLink
+                          key={t2.path}
+                          to={t2.path}
+                          className={`
+                            flex items-center px-2 py-1
+                            text-[13px] transition-colors duration-150
+                            ${t2Active
+                              ? 'text-[var(--color-primary-strong)] font-semibold'
+                              : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)]'
+                            }
+                          `}
+                        >
+                          <span className="truncate">{t2.label}</span>
+                        </NavLink>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Separator between Domain and Platform sections */}
+        <div className="shrink-0 h-px bg-[var(--border-neutral-xx-weak)] mx-3 my-1.5" />
+
+        {/* Platform Nav (Apps, Analytics, Settings) */}
+        <div className="px-2 pb-1 space-y-0.5">
+          {navItems.filter(item => PLATFORM_T1_IDS.has(item.id)).map((item) => {
+            const t1Active = isT1Active(item);
+            const isT1Expanded = expandedT1 === item.id;
+
+            return (
+              <div key={item.id}>
+                <div
+                  className={`
+                    relative flex items-center cursor-pointer
+                    transition-colors duration-150 group
+                    ${effectiveExpanded ? 'px-3 py-1.5' : 'w-12 h-10 justify-center mx-auto'}
+                    rounded-[10px]
+                    ${t1Active ? 'bg-white' : 'hover:bg-white/50'}
+                  `}
+                  onClick={() => handleT1Click(item)}
+                  onMouseEnter={() => setHoveredT1(item.id)}
+                  onMouseLeave={() => setHoveredT1(null)}
+                >
+                  <Icon
+                    name={item.icon}
+                    size={16}
+                    variant={t1Active ? 'solid' : 'regular'}
+                    className={`shrink-0 transition-colors duration-200 ${t1Active ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}`}
+                  />
+                  {effectiveExpanded && (
+                    <>
+                      <span className={`ml-2.5 flex-1 text-[13px] whitespace-nowrap truncate ${t1Active ? 'font-semibold text-[var(--color-primary-strong)]' : 'font-medium text-[var(--text-neutral-xx-strong)]'}`}>
+                        {item.label}
+                      </span>
+                      {item.hasGear && scenario.persona === 'hr-admin' && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setSettingsProduct(item.label); }}
+                          className={`relative group/gear w-5 h-5 flex items-center justify-center rounded hover:bg-[var(--border-neutral-xx-weak)] transition-all shrink-0 ml-1 ${hoveredT1 === item.id ? 'opacity-100' : 'opacity-0'}`}
+                        >
+                          <Icon name="gear" size={11} className="text-[var(--icon-neutral-strong)]" />
+                          <span className="pointer-events-none absolute right-0 -top-8 px-2 py-1 text-[11px] font-medium text-white bg-[#1e1e1e] rounded whitespace-nowrap opacity-0 group-hover/gear:opacity-100 transition-opacity z-50">
+                            {item.label} Settings
+                          </span>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+
                 {effectiveExpanded && isT1Expanded && item.children.length > 0 && (
                   <div className="ml-[34px] mt-0.5 mb-1 space-y-0.5">
                     {item.children.map((t2) => {

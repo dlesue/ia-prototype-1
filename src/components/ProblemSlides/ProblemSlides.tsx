@@ -1,79 +1,74 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlideVisual, New2SlideVisual, SpaceSlideVisual } from './SlideVisuals';
+import { SlideVisual, New2SlideVisual, SpaceSlideVisual, IntroSlideVisual, SectionTitleVisual, PhasesVisual, getConsolidatedPhaseCount } from './SlideVisuals';
+import daveAvatar from '../../assets/images/dave-avatar.jpeg';
 
-type SlideLayout = 'center' | 'side';
+
+type SlideLayout = 'center' | 'side' | 'side-right';
+
+export type LandOnTarget =
+  | { mode: 'prototypes'; route: string }
+  | { mode: 'docs'; docId: string }
+  | { mode: 'style-guide'; tab?: 'nav' | 'slides' };
 
 interface Slide {
   number: number;
   headline: string;
   subtext?: string;
   layout?: SlideLayout;
+  landOn?: LandOnTarget;
 }
 
 const SLIDE_PAIRS: { problem: Omit<Slide, 'number'>; solution: Omit<Slide, 'number'>; layout?: SlideLayout }[] = [
   {
-    problem: { headline: 'No shared internal taxonomy', subtext: `No common definition for product vs. module vs. feature \u2014 every trio is making it up.` },
-    solution: { headline: 'Product, Module, Feature', subtext: `Three tiers. Products get a T1 and a hub. Modules get T2s. Features live inside modules.` },
+    problem: { headline: 'No shared taxonomy', subtext: `No common definition for product vs. module vs. feature, no rulebook for placement, no sequencing rules \u2014 everyone\u2019s making it up.` },
+    solution: { headline: 'Product, Module, Feature', subtext: `Three tiers. Products get a T1 and a hub. Modules get T2s. Features live inside modules. A rulebook governs placement and ordering.`, landOn: { mode: 'docs', docId: 'ia-products-modules' } },
   },
   {
-    problem: { headline: 'No guidance on what belongs where', subtext: `No rulebook for placement \u2014 so new capabilities end up wherever feels right at the time.` },
-    solution: { headline: 'A rulebook for placement', subtext: `Own pricing and workflows? Product. Major area within a product? Module. Everything else? Feature.` },
-  },
-  {
-    problem: { headline: `First-class products don\u2019t have first-class nav presence`, subtext: `Customers pay to upgrade for Performance but can\u2019t find it \u2014 no T1, no hub, no front door.` },
-    solution: { headline: 'Every product gets a front door', subtext: `Every product gets its own T1 nav item and hub page with direct access to every module inside it.` },
+    problem: { headline: `Products don\u2019t have a front door`, subtext: `Customers pay for Performance but can\u2019t find it. Homeless products bleed into Settings. Unpurchased products are invisible.` },
+    solution: { headline: 'Every product gets a front door', subtext: `Every product gets its own T1 nav item and hub page. Config lives in-product. Locked products appear with upsell paths.` },
     layout: 'side',
   },
   {
-    problem: { headline: 'Settings and the Employee Profile absorb the damage', subtext: `Homeless products bleed into Settings and the Employee Profile \u2014 which now carries 13+ tabs.` },
-    solution: { headline: 'Products stop bleeding into Settings', subtext: `Product config lives in-product. Settings handles global config. The profile goes back to being a profile.` },
+    problem: { headline: `The nav doesn\u2019t work`, subtext: `Two nav systems competing for attention, triple-stacked layers eating the page \u2014 and we\u2019re not even responsive.` },
+    solution: { headline: 'One nav, everything in it', subtext: `A single two-tier vertical nav. No header bar, no sub-nav. Follows the employee lifecycle. Gets out of the way.` },
   },
   {
-    problem: { headline: 'Unpurchased products are invisible', subtext: `No product in the nav means no discovery \u2014 usability testing confirmed customers can\u2019t find our upsell pages.` },
-    solution: { headline: 'The nav becomes a storefront', subtext: `Locked products appear in the nav with a clear path to a dedicated upsell page.` },
-    layout: 'side',
+    problem: { headline: 'No contextual patterns', subtext: `Changing a product\u2019s settings means leaving it. Reports are scattered. AI, insights, and automations have no in-product home.` },
+    solution: { headline: 'In context, everywhere', subtext: `Settings via gear icon. Metrics and reports on every hub. Contextual Ask, insights, and automations \u2014 same pattern, every product.` },
   },
   {
-    problem: { headline: 'Split navigation creates a findability dead zone', subtext: `Two nav systems competing for attention \u2014 usability tests show people miss the header entirely.` },
-    solution: { headline: 'One nav, everything in it', subtext: `Settings, Inbox, and Ask move into a single vertical nav. One place to look.` },
+    problem: { headline: 'No wayfinding standards', subtext: `Users get lost after drilling into a record, deep links drop them with no context, and the back button is unpredictable.` },
+    solution: { headline: 'Breadcrumbs, back buttons, and \u201cyou are here\u201d', subtext: `Hierarchical breadcrumbs on every page. Consistent active states at T1 and T2. Predictable back behavior.`, landOn: { mode: 'docs', docId: 'research-wayfinding' } },
   },
   {
-    problem: { headline: 'No guidance for the nav order', subtext: `No sequencing rules \u2014 teams place items wherever feels right, and the order gets more random over time.` },
-    solution: { headline: 'A nav that follows the employee lifecycle', subtext: `Core HR at the top, cross-product tools at the bottom, and the employee lifecycle \u2014 hire to retire \u2014 in the middle.` },
-    layout: 'side',
-  },
-  {
-    problem: { headline: 'The screen real estate crisis', subtext: `Triple-stacked nav layers plus the Ask rail are eating the page \u2014 and we\u2019re not even responsive.` },
-    solution: { headline: 'A nav that gets out of the way', subtext: `One two-tier vertical nav. No header bar. No sub-nav. No sub-sub-nav. Plenty of room for Ask and content.` },
-  },
-  {
-    problem: { headline: 'Contextual settings require a scavenger hunt', subtext: `Changing a product\u2019s settings means leaving the product, navigating to Settings, and finding it again.` },
-    solution: { headline: 'Settings, in context', subtext: `A gear icon on every product\u2019s nav item opens its settings in context.` },
-  },
-  {
-    problem: { headline: 'No standard pattern for contextual reports', subtext: `Every product handles reports differently \u2014 a toolbar button here, a corner button there, nothing at all elsewhere.` },
-    solution: { headline: 'Reports, in context', subtext: `Every hub gets a metrics bar with a link to contextual reports. Same pattern, every product.` },
-  },
-  {
-    problem: { headline: 'No standard pattern for contextual AI assistance', subtext: `Ask can answer product-specific questions, but there\u2019s no in-product affordance \u2014 no point of ingress.` },
-    solution: { headline: 'Ask, in context', subtext: `Every product gets a contextual Ask bar with product-specific suggestions built in.` },
-  },
-  {
-    problem: { headline: 'No contextual pattern for surfacing insights', subtext: `No standard way to surface what matters \u2014 insights are buried in reports or missing entirely.` },
-    solution: { headline: 'Insights, in context', subtext: `Every hub proactively surfaces what matters \u2014 same pattern, every product.` },
-  },
-  {
-    problem: { headline: 'No contextual pattern for surfacing automations', subtext: `Users don\u2019t know what they can automate \u2014 no in-context suggestions, no discoverability.` },
-    solution: { headline: 'Automations, in context', subtext: `Every hub suggests automations in context \u2014 one click to set up, same pattern, every product.` },
+    problem: { headline: 'No multi-product strategy', subtext: `The nav was built for one product. What happens when BambooHR becomes a platform?` },
+    solution: { headline: 'A nav that scales to a platform', subtext: `Product switcher pattern. Shared chrome shell. Each product domain gets its own nav. The architecture future-proofs to IT, Finance, and Workplace.`, landOn: { mode: 'docs', docId: 'research-mega-product-nav' } },
   },
 ];
 
-const PROBLEM_SLIDES: Slide[] = SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.problem }));
-const SOLUTION_SLIDES: Slide[] = SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.solution }));
+// Intro slides that precede the problems (number: 0 means "intro, no counter")
+const INTRO_SET_SLIDES: Slide[] = [
+  { number: 0, headline: '__title_card__' },
+  { number: 0, headline: 'We have an information architecture problem.' },
+  { number: 0, headline: 'Well, actually, it\u2019s 6 problems.' },
+  { number: 0, headline: '__purpose__', layout: 'side-right' },
+  { number: 0, headline: '__methodology__' },
+  { number: 0, headline: '__phases__' },
+];
+
+const PROBLEM_SLIDES: Slide[] = [
+  { number: 0, headline: '6 Problems' },
+  ...SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.problem })),
+];
+const SOLUTION_SLIDES: Slide[] = [
+  { number: 0, headline: 'Redesign v1\nPrototype' },
+  ...SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.solution })),
+];
 
 // New 2 slides — the journey from New nav problems to research-driven IA
 const NEW2_SLIDES: Slide[] = [
+  { number: 0, headline: 'Redesign v2\nPrototype' },
   { number: 1, headline: 'We solved some problems\u2026 but created new ones', subtext: 'Every product gets a front door now \u2014 but 15 products means a very long nav.', layout: 'side' },
   { number: 2, headline: 'This is a solved problem', subtext: 'Buyers, sellers, and CX teams already expect a certain structure. We don\u2019t need to invent one.' },
   { number: 3, headline: 'Deep research across the market', subtext: 'Four AI deep-research passes across every major HRIS/HCM competitor, then cross-checked for accuracy.' },
@@ -82,6 +77,7 @@ const NEW2_SLIDES: Slide[] = [
 
 // Space exploration slides
 const SPACE_SLIDES: Slide[] = [
+  { number: 0, headline: 'Space\nExploration' },
   { number: 1, headline: 'All of that is too little, too late.', subtext: 'Better navigation. Cleaner UI. Faster workflows. Right fixes \u2014 for 2022.' },
   { number: 2, headline: 'Claude Code can rebuild our product in a weekend. Now what?', subtext: 'Every feature we\u2019ve built over 15 years can now be replicated in an afternoon. The feature moat is gone.', layout: 'side' },
   { number: 3, headline: 'The solution isn\u2019t a better app. It\u2019s a better platform.', subtext: 'Consistent shell. Infinite surface area. Everyone\u2019s experience is different \u2014 but everyone speaks the same language.' },
@@ -89,61 +85,128 @@ const SPACE_SLIDES: Slide[] = [
 ];
 
 const LEGACY_KEY = 'bhr-legacy-nav';
+const SLIDES_POSITION_KEY = 'bhr-slides-position'; // sessionStorage
 
 type Direction = 'left' | 'right' | 'none';
 
+// In-memory position — survives open/close but not page refresh
+let savedPosition: { navMode: string; slide: number } | null = null;
+
+function getSavedPosition() {
+  return savedPosition;
+}
+
+function savePosition(navMode: string, slide: number) {
+  savedPosition = { navMode, slide };
+}
+
 export function ProblemSlides() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('present') === 'true';
+  });
   const [isClosing, setIsClosing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<Direction>('none');
   const [slideKey, setSlideKey] = useState(0);
   const [navMode, setNavMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('present') === 'true') {
+      localStorage.setItem(LEGACY_KEY, 'intro');
+      window.dispatchEvent(new Event('storage'));
+      return 'intro';
+    }
     const stored = localStorage.getItem(LEGACY_KEY);
+    if (stored === 'intro') return 'intro';
     if (stored === 'true') return 'legacy';
     if (stored === 'new2') return 'new2';
     if (stored === 'space') return 'space';
     return 'new';
   });
+  const [visualPhase, setVisualPhase] = useState(0);
   const closingTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Sync nav mode from localStorage
+  const chainingRef = useRef(false);
+
+  // Sync nav mode from localStorage (skip if chaining to avoid double-fire)
   useEffect(() => {
     const handler = () => {
+      if (chainingRef.current) return;
       const stored = localStorage.getItem(LEGACY_KEY);
-      setNavMode(stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new');
+      const mode = stored === 'intro' ? 'intro' : stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new';
+      setNavMode(mode);
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const slides = navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+  const slides = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
 
-  // Reset to first slide when switching nav modes
+  // Save position whenever slide or mode changes while open
   useEffect(() => {
-    setCurrentSlide(0);
+    if (isOpen && !isClosing) {
+      savePosition(navMode, currentSlide);
+    }
+  }, [isOpen, isClosing, navMode, currentSlide]);
+
+  // Reset to first slide when switching nav modes (unless chaining between sets)
+  useEffect(() => {
+    if (chainingRef.current) {
+      chainingRef.current = false;
+    } else {
+      setCurrentSlide(0);
+    }
   }, [navMode]);
 
+  const navigate = useNavigate();
+
   const close = useCallback(() => {
+    // Land on the current slide's target before closing
+    const currentSlideData = slides[Math.min(currentSlide, slides.length - 1)];
+    const target = currentSlideData?.landOn;
+    if (target) {
+      if (target.mode === 'prototypes') {
+        localStorage.setItem('bhr-project-mode', 'prototypes');
+        window.dispatchEvent(new Event('storage'));
+        navigate(target.route);
+      } else if (target.mode === 'docs') {
+        localStorage.setItem('bhr-project-mode', 'docs');
+        localStorage.setItem('bhr-selected-doc', target.docId);
+        window.dispatchEvent(new Event('storage'));
+      } else if (target.mode === 'style-guide') {
+        localStorage.setItem('bhr-project-mode', 'style-guide');
+        if (target.tab) {
+          localStorage.setItem('bhr-style-guide-tab', target.tab);
+        }
+        window.dispatchEvent(new Event('storage'));
+        navigate('/style-guide');
+      }
+    }
+
     setIsClosing(true);
     closingTimeout.current = setTimeout(() => {
       setIsOpen(false);
       setIsClosing(false);
     }, 300);
-  }, []);
-
-  const navigate = useNavigate();
+  }, [currentSlide, slides, navigate]);
 
   const open = useCallback(() => {
-    // Re-read nav mode on open to ensure it's current
-    const stored = localStorage.getItem(LEGACY_KEY);
-    setNavMode(stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new');
+    // Try to restore last position from this session
+    const saved = getSavedPosition();
+    if (saved) {
+      setNavMode(saved.navMode as typeof navMode);
+      setCurrentSlide(saved.slide);
+    } else {
+      // First time this session — start at intro title card
+      setNavMode('intro');
+      setCurrentSlide(0);
+    }
     setDirection('none');
     setSlideKey(k => k + 1);
+    setVisualPhase(0);
     (document.activeElement as HTMLElement)?.blur();
     setIsOpen(true);
-    setTimeout(() => navigate('/home'), 400);
-  }, [navigate]);
+  }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const tag = (e.target as HTMLElement).tagName;
@@ -161,28 +224,82 @@ export function ProblemSlides() {
 
     if (!isOpen || isClosing) return;
 
+    // Check if current slide has sub-steps (visual phases)
+    const isPhaseSlide = navMode === 'intro' && slides[currentSlide]?.headline === '__phases__';
+    const isMethodologySlide = navMode === 'intro' && slides[currentSlide]?.headline === '__methodology__';
+
+    let maxPhase = 0;
+    if (isMethodologySlide) {
+      maxPhase = 2;
+    } else if (isPhaseSlide) {
+      maxPhase = 1;
+    } else if ((navMode === 'legacy' || navMode === 'new') && currentSlide > 0) {
+      // Consolidated slides: use phase count from visual mapping
+      const slideIndex = currentSlide - 1; // subtract section title slide
+      const mode = navMode === 'legacy' ? 'problem' : 'solution';
+      maxPhase = getConsolidatedPhaseCount(slideIndex, mode) - 1;
+    }
+
+    const NAV_ORDER: typeof navMode[] = ['intro', 'legacy', 'new', 'new2', 'space'];
+    const switchNavMode = (mode: typeof navMode) => {
+      chainingRef.current = true;
+      setNavMode(mode);
+      const stored = mode === 'intro' ? 'intro' : mode === 'legacy' ? 'true' : mode === 'new2' ? 'new2' : mode === 'space' ? 'space' : 'false';
+      localStorage.setItem(LEGACY_KEY, stored);
+      // Delay storage dispatch so React processes state updates first
+      setTimeout(() => window.dispatchEvent(new Event('storage')), 0);
+    };
+
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
       e.preventDefault();
-      setCurrentSlide(prev => {
-        const s = navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
-        if (prev >= s.length - 1) return prev;
-        setDirection('right');
-        setSlideKey(k => k + 1);
-        return prev + 1;
-      });
+      if (visualPhase < maxPhase) {
+        setVisualPhase(p => p + 1);
+      } else {
+        const s = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+        if (currentSlide >= s.length - 1) {
+          // Chain to next slide set
+          const idx = NAV_ORDER.indexOf(navMode);
+          if (idx < NAV_ORDER.length - 1) {
+            switchNavMode(NAV_ORDER[idx + 1]);
+            setDirection('right');
+            setSlideKey(k => k + 1);
+            setVisualPhase(0);
+            setCurrentSlide(0);
+          }
+        } else {
+          setDirection('right');
+          setSlideKey(k => k + 1);
+          setVisualPhase(0);
+          setCurrentSlide(prev => prev + 1);
+        }
+      }
     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
       e.preventDefault();
-      setCurrentSlide(prev => {
-        if (prev <= 0) return prev;
+      if (visualPhase > 0) {
+        setVisualPhase(p => p - 1);
+      } else if (currentSlide <= 0) {
+        // Chain to previous slide set
+        const idx = NAV_ORDER.indexOf(navMode);
+        if (idx > 0) {
+          const prevMode = NAV_ORDER[idx - 1];
+          const prevSlides = prevMode === 'intro' ? INTRO_SET_SLIDES : prevMode === 'legacy' ? PROBLEM_SLIDES : prevMode === 'new2' ? NEW2_SLIDES : prevMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+          switchNavMode(prevMode);
+          setDirection('left');
+          setSlideKey(k => k + 1);
+          setVisualPhase(0);
+          setCurrentSlide(prevSlides.length - 1);
+        }
+      } else {
         setDirection('left');
         setSlideKey(k => k + 1);
-        return prev - 1;
-      });
+        setVisualPhase(0);
+        setCurrentSlide(prev => prev - 1);
+      }
     } else if (e.key === 'Escape') {
       e.preventDefault();
       close();
     }
-  }, [isOpen, isClosing, close, open, navMode]);
+  }, [isOpen, isClosing, close, open, navMode, currentSlide, visualPhase]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -232,35 +349,260 @@ export function ProblemSlides() {
           from { opacity: 0; transform: var(--slide-from); }
           to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
         }
+        @keyframes introNumIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
       <div className={`fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm flex flex-col items-center justify-center select-none ${overlayAnimation}`}>
-        {/* Slide counter */}
-        <div className={`absolute top-8 right-10 text-sm font-mono ${navMode === 'space' ? 'text-blue-500/40' : navMode === 'new2' ? 'text-green-500/40' : 'text-amber-500/40'}`}>
-          {slide.number} / {slides.length}
-        </div>
+        {/* Space background */}
+        {navMode === 'space' && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute inset-0" style={{
+              background: 'radial-gradient(ellipse 80% 60% at 75% 20%, rgba(30,80,140,0.35) 0%, rgba(15,40,80,0.15) 40%, transparent 70%), radial-gradient(ellipse 50% 40% at 30% 70%, rgba(20,60,120,0.12) 0%, transparent 60%)',
+            }} />
+            <div className="space-stars-sm" />
+            <div className="space-stars-sm2" />
+            <div className="space-stars-md" />
+            <div className="space-stars-md2" />
+            <div className="space-stars-lg" />
+            <div className="space-stars-lg2" />
+            <style>{`
+              .space-stars-sm {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(0.8px 0.8px at 3% 7%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.8px 0.8px at 8% 22%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 12% 45%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 16% 78%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 21% 12%, rgba(180,210,255,0.45), transparent),
+                  radial-gradient(0.8px 0.8px at 26% 56%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 31% 33%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 35% 88%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 39% 4%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.8px 0.8px at 43% 67%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 47% 29%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 52% 82%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 56% 15%, rgba(180,210,255,0.45), transparent),
+                  radial-gradient(0.8px 0.8px at 61% 51%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 65% 93%, rgba(180,210,255,0.2), transparent),
+                  radial-gradient(0.8px 0.8px at 69% 38%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 74% 71%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 78% 9%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.8px 0.8px at 82% 58%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 87% 24%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 91% 84%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 95% 42%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 2% 62%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 14% 95%, rgba(180,210,255,0.2), transparent),
+                  radial-gradient(0.8px 0.8px at 28% 3%, rgba(180,210,255,0.45), transparent),
+                  radial-gradient(0.8px 0.8px at 44% 48%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 58% 72%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 73% 19%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 88% 66%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 97% 11%, rgba(180,210,255,0.45), transparent);
+              }
+              .space-stars-sm2 {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(0.7px 0.7px at 1% 34%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 6% 58%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.7px 0.7px at 10% 81%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 15% 3%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.7px 0.7px at 19% 41%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 23% 69%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.7px 0.7px at 29% 17%, rgba(180,210,255,0.45), transparent),
+                  radial-gradient(0.8px 0.8px at 34% 52%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.7px 0.7px at 37% 76%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 41% 11%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.7px 0.7px at 46% 39%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 50% 63%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.7px 0.7px at 54% 91%, rgba(180,210,255,0.2), transparent),
+                  radial-gradient(0.8px 0.8px at 59% 26%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.7px 0.7px at 63% 44%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 67% 8%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.7px 0.7px at 72% 57%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 76% 83%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.7px 0.7px at 80% 31%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.8px 0.8px at 84% 47%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.7px 0.7px at 89% 73%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 93% 16%, rgba(180,210,255,0.45), transparent),
+                  radial-gradient(0.7px 0.7px at 96% 55%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 99% 88%, rgba(180,210,255,0.2), transparent),
+                  radial-gradient(0.7px 0.7px at 4% 49%, rgba(180,210,255,0.35), transparent),
+                  radial-gradient(0.8px 0.8px at 17% 27%, rgba(180,210,255,0.4), transparent),
+                  radial-gradient(0.7px 0.7px at 33% 65%, rgba(180,210,255,0.3), transparent),
+                  radial-gradient(0.8px 0.8px at 48% 2%, rgba(180,210,255,0.5), transparent),
+                  radial-gradient(0.7px 0.7px at 66% 79%, rgba(180,210,255,0.25), transparent),
+                  radial-gradient(0.8px 0.8px at 81% 14%, rgba(180,210,255,0.45), transparent);
+              }
+              .space-stars-md {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(1.3px 1.3px at 5% 18%, rgba(200,220,255,0.6), transparent),
+                  radial-gradient(1.3px 1.3px at 11% 52%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.3px 1.3px at 18% 85%, rgba(200,220,255,0.35), transparent),
+                  radial-gradient(1.3px 1.3px at 24% 31%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.3px 1.3px at 33% 9%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.3px 1.3px at 38% 64%, rgba(200,220,255,0.4), transparent),
+                  radial-gradient(1.3px 1.3px at 46% 42%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.3px 1.3px at 54% 76%, rgba(200,220,255,0.35), transparent),
+                  radial-gradient(1.3px 1.3px at 62% 21%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.3px 1.3px at 68% 55%, rgba(200,220,255,0.4), transparent),
+                  radial-gradient(1.3px 1.3px at 76% 37%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.3px 1.3px at 83% 79%, rgba(200,220,255,0.35), transparent),
+                  radial-gradient(1.3px 1.3px at 89% 14%, rgba(200,220,255,0.6), transparent),
+                  radial-gradient(1.3px 1.3px at 94% 48%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.3px 1.3px at 7% 91%, rgba(200,220,255,0.3), transparent),
+                  radial-gradient(1.3px 1.3px at 42% 6%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.3px 1.3px at 57% 88%, rgba(200,220,255,0.3), transparent),
+                  radial-gradient(1.3px 1.3px at 71% 3%, rgba(200,220,255,0.6), transparent),
+                  radial-gradient(1.3px 1.3px at 86% 44%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.3px 1.3px at 29% 70%, rgba(200,220,255,0.35), transparent);
+              }
+              .space-stars-md2 {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(1.2px 1.2px at 2% 29%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.4px 1.4px at 9% 67%, rgba(200,220,255,0.4), transparent),
+                  radial-gradient(1.2px 1.2px at 15% 11%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.4px 1.4px at 22% 43%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.2px 1.2px at 27% 82%, rgba(200,220,255,0.3), transparent),
+                  radial-gradient(1.4px 1.4px at 35% 24%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.2px 1.2px at 41% 56%, rgba(200,220,255,0.4), transparent),
+                  radial-gradient(1.4px 1.4px at 48% 15%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.2px 1.2px at 53% 38%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.4px 1.4px at 59% 71%, rgba(200,220,255,0.35), transparent),
+                  radial-gradient(1.2px 1.2px at 64% 92%, rgba(200,220,255,0.25), transparent),
+                  radial-gradient(1.4px 1.4px at 70% 48%, rgba(200,220,255,0.45), transparent),
+                  radial-gradient(1.2px 1.2px at 75% 7%, rgba(200,220,255,0.6), transparent),
+                  radial-gradient(1.4px 1.4px at 81% 33%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.2px 1.2px at 87% 59%, rgba(200,220,255,0.4), transparent),
+                  radial-gradient(1.4px 1.4px at 92% 22%, rgba(200,220,255,0.55), transparent),
+                  radial-gradient(1.2px 1.2px at 96% 77%, rgba(200,220,255,0.3), transparent),
+                  radial-gradient(1.4px 1.4px at 13% 36%, rgba(200,220,255,0.5), transparent),
+                  radial-gradient(1.2px 1.2px at 44% 87%, rgba(200,220,255,0.3), transparent),
+                  radial-gradient(1.4px 1.4px at 79% 64%, rgba(200,220,255,0.4), transparent);
+              }
+              .space-stars-lg {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(2.5px 2.5px at 72% 12%, rgba(220,235,255,0.9), transparent),
+                  radial-gradient(2px 2px at 90% 8%, rgba(220,235,255,0.8), transparent),
+                  radial-gradient(2.5px 2.5px at 82% 28%, rgba(220,235,255,0.7), transparent),
+                  radial-gradient(2px 2px at 15% 35%, rgba(220,235,255,0.5), transparent),
+                  radial-gradient(3px 3px at 78% 18%, rgba(230,240,255,0.85), transparent),
+                  radial-gradient(2px 2px at 50% 5%, rgba(220,235,255,0.6), transparent),
+                  radial-gradient(2.5px 2.5px at 35% 15%, rgba(220,235,255,0.55), transparent),
+                  radial-gradient(2px 2px at 63% 45%, rgba(220,235,255,0.45), transparent),
+                  radial-gradient(2.5px 2.5px at 88% 62%, rgba(220,235,255,0.5), transparent),
+                  radial-gradient(2px 2px at 22% 82%, rgba(220,235,255,0.4), transparent),
+                  radial-gradient(3px 3px at 95% 30%, rgba(230,240,255,0.75), transparent),
+                  radial-gradient(2px 2px at 45% 92%, rgba(220,235,255,0.35), transparent);
+              }
+              .space-stars-lg2 {
+                position: absolute; inset: 0;
+                background-image:
+                  radial-gradient(2px 2px at 4% 14%, rgba(220,235,255,0.55), transparent),
+                  radial-gradient(2.5px 2.5px at 11% 53%, rgba(220,235,255,0.5), transparent),
+                  radial-gradient(2px 2px at 19% 8%, rgba(220,235,255,0.6), transparent),
+                  radial-gradient(3px 3px at 27% 41%, rgba(230,240,255,0.45), transparent),
+                  radial-gradient(2px 2px at 32% 72%, rgba(220,235,255,0.4), transparent),
+                  radial-gradient(2.5px 2.5px at 40% 26%, rgba(220,235,255,0.55), transparent),
+                  radial-gradient(2px 2px at 48% 59%, rgba(220,235,255,0.45), transparent),
+                  radial-gradient(3px 3px at 55% 13%, rgba(230,240,255,0.7), transparent),
+                  radial-gradient(2.5px 2.5px at 61% 85%, rgba(220,235,255,0.35), transparent),
+                  radial-gradient(2px 2px at 69% 32%, rgba(220,235,255,0.6), transparent),
+                  radial-gradient(2.5px 2.5px at 75% 67%, rgba(220,235,255,0.5), transparent),
+                  radial-gradient(3px 3px at 84% 9%, rgba(230,240,255,0.8), transparent),
+                  radial-gradient(2px 2px at 91% 46%, rgba(220,235,255,0.55), transparent),
+                  radial-gradient(2.5px 2.5px at 97% 74%, rgba(220,235,255,0.4), transparent);
+              }
+            `}</style>
+          </div>
+        )}
+        {/* Slide counter — hidden for intro slides */}
+        {slide.number > 0 && (
+          <div className={`absolute top-8 right-10 text-sm font-mono ${navMode === 'space' ? 'text-blue-500/40' : navMode === 'new2' ? 'text-green-500/40' : navMode === 'legacy' ? 'text-red-500/40' : 'text-amber-500/40'}`}>
+            {slide.number} / {SLIDE_PAIRS.length}
+          </div>
+        )}
+
+        {/* Circled problem number badge — legacy mode only */}
+        {navMode === 'legacy' && slide.number > 0 && (
+          <div
+            key={`badge-${slideKey}`}
+            className="absolute top-8 left-10 w-12 h-12 rounded-full border-2 flex items-center justify-center"
+            style={{
+              borderColor: 'rgba(248,113,113,0.5)',
+              color: '#f87171',
+              opacity: 0,
+              animation: 'slideContentIn 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              '--slide-from': contentTransform,
+            } as React.CSSProperties}
+          >
+            <span className="text-[20px] font-bold tabular-nums">{slide.number}</span>
+          </div>
+        )}
+
+        {/* Full-screen intro visual (scattered nav — rendered outside content wrapper) */}
+        {navMode === 'intro' && currentSlide === 1 && (
+          <div key={`scatter-${slideKey}`} className="absolute inset-0 z-0 overflow-hidden">
+            <IntroSlideVisual index={0} />
+          </div>
+        )}
 
         {/* Content */}
         <div
           key={slideKey}
-          className={`max-w-[1200px] px-12 ${slide.layout === 'side' ? '' : 'text-center'} ${contentAnimation}`}
+          className={`max-w-[1200px] px-12 relative z-10 ${slide.layout === 'side' || slide.layout === 'side-right' ? '' : 'text-center'} ${contentAnimation}`}
           style={{
             '--slide-from': contentTransform,
             animation: isClosing ? undefined : 'slideContentIn 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
           } as React.CSSProperties}
         >
-          {slide.layout === 'side' ? (
+          {slide.layout === 'side-right' ? (
+            <div className="flex items-center gap-16">
+              <div className="flex-1 min-w-0">
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '72px', lineHeight: 1.15, textWrap: 'balance' }}>
+                  {slide.headline === '__purpose__' ? 'The purpose of this presentation' : slide.headline}
+                </h1>
+                {slide.subtext && (
+                  <p className="text-[26px] text-neutral-400 leading-relaxed [text-wrap:balance]">
+                    {slide.subtext}
+                  </p>
+                )}
+              </div>
+              <div className="shrink-0">
+                {navMode === 'intro'
+                  ? <IntroSlideVisual index={currentSlide - 1} noMargin />
+                  : navMode === 'space'
+                  ? <SpaceSlideVisual index={currentSlide - 1} noMargin />
+                  : navMode === 'new2'
+                  ? <New2SlideVisual index={currentSlide - 1} noMargin />
+                  : navMode === 'new'
+                  ? <SlideVisual index={currentSlide - 1} mode="solution" noMargin phase={visualPhase} />
+                  : <SlideVisual index={currentSlide - 1} mode="problem" noMargin phase={visualPhase} />
+                }
+              </div>
+            </div>
+          ) : slide.layout === 'side' ? (
             <div className="flex items-center gap-16">
               <div className="shrink-0">
-                {navMode === 'space'
-                  ? <SpaceSlideVisual index={currentSlide} noMargin />
+                {navMode === 'intro'
+                  ? <IntroSlideVisual index={currentSlide - 1} noMargin />
+                  : navMode === 'space'
+                  ? <SpaceSlideVisual index={currentSlide - 1} noMargin />
                   : navMode === 'new2'
-                  ? <New2SlideVisual index={currentSlide} noMargin />
-                  : <SlideVisual index={currentSlide} mode={navMode === 'legacy' ? 'problem' : 'solution'} noMargin />
+                  ? <New2SlideVisual index={currentSlide - 1} noMargin />
+                  : navMode === 'new'
+                  ? <SlideVisual index={currentSlide - 1} mode="solution" noMargin phase={visualPhase} />
+                  : <SlideVisual index={currentSlide - 1} mode="problem" noMargin phase={visualPhase} />
                 }
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '72px', lineHeight: 1.15, textWrap: 'balance' }}>
-                  {slide.headline}
+                  {slide.headline === '__purpose__' ? 'The purpose of this presentation' : slide.headline}
                 </h1>
                 {slide.subtext && (
                   <p className="text-[26px] text-neutral-400 leading-relaxed [text-wrap:balance]">
@@ -271,15 +613,48 @@ export function ProblemSlides() {
             </div>
           ) : (
             <>
-              {navMode === 'space'
-                ? <SpaceSlideVisual index={currentSlide} />
+              {navMode === 'intro'
+                ? (slide.headline === '__title_card__' ? null : currentSlide === 1 ? null : slide.headline === '__phases__' ? <PhasesVisual phase={visualPhase} /> : <IntroSlideVisual index={currentSlide - 1} phase={visualPhase} />)
+                : (navMode === 'legacy' || navMode === 'new' || navMode === 'new2' || navMode === 'space') && currentSlide === 0
+                ? <SectionTitleVisual mode={navMode} />
+                : navMode === 'space'
+                ? <SpaceSlideVisual index={currentSlide - 1} />
                 : navMode === 'new2'
-                ? <New2SlideVisual index={currentSlide} />
-                : <SlideVisual index={currentSlide} mode={navMode === 'legacy' ? 'problem' : 'solution'} />
+                ? <New2SlideVisual index={currentSlide - 1} />
+                : navMode === 'new'
+                ? <SlideVisual index={currentSlide - 1} mode="solution" phase={visualPhase} />
+                : <SlideVisual index={currentSlide - 1} mode="problem" phase={visualPhase} />
               }
-              <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
-                {slide.headline}
-              </h1>
+              {slide.headline === '__title_card__' ? (
+                <div className="flex flex-col items-center gap-1" style={{ fontFamily: 'Fields, system-ui, sans-serif' }}>
+                  <div className="text-[42px] font-normal text-white/40">Let's talk about...</div>
+                  <h1 className="font-bold" style={{ color: '#ffffff', fontSize: '90px', lineHeight: 1.0 }}>Information Architecture</h1>
+                  <div className="text-[54px] font-normal text-white/40 mt-1">(and a few other global UX patterns)</div>
+                  <div className="mt-20 flex flex-col items-center gap-3" style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>
+                    <img src={daveAvatar} alt="Dave Lesue" className="w-16 h-16 rounded-full object-cover object-top" />
+                    <div className="flex flex-col items-center gap-0.5">
+                      <div className="text-[32px] font-semibold text-white">Dave Lesue</div>
+                      <div className="text-[22px] font-normal text-white/40">Sr. Product Design Director</div>
+                    </div>
+                  </div>
+                </div>
+              ) : slide.headline === '__purpose__' ? (
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
+                  The purpose of this presentation
+                </h1>
+              ) : slide.headline === '__methodology__' ? (
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
+                  How I approached this
+                </h1>
+              ) : slide.headline === '__phases__' ? (
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
+                  {visualPhase === 0 ? 'Overhauling our IA would be a multi-phase effort.' : 'Today we\u2019re covering the first two.'}
+                </h1>
+              ) : (
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance', whiteSpace: 'pre-line' }}>
+                  {slide.headline}
+                </h1>
+              )}
               {slide.subtext && (
                 <p className="text-[28px] text-neutral-400 leading-relaxed [text-wrap:balance]">
                   {slide.subtext}
@@ -289,21 +664,70 @@ export function ProblemSlides() {
           )}
         </div>
 
-        {/* Navigation dots */}
-        <div className="absolute bottom-10 flex gap-2">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setDirection(i > currentSlide ? 'right' : i < currentSlide ? 'left' : 'none');
-                setSlideKey(k => k + 1);
-                setCurrentSlide(i);
-              }}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === currentSlide ? (navMode === 'legacy' ? 'bg-red-400' : navMode === 'new2' ? 'bg-green-400' : navMode === 'space' ? 'bg-blue-400' : 'bg-amber-300') : 'bg-white/50 hover:bg-white/80'
-              }`}
-            />
-          ))}
+        {/* Navigation dots with set bars */}
+        <div className="absolute bottom-10 flex items-end gap-4">
+          {(['intro', 'legacy', 'new', 'new2', 'space'] as const).map((setMode) => {
+            const setSlides = setMode === 'intro' ? INTRO_SET_SLIDES : setMode === 'legacy' ? PROBLEM_SLIDES : setMode === 'new2' ? NEW2_SLIDES : setMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+            const setColor = setMode === 'intro' ? 'bg-white' : setMode === 'legacy' ? 'bg-red-400' : setMode === 'new' ? 'bg-amber-300' : setMode === 'new2' ? 'bg-green-400' : 'bg-blue-400';
+            const isActiveSet = setMode === navMode;
+
+            if (!isActiveSet) {
+              // Inactive set: render as a single wide pill bar
+              return (
+                <button
+                  key={setMode}
+                  onClick={() => {
+                    if (setMode !== 'intro') {
+                      const stored = setMode === 'legacy' ? 'true' : setMode === 'new2' ? 'new2' : setMode === 'space' ? 'space' : 'false';
+                      localStorage.setItem(LEGACY_KEY, stored);
+                      window.dispatchEvent(new Event('storage'));
+                    }
+                    chainingRef.current = true;
+                    setNavMode(setMode);
+                    setCurrentSlide(0);
+                    setDirection('none');
+                    setSlideKey(k => k + 1);
+                    setVisualPhase(0);
+                  }}
+                  className={`${setColor} opacity-20 hover:opacity-40 transition-opacity rounded-full`}
+                  style={{ width: Math.max(20, setSlides.length * 3.5), height: 8 }}
+                />
+              );
+            }
+
+            // Active set: render individual dots
+            return (
+              <div key={setMode} className="flex items-end gap-2">
+                {setSlides.map((s, i) => {
+                  const dimColor = setMode === 'intro' ? 'bg-white/30 hover:bg-white/50' : setMode === 'legacy' ? 'bg-red-400/30 hover:bg-red-400/50' : setMode === 'new' ? 'bg-amber-300/30 hover:bg-amber-300/50' : setMode === 'new2' ? 'bg-green-400/30 hover:bg-green-400/50' : 'bg-blue-400/30 hover:bg-blue-400/50';
+
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setDirection(i > currentSlide ? 'right' : i < currentSlide ? 'left' : 'none');
+                        setSlideKey(k => k + 1);
+                        setCurrentSlide(i);
+                      }}
+                      className="flex flex-col items-center gap-1.5"
+                    >
+                      <div className={`w-2 h-2 rounded-full transition-colors ${
+                        i === currentSlide ? setColor : dimColor
+                      }`} />
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* BambooHR b logo */}
+        <div className="absolute bottom-9 left-10">
+          <svg width="72" height="57" viewBox="0 0 37 29.35" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7.26601 0C7.24121 -0.00826622 7.22881 0.0206656 7.24534 0.0413311C10.3658 3.56274 12.6267 7.82398 13.7591 10.556C12.3291 9.02258 10.9651 7.4272 9.43589 6.36499C6.33193 4.19924 3.06264 3.1329 0.0247987 2.72785C0 2.72785 -0.0123993 2.75679 0.00826622 2.77332C7.4396 8.73326 5.70783 11.8496 15.4082 13.0813C15.4248 13.0813 15.4413 13.0648 15.433 13.0482C13.9988 8.62994 13.5318 5.35238 11.0974 2.74852C10.3328 1.93016 8.0761 0.281052 7.26601 0Z" fill="rgba(255,255,255,0.18)"/>
+            <path d="M27.0471 9.29537C23.5257 9.29537 21.641 10.5022 20.3184 11.8166L19.9588 12.1968V0H16.9168V19.7025C16.9168 25.6418 21.4922 29.3451 26.7412 29.3451C32.5235 29.3451 36.9046 24.8937 36.9046 19.1735C36.9046 13.8625 32.3375 9.29537 27.0471 9.29537ZM26.7412 26.5263C22.9098 26.5263 19.6653 23.505 19.6653 19.4587C19.6653 15.4124 22.3973 12.0852 26.8074 12.0852C31.2174 12.0852 33.813 15.6521 33.813 19.3843C33.813 23.4471 31.0645 26.5263 26.7371 26.5263H26.7412Z" fill="rgba(255,255,255,0.18)"/>
+          </svg>
         </div>
 
         {/* Arrow hints */}

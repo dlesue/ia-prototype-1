@@ -46,6 +46,7 @@ const COMMANDS: CommandItem[] = [
   { id: 'reports', label: 'Reports', section: 'Navigate', icon: 'chart-bar', path: '/reports' },
   { id: 'home', label: 'Home', section: 'Navigate', icon: 'house', path: '/home' },
   { id: 'inbox', label: 'Inbox', section: 'Navigate', icon: 'inbox', path: '/home/inbox' },
+  { id: 'style-guide', label: 'Style Guide', section: 'Navigate', icon: 'palette', path: '/style-guide' },
 
   // Quick actions
   { id: 'request-time-off', label: 'Request Time Off', section: 'Actions', icon: 'calendar-plus', path: '/time-and-attendance/time-off' },

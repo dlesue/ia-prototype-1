@@ -51,7 +51,7 @@ export function LegacyNav() {
   };
 
   return (
-    <div className="fixed top-[var(--scenario-bar-h)] left-0 bottom-0 w-[260px] bg-white border-r border-[var(--border-neutral-xx-weak)] z-20 flex flex-col">
+    <div className="absolute left-0 top-0 h-full w-[260px] bg-white border-r border-[var(--border-neutral-xx-weak)] z-20 flex flex-col">
       {/* Nav items */}
       <div className="flex-1 py-3 px-3 space-y-1">
         {visibleItems.map((item) => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import type { IconName } from '../../components/Icon';
 
@@ -223,10 +223,13 @@ export default function AutomationDetail() {
   if (!auto) {
     return (
       <div className="px-8 pt-6">
-        <button onClick={() => navigate('/automations')} className="flex items-center gap-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline mb-4">
-          <Icon name="chevron-left" size={11} />
-          Back to Automations
+        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors mb-1">
+          <Icon name="chevron-left" size={10} />
+          Back
         </button>
+        <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-weak)] mb-2">
+          <Link to="/automations" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Automations</Link>
+        </div>
         <p className="text-[var(--text-neutral-weak)]">Automation not found.</p>
       </div>
     );
@@ -241,10 +244,15 @@ export default function AutomationDetail() {
   return (
     <div className="px-8 pt-6 pb-24">
       {/* Back link */}
-      <button onClick={() => navigate('/automations')} className="flex items-center gap-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline mb-5">
-        <Icon name="chevron-left" size={11} />
-        Back to Automations
+      <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors mb-1">
+        <Icon name="chevron-left" size={10} />
+        Back
       </button>
+      <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-weak)] mb-2">
+        <Link to="/automations" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Automations</Link>
+        <Icon name="chevron-right" size={8} />
+        <span>{auto.name}</span>
+      </div>
 
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-1">

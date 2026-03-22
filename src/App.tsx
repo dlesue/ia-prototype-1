@@ -3,6 +3,7 @@ import AppLayout from './layouts/AppLayout';
 import { ChatProvider } from './contexts/ChatContext';
 import { ScenarioProvider } from './contexts/ScenarioContext';
 import { Chat } from './pages/Chat';
+import StyleGuidePage from './pages/StyleGuidePage';
 
 // Legacy pages (keep working)
 import { MyInfo } from './pages/MyInfo';
@@ -182,6 +183,10 @@ function LegacySwitch({ legacy, current }: { legacy: React.ReactElement; current
 import AutomationsHub from './pages/Automations/AutomationsHub';
 import AutomationDetail from './pages/Automations/AutomationDetail';
 
+// Slides (presentation layer — above project modes)
+import { ProblemSlides } from './components/ProblemSlides/ProblemSlides';
+import { FeedbackOverlay } from './components/FeedbackOverlay/FeedbackOverlay';
+
 // Settings
 import SettingsHub from './pages/Settings/SettingsHub';
 import SettingsAccount from './pages/Settings/SettingsAccount';
@@ -204,6 +209,9 @@ function App() {
               <AppLayout>
                 <Routes>
                   <Route path="/" element={<Navigate to="/home" replace />} />
+
+                  {/* Style Guide */}
+                  <Route path="/style-guide" element={<StyleGuidePage />} />
 
                   {/* Home */}
                   <Route path="/home" element={<HomeHub />} />
@@ -378,6 +386,8 @@ function App() {
             }
           />
         </Routes>
+        <ProblemSlides />
+        <FeedbackOverlay />
       </BrowserRouter>
       </ScenarioProvider>
     </ChatProvider>

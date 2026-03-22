@@ -1,0 +1,5 @@
+export { default as IARulesTab } from './IARulesTab'
+export { default as NavStructureTab } from './NavStructureTab'
+export { default as ProductsModulesTab } from './ProductsModulesTab'
+export { default as RoleViewsTab } from './RoleViewsTab'
+export { default as TierComparisonTab } from './TierComparisonTab'

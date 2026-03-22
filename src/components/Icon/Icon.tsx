@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHome,
+  faComment,
+  faPlay,
   faCircleUser,
   faUserGroup,
   faIdBadge,
@@ -58,6 +60,8 @@ import {
   faLink,
   faArrowsRotate,
   faWandMagicSparkles,
+  faSkull,
+  faRocket,
   faPaperclip,
   faMicrophone,
   faExpand,
@@ -105,6 +109,7 @@ import {
   faHardDrive,
   faTrophy,
   faClipboardCheck,
+  faListCheck,
   faUserPlus,
   faBook,
 } from '@fortawesome/free-solid-svg-icons';
@@ -229,6 +234,8 @@ export type IconName =
   | 'zoom-out'
   | 'file-export'
   | 'sparkles'
+  | 'skull'
+  | 'rocket'
   | 'paperclip'
   | 'microphone'
   | 'expand'
@@ -244,6 +251,8 @@ export type IconName =
   | 'bullseye'
   | 'bullhorn'
   | 'clipboard'
+  | 'comment'
+  | 'play'
   | 'compass'
   | 'eye'
   | 'temperature-half'
@@ -281,9 +290,11 @@ export type IconName =
   | 'hard-drive'
   | 'trophy'
   | 'clipboard-check'
+  | 'list-check'
   | 'user-plus'
   | 'dollar-sign'
-  | 'book';
+  | 'book'
+  | 'wand-magic-sparkles';
 
 interface IconProps {
   name: IconName;
@@ -359,6 +370,8 @@ const faIconMap = {
   'link': faLink,
   'arrows-rotate': faArrowsRotate,
   'sparkles': faWandMagicSparkles,
+  'skull': faSkull,
+  'rocket': faRocket,
   'paperclip': faPaperclip,
   'microphone': faMicrophone,
   'expand': faExpand,
@@ -373,6 +386,8 @@ const faIconMap = {
   'bullseye': faBullseye,
   'bullhorn': faBullhorn,
   'clipboard': faClipboard,
+  'comment': faComment,
+  'play': faPlay,
   'compass': faCompass,
   'eye': faEye,
   'temperature-half': faTemperatureHalf,
@@ -424,9 +439,11 @@ const faIconMap = {
   'hard-drive': faHardDrive,
   'trophy': faTrophy,
   'clipboard-check': faClipboardCheck,
+  'list-check': faListCheck,
   'user-plus': faUserPlus,
   'dollar-sign': faDollarSign,
   'book': faBook,
+  'wand-magic-sparkles': faWandMagicSparkles,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

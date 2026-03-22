@@ -8,11 +8,14 @@ import { AIChatPanel } from '../components/AIChatPanel';
 import { DemoPanel } from '../components/DemoPanel';
 import { CommandPalette } from '../components/CommandPalette';
 import { ScenarioBar } from '../components/ScenarioBar';
-import { ProblemSlides } from '../components/ProblemSlides/ProblemSlides';
+import { ProjectDocsSidebar, ProjectDocsContent } from '../components/ProjectDocsViewer/ProjectDocsViewer';
+import { PrototypeSidebar } from '../components/PrototypeSidebar/PrototypeSidebar';
+import PrototypeLanding from '../components/PrototypeLanding/PrototypeLanding';
 import { SpaceLayout } from './SpaceLayout';
 
 const LEGACY_KEY = 'bhr-legacy-nav';
 const DEMO_PANEL_KEY = 'bhr-demo-panel-open';
+const PROJECT_MODE_KEY = 'bhr-project-mode';
 
 const NAV_STORAGE_KEY = 'bhr-nav-expanded';
 const CHAT_PANEL_STORAGE_KEY = 'bhr-chat-panel-open';
@@ -35,7 +38,7 @@ function AppLayout({ children }: AppLayoutProps) {
   });
   const [isTablet, setIsTablet] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [navMode, setNavMode] = useState<'legacy' | 'new' | 'new2' | 'space'>(() => {
+  const [navMode, setNavMode] = useState<'intro' | 'legacy' | 'new' | 'new2' | 'space'>(() => {
     const stored = localStorage.getItem(LEGACY_KEY);
     if (stored === 'true') return 'legacy';
     if (stored === 'new2') return 'new2';
@@ -43,6 +46,7 @@ function AppLayout({ children }: AppLayoutProps) {
     return 'new';
   });
   const [isDemoPanelOpen, setIsDemoPanelOpen] = useState(() => localStorage.getItem(DEMO_PANEL_KEY) === 'true');
+  const [projectMode, setProjectMode] = useState(() => localStorage.getItem(PROJECT_MODE_KEY) || 'home');
   const scenarioBarRef = useRef<HTMLDivElement>(null);
   const [scenarioBarH, setScenarioBarH] = useState(32);
 
@@ -125,6 +129,7 @@ function AppLayout({ children }: AppLayoutProps) {
       const stored = localStorage.getItem(LEGACY_KEY);
       setNavMode(stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new');
       setIsDemoPanelOpen(localStorage.getItem(DEMO_PANEL_KEY) === 'true');
+      setProjectMode(localStorage.getItem(PROJECT_MODE_KEY) || 'home');
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
@@ -135,38 +140,79 @@ function AppLayout({ children }: AppLayoutProps) {
   const chatWidth = isChatPanelOpen ? 383 : 0;
   const demoPanelWidth = isDemoPanelOpen ? 340 : 0;
 
-  if (navMode === 'space') {
+  if (projectMode === 'home') {
     return (
-      <div className="h-screen flex flex-col overflow-hidden" style={{ '--scenario-bar-h': `${scenarioBarH}px`, backgroundColor: '#E8F0F5' } as React.CSSProperties}>
+      <div className="h-screen flex flex-col overflow-hidden" style={{ '--scenario-bar-h': `${scenarioBarH}px` } as React.CSSProperties}>
         <div ref={scenarioBarRef}>
           <ScenarioBar />
         </div>
-        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          <SpaceLayout />
-        </div>
-        <ProblemSlides />
+        <PrototypeLanding />
       </div>
     );
   }
 
-  return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]" style={{ '--scenario-bar-h': `${scenarioBarH}px`, '--nav-w': `${navWidth}px`, '--chat-w': `${chatWidth}px`, '--demo-w': `${demoPanelWidth}px` } as React.CSSProperties}>
-      <div ref={scenarioBarRef}>
-        <ScenarioBar />
+  if (projectMode === 'docs') {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden bg-[#1e1e1e]" style={{ '--scenario-bar-h': `${scenarioBarH}px` } as React.CSSProperties}>
+        <div ref={scenarioBarRef}>
+          <ScenarioBar />
+        </div>
+        <div className="flex-1 min-h-0 flex">
+          <ProjectDocsSidebar />
+          <div className="w-px shrink-0 bg-[#2a2a2a]" />
+          <ProjectDocsContent />
+        </div>
       </div>
+    );
+  }
+
+  if (projectMode === 'style-guide') {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]" style={{ '--scenario-bar-h': `${scenarioBarH}px` } as React.CSSProperties}>
+        <div ref={scenarioBarRef}>
+          <ScenarioBar />
+        </div>
+        <div className="flex-1 min-h-0 overflow-y-auto" style={{ padding: '40px 48px' }}>
+          {children}
+        </div>
+      </div>
+    );
+  }
+
+  // Prototype content (shared between space and standard layouts)
+  const prototypeContent = navMode === 'space' ? (
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#E8F0F5', '--chrome-sidebar-w': '177px' } as React.CSSProperties}>
+      <ScenarioBar subBarOnly />
+      <div className="flex-1 min-h-0 flex overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
+          <SpaceLayout />
+        </div>
+        <div
+          className="shrink-0 h-full transition-none overflow-hidden"
+          style={{ width: isDemoPanelOpen ? 340 : 0 }}
+        >
+          <div className="h-full" style={{ width: 340, minWidth: 340 }}>
+            <DemoPanel isOpen={isDemoPanelOpen} />
+          </div>
+        </div>
+      </div>
+    </div>
+  ) : (
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]" style={{ '--nav-w': `${navWidth}px`, '--chat-w': `${chatWidth}px`, '--demo-w': `${demoPanelWidth}px` } as React.CSSProperties}>
+      <ScenarioBar subBarOnly />
       <div className="flex-1 min-h-0 relative flex">
         {navMode === 'legacy' ? <LegacyNav /> : navMode === 'new2' ? <GlobalNavV2 /> : <GlobalNav />}
         <div
-          className="flex-1 flex flex-col min-h-0 min-w-0 transition-all duration-500 ease-in-out"
+          className="flex-1 flex flex-col min-h-0 min-w-0 transition-none"
           style={{ marginLeft: navWidth }}
         >
           {navMode === 'legacy' && <LegacyHeader />}
           <div className="flex-1 flex min-h-0 min-w-0">
-          <main className="flex-1 flex flex-col min-h-0 min-w-0 bg-[var(--surface-neutral-xx-weak)] overflow-y-auto transition-all duration-500 ease-in-out">
+          <main className="flex-1 flex flex-col min-h-0 min-w-0 bg-[var(--surface-neutral-xx-weak)] overflow-y-auto transition-none">
             {children}
           </main>
           <div
-            className="shrink-0 h-full transition-all duration-500 ease-in-out overflow-hidden"
+            className="shrink-0 h-full transition-none overflow-hidden"
             style={{ width: chatWidth }}
           >
             <AIChatPanel
@@ -179,14 +225,28 @@ function AppLayout({ children }: AppLayoutProps) {
           </div>
         </div>
         <div
-          className="shrink-0 h-full transition-all duration-500 ease-in-out overflow-hidden"
+          className="shrink-0 h-full transition-none overflow-hidden"
           style={{ width: demoPanelWidth }}
         >
           <DemoPanel isOpen={isDemoPanelOpen} />
         </div>
       </div>
       <CommandPalette isOpen={isCommandPaletteOpen} onClose={handleCloseCommandPalette} />
-      <ProblemSlides />
+    </div>
+  );
+
+  return (
+    <div className="h-screen flex flex-col overflow-hidden" style={{ '--scenario-bar-h': `${scenarioBarH}px` } as React.CSSProperties}>
+      {/* Project Bar (full width) */}
+      <div ref={scenarioBarRef}>
+        <ScenarioBar projectBarOnly />
+      </div>
+      {/* Left nav + (sub bar + content) */}
+      <div className="flex-1 min-h-0 flex">
+        <PrototypeSidebar />
+        <div className="w-px shrink-0 bg-[#2a2a2a]" />
+        {prototypeContent}
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Icon } from '../../components';
 import { JobWizardSidebar } from '../../components/JobWizardSidebar';
 import { JobInformationForm } from '../../components/JobInformationForm';
@@ -35,14 +35,19 @@ export function CreateJobOpening() {
 
   return (
     <div className="flex flex-col p-10 min-h-screen">
-      {/* Back button */}
+      {/* Back + Breadcrumb */}
       <button
-        onClick={handleBackToJobOpenings}
-        className="flex items-center gap-2 mb-6 py-0 text-[13px] font-medium text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] transition-colors"
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-1 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors mb-1"
       >
-        <Icon name="angle-left" size={16} className="text-[var(--icon-neutral-strong)]" />
-        Job Openings
+        <Icon name="chevron-left" size={10} />
+        Back
       </button>
+      <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-weak)] mb-2">
+        <Link to="/hiring" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Hiring</Link>
+        <Icon name="chevron-right" size={8} />
+        <span>Create Job Opening</span>
+      </div>
 
       {/* Page title */}
       <div className="flex flex-col gap-3 mb-6">

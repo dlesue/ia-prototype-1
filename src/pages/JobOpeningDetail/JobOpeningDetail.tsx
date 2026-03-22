@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button, Icon, Avatar, StarRating } from '../../components';
 import { jobOpenings } from '../../data/jobOpenings';
 import { jobCandidates } from '../../data/jobCandidates';
@@ -23,15 +23,22 @@ export function JobOpeningDetail() {
 
   return (
     <div className="p-10">
-      {/* Back link and title */}
+      {/* Back + Breadcrumb */}
       <div className="mb-8">
         <button
-          onClick={() => navigate('/hiring')}
-          className="flex items-center gap-2 text-[13px] font-medium text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] transition-colors mb-4"
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors mb-1"
         >
-          <Icon name="chevron-left" size={16} className="text-[var(--icon-neutral-strong)]" />
-          Job Openings
+          <Icon name="chevron-left" size={10} />
+          Back
         </button>
+        <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-weak)] mb-2">
+          <Link to="/hiring" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Hiring</Link>
+          <Icon name="chevron-right" size={8} />
+          <Link to="/hiring/job-openings" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Job Openings</Link>
+          <Icon name="chevron-right" size={8} />
+          <span>{job?.title}</span>
+        </div>
 
         <div className="flex items-start justify-between mb-3">
           <h1 className="text-[52px] font-bold leading-[62px] text-[var(--color-primary-strong)] mb-0">

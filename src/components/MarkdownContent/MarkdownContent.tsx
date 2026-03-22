@@ -3,173 +3,218 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { Components } from 'react-markdown';
 
+/**
+ * Renders markdown content styled according to BambooHR markdown style rules.
+ * Source of truth: src/data/markdown-style-rules.ts
+ *
+ * Typography: Fields (serif) for H1–H3 and blockquotes, Inter (sans-serif) for everything else.
+ * Colors: Light mode palette from the style rules.
+ */
+
+const FIELDS = "'Fields', Georgia, serif";
+const INTER = "'Inter', system-ui, sans-serif";
+const MONO = "'JetBrains Mono', 'Fira Code', ui-monospace, monospace";
+
+// Light mode colors from style rules
+const CHARCOAL = '#333333';
+const SLATE = '#555555';
+const LEAF_GREEN = '#73C41D';
+const FOREST = '#2D7262';
+const BARK = '#5C342C';
+const MIST = '#F5F5F0';
+const CLOUD = '#EAEAE4';
+
 interface MarkdownContentProps {
   text: string;
 }
 
 const MarkdownContent: React.FC<MarkdownContentProps> = ({ text }) => {
   const components: Components = {
-    // Headers
+    // H1: Fields Bold, 4rem — one per document
     h1: ({ children }) => (
-      <h1 className="text-2xl font-semibold text-[var(--text-neutral-xx-strong)] mt-4 mb-2 first:mt-0">
+      <h1
+        style={{ fontFamily: FIELDS, fontSize: '3rem', fontWeight: 700, color: CHARCOAL, lineHeight: 1.15, marginTop: 0, marginBottom: '1.5rem' }}
+      >
         {children}
       </h1>
     ),
+
+    // H2: Fields Bold, 2.5rem — major sections, green bottom border
     h2: ({ children }) => (
-      <h2 className="text-xl font-semibold text-[var(--text-neutral-xx-strong)] mt-3 mb-2 first:mt-0">
+      <h2
+        style={{ fontFamily: FIELDS, fontSize: '1.75rem', fontWeight: 700, color: CHARCOAL, lineHeight: 1.2, marginTop: '2.5rem', marginBottom: '1rem', paddingBottom: '0.5rem', borderBottom: `2px solid ${LEAF_GREEN}` }}
+      >
         {children}
       </h2>
     ),
+
+    // H3: Fields Bold, 1.75rem — subsections, warm Bark color
     h3: ({ children }) => (
-      <h3 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mt-3 mb-2 first:mt-0">
+      <h3
+        style={{ fontFamily: FIELDS, fontSize: '1.35rem', fontWeight: 700, color: BARK, lineHeight: 1.25, marginTop: '2rem', marginBottom: '0.75rem' }}
+      >
         {children}
       </h3>
     ),
+
+    // H4: Inter Semi-Bold, 1.3rem
     h4: ({ children }) => (
-      <h4 className="text-base font-semibold text-[var(--text-neutral-xx-strong)] mt-2 mb-1 first:mt-0">
+      <h4
+        style={{ fontFamily: INTER, fontSize: '1.15rem', fontWeight: 600, color: CHARCOAL, lineHeight: 1.3, marginTop: '1.5rem', marginBottom: '0.5rem' }}
+      >
         {children}
       </h4>
     ),
+
+    // H5: Inter Semi-Bold, 1.1rem
     h5: ({ children }) => (
-      <h5 className="text-sm font-semibold text-[var(--text-neutral-xx-strong)] mt-2 mb-1 first:mt-0">
+      <h5
+        style={{ fontFamily: INTER, fontSize: '1rem', fontWeight: 600, color: CHARCOAL, lineHeight: 1.3, marginTop: '1.25rem', marginBottom: '0.5rem' }}
+      >
         {children}
       </h5>
     ),
+
+    // H6: Inter Semi-Bold, 0.95rem — secondary text color
     h6: ({ children }) => (
-      <h6 className="text-sm font-semibold text-[var(--text-neutral-xx-strong)] mt-2 mb-1 first:mt-0">
+      <h6
+        style={{ fontFamily: INTER, fontSize: '0.875rem', fontWeight: 600, color: SLATE, lineHeight: 1.3, marginTop: '1rem', marginBottom: '0.5rem' }}
+      >
         {children}
       </h6>
     ),
 
-    // Paragraphs
+    // Body: Inter Regular, 16px, line-height 1.6
     p: ({ children }) => (
-      <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] my-2 first:mt-0 last:mb-0">
+      <p
+        style={{ fontFamily: INTER, fontSize: '16px', lineHeight: 1.6, color: CHARCOAL, margin: '0.75rem 0' }}
+      >
         {children}
       </p>
     ),
 
-    // Emphasis
     strong: ({ children }) => (
-      <strong className="font-semibold text-[var(--text-neutral-xx-strong)]">
-        {children}
-      </strong>
-    ),
-    em: ({ children }) => (
-      <em className="italic text-[var(--text-neutral-xx-strong)]">
-        {children}
-      </em>
+      <strong style={{ fontWeight: 600, color: CHARCOAL }}>{children}</strong>
     ),
 
-    // Lists
+    em: ({ children }) => (
+      <em style={{ fontStyle: 'italic', color: CHARCOAL }}>{children}</em>
+    ),
+
+    // Lists: Inter, 16px
     ul: ({ children }) => (
-      <ul className="list-disc ml-5 space-y-1 my-2 text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)]">
+      <ul
+        style={{ fontFamily: INTER, fontSize: '16px', lineHeight: 1.6, color: CHARCOAL, listStyleType: 'disc', marginLeft: '1.25rem', margin: '0.75rem 0 0.75rem 1.25rem' }}
+      >
         {children}
       </ul>
     ),
+
     ol: ({ children }) => (
-      <ol className="list-decimal ml-5 space-y-1 my-2 text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)]">
+      <ol
+        style={{ fontFamily: INTER, fontSize: '16px', lineHeight: 1.6, color: CHARCOAL, listStyleType: 'decimal', marginLeft: '1.25rem', margin: '0.75rem 0 0.75rem 1.25rem' }}
+      >
         {children}
       </ol>
     ),
+
     li: ({ children }) => (
-      <li className="text-[var(--text-neutral-xx-strong)]">
-        {children}
-      </li>
+      <li style={{ color: CHARCOAL, marginBottom: '0.25rem' }}>{children}</li>
     ),
 
-    // Code
+    // Inline code: monospace
     code: ({ children, className }) => {
       const isInline = !className;
       if (isInline) {
         return (
-          <code className="px-1.5 py-0.5 rounded bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-strong)] font-mono text-sm text-[var(--text-neutral-xx-strong)]">
+          <code
+            style={{ fontFamily: MONO, fontSize: '0.875em', padding: '0.15em 0.4em', borderRadius: '4px', backgroundColor: MIST, border: `1px solid ${CLOUD}`, color: CHARCOAL }}
+          >
             {children}
           </code>
         );
       }
-      // Block code
-      const language = className?.replace('language-', '') || '';
       return (
-        <pre className="my-3 p-3 rounded bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-strong)] overflow-x-auto">
-          <code className={`font-mono text-sm text-[var(--text-neutral-xx-strong)] ${className || ''}`}>
-            {children}
-          </code>
+        <pre
+          style={{ fontFamily: MONO, fontSize: '14px', lineHeight: 1.5, padding: '1rem', borderRadius: '8px', backgroundColor: '#1e293b', color: '#e2e8f0', overflowX: 'auto', margin: '1rem 0' }}
+        >
+          <code className={className}>{children}</code>
         </pre>
       );
     },
 
-    // Links
+    // Links: Forest green
     a: ({ href, children }) => (
       <a
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-[var(--color-link)] underline hover:text-[var(--color-link-hover)]"
+        style={{ color: FOREST, textDecoration: 'underline', textUnderlineOffset: '2px' }}
       >
         {children}
       </a>
     ),
 
-    // Blockquotes
+    // Blockquotes: Fields Italic, green left border, mist background
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-[var(--border-neutral-strong)] pl-4 py-1 my-3 italic text-[var(--text-neutral-strong)]">
+      <blockquote
+        style={{ fontFamily: FIELDS, fontStyle: 'italic', borderLeft: `4px solid ${LEAF_GREEN}`, backgroundColor: MIST, padding: '0.75rem 1rem', margin: '1rem 0', borderRadius: '0 6px 6px 0', color: SLATE }}
+      >
         {children}
       </blockquote>
     ),
 
     // Tables
     table: ({ children }) => (
-      <div className="overflow-x-auto my-3">
-        <table className="min-w-full border-collapse border border-[var(--border-neutral-strong)]">
+      <div style={{ overflowX: 'auto', margin: '1rem 0' }}>
+        <table
+          style={{ width: '100%', borderCollapse: 'collapse', fontFamily: INTER, fontSize: '14px' }}
+        >
           {children}
         </table>
       </div>
     ),
+
     thead: ({ children }) => (
-      <thead className="bg-[var(--surface-neutral-xx-weak)]">
-        {children}
-      </thead>
+      <thead style={{ backgroundColor: MIST }}>{children}</thead>
     ),
-    tbody: ({ children }) => (
-      <tbody>
-        {children}
-      </tbody>
-    ),
+
+    tbody: ({ children }) => <tbody>{children}</tbody>,
+
     tr: ({ children }) => (
-      <tr className="border-b border-[var(--border-neutral-strong)]">
-        {children}
-      </tr>
+      <tr style={{ borderBottom: `1px solid ${CLOUD}` }}>{children}</tr>
     ),
+
     th: ({ children }) => (
-      <th className="px-4 py-2 text-left font-semibold text-[var(--text-neutral-xx-strong)] border border-[var(--border-neutral-strong)]">
+      <th
+        style={{ padding: '0.6rem 0.75rem', textAlign: 'left', fontWeight: 600, color: CHARCOAL, borderBottom: `2px solid ${CLOUD}`, fontSize: '13px' }}
+      >
         {children}
       </th>
     ),
+
     td: ({ children }) => (
-      <td className="px-4 py-2 text-[var(--text-neutral-xx-strong)] border border-[var(--border-neutral-strong)]">
+      <td
+        style={{ padding: '0.6rem 0.75rem', color: CHARCOAL, fontSize: '14px', verticalAlign: 'top' }}
+      >
         {children}
       </td>
     ),
 
     // Horizontal rule
     hr: () => (
-      <hr className="my-4 border-t border-[var(--border-neutral-strong)]" />
+      <hr style={{ border: 'none', borderTop: `1px solid ${CLOUD}`, margin: '2rem 0' }} />
     ),
 
-    // Strikethrough (from remark-gfm)
+    // Strikethrough
     del: ({ children }) => (
-      <del className="text-[var(--text-neutral-strong)] line-through">
-        {children}
-      </del>
+      <del style={{ color: SLATE, textDecoration: 'line-through' }}>{children}</del>
     ),
   };
 
   return (
-    <div className="markdown-content">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={components}
-      >
+    <div className="markdown-content" style={{ fontFamily: INTER, color: CHARCOAL }}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
         {text}
       </ReactMarkdown>
     </div>

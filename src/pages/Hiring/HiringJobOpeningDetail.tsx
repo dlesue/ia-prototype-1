@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 
 const candidates = [
@@ -21,16 +21,26 @@ function Stars({ count }: { count: number }) {
 
 export default function HiringJobOpeningDetail() {
   const [reportsOpen, setReportsOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="px-8 pb-8">
-      {/* Breadcrumb — abstract */}
-      <div className="flex items-center gap-2 py-4">
-        <Link to="/hiring" className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm bg-[var(--border-neutral-xx-weak)]" />
-          <div className="h-2.5 w-20 rounded bg-[var(--border-neutral-xx-weak)]" />
-        </Link>
-        <div className="h-2.5 w-32 rounded bg-[var(--border-neutral-xx-weak)]" />
+      {/* Back + Breadcrumb */}
+      <div className="pt-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors mb-1"
+        >
+          <Icon name="chevron-left" size={10} />
+          Back
+        </button>
+        <div className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-weak)] mb-2">
+          <Link to="/hiring" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Hiring</Link>
+          <Icon name="chevron-right" size={8} />
+          <Link to="/hiring/job-openings" className="text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-x-strong)] transition-colors">Job Openings</Link>
+          <Icon name="chevron-right" size={8} />
+          <span>IT Security Engineer</span>
+        </div>
       </div>
 
       {/* Header */}
