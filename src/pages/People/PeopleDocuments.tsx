@@ -2,13 +2,9 @@ import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 export default function PeopleDocuments() {
   return (
-    <div className="p-6">
+    <div className="p-6 flex flex-col flex-1">
       <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-6">Documents</h1>
-      <div className="space-y-4">
-        <ContentBlock height={170} />
-        <ContentBlock height={290} />
-        <ContentBlock height={160} />
-      </div>
+      <ContentBlock fillHeight showJtbd />
     </div>
   );
 }

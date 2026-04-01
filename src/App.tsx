@@ -172,6 +172,117 @@ import SettingsBilling from './pages/Settings/SettingsBilling';
 // Upsell
 import UpsellPage from './pages/Upsell/UpsellPage';
 
+// ── Hub pages for expansion T1s ─────────────────────────────
+import ITHub from './pages/IT/ITHub';
+import FinanceHub from './pages/Finance/FinanceHub';
+import WorkplaceHub from './pages/Workplace/WorkplaceHub';
+
+// ── BambooIT ────────────────────────────────────────────────
+import HelpdeskHub from './pages/Helpdesk/HelpdeskHub';
+import HelpdeskTickets from './pages/Helpdesk/HelpdeskTickets';
+import HelpdeskServiceCatalog from './pages/Helpdesk/HelpdeskServiceCatalog';
+import HelpdeskQueues from './pages/Helpdesk/HelpdeskQueues';
+import HelpdeskSla from './pages/Helpdesk/HelpdeskSla';
+
+import IncidentsHub from './pages/Incidents/IncidentsHub';
+import IncidentsActive from './pages/Incidents/IncidentsActive';
+import IncidentsMajor from './pages/Incidents/IncidentsMajor';
+import IncidentsOnCall from './pages/Incidents/IncidentsOnCall';
+import IncidentsPostmortems from './pages/Incidents/IncidentsPostmortems';
+
+import AssetsHub from './pages/Assets/AssetsHub';
+import AssetsHardware from './pages/Assets/AssetsHardware';
+import AssetsSoftware from './pages/Assets/AssetsSoftware';
+import AssetsContracts from './pages/Assets/AssetsContracts';
+import AssetsLifecycle from './pages/Assets/AssetsLifecycle';
+
+import KnowledgeHub from './pages/Knowledge/KnowledgeHub';
+import KnowledgeArticles from './pages/Knowledge/KnowledgeArticles';
+import KnowledgeCategories from './pages/Knowledge/KnowledgeCategories';
+import KnowledgeDrafts from './pages/Knowledge/KnowledgeDrafts';
+
+import ChangesHub from './pages/Changes/ChangesHub';
+import ChangesRequests from './pages/Changes/ChangesRequests';
+import ChangesCalendar from './pages/Changes/ChangesCalendar';
+import ChangesReleases from './pages/Changes/ChangesReleases';
+
+import DevicesHub from './pages/Devices/DevicesHub';
+import DevicesEndpoints from './pages/Devices/DevicesEndpoints';
+import DevicesMdmPolicies from './pages/Devices/DevicesMdmPolicies';
+import DevicesPatches from './pages/Devices/DevicesPatches';
+import DevicesRemoteAccess from './pages/Devices/DevicesRemoteAccess';
+
+import SecurityHub from './pages/Security/SecurityHub';
+import SecurityThreats from './pages/Security/SecurityThreats';
+import SecurityVulnerabilities from './pages/Security/SecurityVulnerabilities';
+import SecurityAccessReviews from './pages/Security/SecurityAccessReviews';
+import SecurityCompliance from './pages/Security/SecurityCompliance';
+
+// ── BambooFinance ───────────────────────────────────────────
+import ExpensesHub from './pages/Expenses/ExpensesHub';
+import ExpensesReports from './pages/Expenses/ExpensesReports';
+import ExpensesReceipts from './pages/Expenses/ExpensesReceipts';
+import ExpensesMileage from './pages/Expenses/ExpensesMileage';
+import ExpensesPerDiems from './pages/Expenses/ExpensesPerDiems';
+
+import CardsHub from './pages/Cards/CardsHub';
+import CardsTransactions from './pages/Cards/CardsTransactions';
+import CardsControls from './pages/Cards/CardsControls';
+import CardsRequests from './pages/Cards/CardsRequests';
+
+import BudgetsHub from './pages/Budgets/BudgetsHub';
+import BudgetsDepartment from './pages/Budgets/BudgetsDepartment';
+import BudgetsProject from './pages/Budgets/BudgetsProject';
+import BudgetsForecasts from './pages/Budgets/BudgetsForecasts';
+import BudgetsAlerts from './pages/Budgets/BudgetsAlerts';
+
+import TravelHub from './pages/Travel/TravelHub';
+import TravelTrips from './pages/Travel/TravelTrips';
+import TravelItineraries from './pages/Travel/TravelItineraries';
+import TravelPolicies from './pages/Travel/TravelPolicies';
+
+import ProcurementHub from './pages/Procurement/ProcurementHub';
+import ProcurementRequests from './pages/Procurement/ProcurementRequests';
+import ProcurementOrders from './pages/Procurement/ProcurementOrders';
+import ProcurementVendors from './pages/Procurement/ProcurementVendors';
+import ProcurementCatalogs from './pages/Procurement/ProcurementCatalogs';
+
+import InvoicesHub from './pages/Invoices/InvoicesHub';
+import InvoicesProcessing from './pages/Invoices/InvoicesProcessing';
+import InvoicesMatching from './pages/Invoices/InvoicesMatching';
+import InvoicesPayments from './pages/Invoices/InvoicesPayments';
+
+// ── BambooWorkplace ─────────────────────────────────────────
+import DesksHub from './pages/Desks/DesksHub';
+import DesksBooking from './pages/Desks/DesksBooking';
+import DesksNeighborhoods from './pages/Desks/DesksNeighborhoods';
+import DesksPolicies from './pages/Desks/DesksPolicies';
+
+import RoomsHub from './pages/Rooms/RoomsHub';
+import RoomsBooking from './pages/Rooms/RoomsBooking';
+import RoomsDirectory from './pages/Rooms/RoomsDirectory';
+import RoomsSignage from './pages/Rooms/RoomsSignage';
+
+import VisitorsHub from './pages/Visitors/VisitorsHub';
+import VisitorsCheckIn from './pages/Visitors/VisitorsCheckIn';
+import VisitorsInvitations from './pages/Visitors/VisitorsInvitations';
+import VisitorsWatchlist from './pages/Visitors/VisitorsWatchlist';
+
+import SpacesHub from './pages/Spaces/SpacesHub';
+import SpacesFloorPlans from './pages/Spaces/SpacesFloorPlans';
+import SpacesOccupancy from './pages/Spaces/SpacesOccupancy';
+import SpacesMoves from './pages/Spaces/SpacesMoves';
+
+import SchedulesHub from './pages/Schedules/SchedulesHub';
+import SchedulesHybrid from './pages/Schedules/SchedulesHybrid';
+import SchedulesTeams from './pages/Schedules/SchedulesTeams';
+import SchedulesOfficeDirectory from './pages/Schedules/SchedulesOfficeDirectory';
+
+import MaintenanceHub from './pages/Maintenance/MaintenanceHub';
+import MaintenanceWorkOrders from './pages/Maintenance/MaintenanceWorkOrders';
+import MaintenancePreventive from './pages/Maintenance/MaintenancePreventive';
+import MaintenanceFacilityAssets from './pages/Maintenance/MaintenanceFacilityAssets';
+
 const LEGACY_KEY = 'bhr-legacy-nav';
 
 function LegacySwitch({ legacy, current }: { legacy: React.ReactElement; current: React.ReactElement }) {
@@ -376,6 +487,99 @@ function App() {
                   <Route path="/settings/integrations" element={<SettingsIntegrations />} />
                   <Route path="/settings/notifications" element={<SettingsNotifications />} />
                   <Route path="/settings/billing" element={<SettingsBilling />} />
+
+                  {/* ── IT (expansion) ─────────────────────── */}
+                  <Route path="/it" element={<ITHub />} />
+                  <Route path="/it/helpdesk" element={<HelpdeskHub />} />
+                  <Route path="/it/helpdesk/tickets" element={<HelpdeskTickets />} />
+                  <Route path="/it/helpdesk/service-catalog" element={<HelpdeskServiceCatalog />} />
+                  <Route path="/it/helpdesk/queues" element={<HelpdeskQueues />} />
+                  <Route path="/it/helpdesk/sla" element={<HelpdeskSla />} />
+                  <Route path="/it/incidents" element={<IncidentsHub />} />
+                  <Route path="/it/incidents/active" element={<IncidentsActive />} />
+                  <Route path="/it/incidents/major" element={<IncidentsMajor />} />
+                  <Route path="/it/incidents/on-call" element={<IncidentsOnCall />} />
+                  <Route path="/it/incidents/postmortems" element={<IncidentsPostmortems />} />
+                  <Route path="/it/assets" element={<AssetsHub />} />
+                  <Route path="/it/assets/hardware" element={<AssetsHardware />} />
+                  <Route path="/it/assets/software" element={<AssetsSoftware />} />
+                  <Route path="/it/assets/contracts" element={<AssetsContracts />} />
+                  <Route path="/it/assets/lifecycle" element={<AssetsLifecycle />} />
+                  <Route path="/it/knowledge" element={<KnowledgeHub />} />
+                  <Route path="/it/knowledge/articles" element={<KnowledgeArticles />} />
+                  <Route path="/it/knowledge/categories" element={<KnowledgeCategories />} />
+                  <Route path="/it/knowledge/drafts" element={<KnowledgeDrafts />} />
+                  <Route path="/it/changes" element={<ChangesHub />} />
+                  <Route path="/it/changes/requests" element={<ChangesRequests />} />
+                  <Route path="/it/changes/calendar" element={<ChangesCalendar />} />
+                  <Route path="/it/changes/releases" element={<ChangesReleases />} />
+                  <Route path="/it/devices" element={<DevicesHub />} />
+                  <Route path="/it/devices/endpoints" element={<DevicesEndpoints />} />
+                  <Route path="/it/devices/mdm-policies" element={<DevicesMdmPolicies />} />
+                  <Route path="/it/devices/patches" element={<DevicesPatches />} />
+                  <Route path="/it/devices/remote-access" element={<DevicesRemoteAccess />} />
+                  <Route path="/it/security" element={<SecurityHub />} />
+                  <Route path="/it/security/threats" element={<SecurityThreats />} />
+                  <Route path="/it/security/vulnerabilities" element={<SecurityVulnerabilities />} />
+                  <Route path="/it/security/access-reviews" element={<SecurityAccessReviews />} />
+                  <Route path="/it/security/compliance" element={<SecurityCompliance />} />
+
+                  {/* ── Finance (expansion) ───────────────── */}
+                  <Route path="/finance" element={<FinanceHub />} />
+                  <Route path="/finance/expenses" element={<ExpensesHub />} />
+                  <Route path="/finance/expenses/reports" element={<ExpensesReports />} />
+                  <Route path="/finance/expenses/receipts" element={<ExpensesReceipts />} />
+                  <Route path="/finance/expenses/mileage" element={<ExpensesMileage />} />
+                  <Route path="/finance/expenses/per-diems" element={<ExpensesPerDiems />} />
+                  <Route path="/finance/cards" element={<CardsHub />} />
+                  <Route path="/finance/cards/transactions" element={<CardsTransactions />} />
+                  <Route path="/finance/cards/controls" element={<CardsControls />} />
+                  <Route path="/finance/cards/requests" element={<CardsRequests />} />
+                  <Route path="/finance/budgets" element={<BudgetsHub />} />
+                  <Route path="/finance/budgets/department" element={<BudgetsDepartment />} />
+                  <Route path="/finance/budgets/project" element={<BudgetsProject />} />
+                  <Route path="/finance/budgets/forecasts" element={<BudgetsForecasts />} />
+                  <Route path="/finance/budgets/alerts" element={<BudgetsAlerts />} />
+                  <Route path="/finance/travel" element={<TravelHub />} />
+                  <Route path="/finance/travel/trips" element={<TravelTrips />} />
+                  <Route path="/finance/travel/itineraries" element={<TravelItineraries />} />
+                  <Route path="/finance/travel/policies" element={<TravelPolicies />} />
+                  <Route path="/finance/procurement" element={<ProcurementHub />} />
+                  <Route path="/finance/procurement/requests" element={<ProcurementRequests />} />
+                  <Route path="/finance/procurement/orders" element={<ProcurementOrders />} />
+                  <Route path="/finance/procurement/vendors" element={<ProcurementVendors />} />
+                  <Route path="/finance/procurement/catalogs" element={<ProcurementCatalogs />} />
+                  <Route path="/finance/invoices" element={<InvoicesHub />} />
+                  <Route path="/finance/invoices/processing" element={<InvoicesProcessing />} />
+                  <Route path="/finance/invoices/matching" element={<InvoicesMatching />} />
+                  <Route path="/finance/invoices/payments" element={<InvoicesPayments />} />
+
+                  {/* ── Workplace (expansion) ─────────────── */}
+                  <Route path="/workplace" element={<WorkplaceHub />} />
+                  <Route path="/workplace/desks" element={<DesksHub />} />
+                  <Route path="/workplace/desks/booking" element={<DesksBooking />} />
+                  <Route path="/workplace/desks/neighborhoods" element={<DesksNeighborhoods />} />
+                  <Route path="/workplace/desks/policies" element={<DesksPolicies />} />
+                  <Route path="/workplace/rooms" element={<RoomsHub />} />
+                  <Route path="/workplace/rooms/booking" element={<RoomsBooking />} />
+                  <Route path="/workplace/rooms/directory" element={<RoomsDirectory />} />
+                  <Route path="/workplace/rooms/signage" element={<RoomsSignage />} />
+                  <Route path="/workplace/visitors" element={<VisitorsHub />} />
+                  <Route path="/workplace/visitors/check-in" element={<VisitorsCheckIn />} />
+                  <Route path="/workplace/visitors/invitations" element={<VisitorsInvitations />} />
+                  <Route path="/workplace/visitors/watchlist" element={<VisitorsWatchlist />} />
+                  <Route path="/workplace/spaces" element={<SpacesHub />} />
+                  <Route path="/workplace/spaces/floor-plans" element={<SpacesFloorPlans />} />
+                  <Route path="/workplace/spaces/occupancy" element={<SpacesOccupancy />} />
+                  <Route path="/workplace/spaces/moves" element={<SpacesMoves />} />
+                  <Route path="/workplace/schedules" element={<SchedulesHub />} />
+                  <Route path="/workplace/schedules/hybrid" element={<SchedulesHybrid />} />
+                  <Route path="/workplace/schedules/teams" element={<SchedulesTeams />} />
+                  <Route path="/workplace/schedules/office-directory" element={<SchedulesOfficeDirectory />} />
+                  <Route path="/workplace/maintenance" element={<MaintenanceHub />} />
+                  <Route path="/workplace/maintenance/work-orders" element={<MaintenanceWorkOrders />} />
+                  <Route path="/workplace/maintenance/preventive" element={<MaintenancePreventive />} />
+                  <Route path="/workplace/maintenance/facility-assets" element={<MaintenanceFacilityAssets />} />
 
                   {/* Legacy redirects */}
                   <Route path="/my-info" element={<Navigate to="/people/my-info" replace />} />

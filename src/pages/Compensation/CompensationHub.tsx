@@ -1,6 +1,6 @@
 import { HubHeader } from '../../components/HubHeader';
 import type { HubAutomation } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: 'Median Salary', value: '$94,200', icon: 'circle-dollar', trend: 'up' as const, trendValue: '+3.2%', sparkData: [88,89,91,92,93,94,94.2], linkTo: '/reports/view/Pay%20by%20Department' },
@@ -29,11 +29,10 @@ const AUTOMATIONS: HubAutomation[] = [
 
 export default function CompensationHub() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Compensation" product="Compensation" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-8 pb-8">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Overview</h2>
-        <Placeholder />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

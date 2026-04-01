@@ -12,15 +12,13 @@ interface PrototypeEntry {
 
 const PROTOTYPES: PrototypeEntry[] = [
   { id: 'legacy', label: 'Legacy', icon: 'skull', storageValue: 'true', accentColor: '#f87171' },
-  { id: 'new', label: 'v1', icon: 'compass', storageValue: 'false', accentColor: '#fbbf24' },
-  { id: 'new2', label: 'v2', icon: 'arrows-rotate', storageValue: 'new2', accentColor: '#34d399' },
-  { id: 'space', label: 'v3', icon: 'rocket', storageValue: 'space', accentColor: '#60a5fa' },
+  { id: 'new', label: 'New', icon: 'compass', storageValue: 'false', accentColor: '#34d399' },
+  { id: 'space', label: 'Space', icon: 'rocket', storageValue: 'space', accentColor: '#60a5fa' },
 ];
 
 export function getNavMode(): string {
   const stored = localStorage.getItem(LEGACY_KEY);
   if (stored === 'true') return 'legacy';
-  if (stored === 'new2') return 'new2';
   if (stored === 'space') return 'space';
   if (stored === 'none' || stored === 'intro' || stored === null) return 'new';
   return 'new';

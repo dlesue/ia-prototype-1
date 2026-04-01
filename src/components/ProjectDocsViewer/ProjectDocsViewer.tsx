@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import MarkdownContent from '../MarkdownContent/MarkdownContent';
-import { projectDocs } from '../../data/projectDocs';
+import { projectDocs, DOC_CATEGORIES } from '../../data/projectDocs';
 import type { ProjectDoc } from '../../data/projectDocs';
 
 const SELECTED_DOC_KEY = 'bhr-selected-doc';
@@ -40,11 +40,7 @@ export function ProjectDocsSidebar() {
     window.dispatchEvent(new Event('storage'));
   };
 
-  const categories = [
-    { key: 'spec' as const, label: 'Specs' },
-    { key: 'ia-review' as const, label: 'IA Review' },
-    { key: 'research' as const, label: 'Research' },
-  ];
+  const categories = DOC_CATEGORIES;
 
   const docsByCategory = (cat: ProjectDoc['category']) =>
     projectDocs.filter(d => d.category === cat);

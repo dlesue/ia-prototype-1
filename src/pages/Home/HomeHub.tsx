@@ -34,7 +34,7 @@ export default function HomeHub() {
   const { persona } = useScenario();
   const ee = getEmployee(persona);
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       {/* Greeting */}
       <div className="px-8 pt-6 flex items-center gap-4">
         <img src={ee.avatar} alt={`${ee.preferredName} ${ee.lastName}`} className="w-16 h-16 rounded-xl object-cover shrink-0" />
@@ -44,68 +44,8 @@ export default function HomeHub() {
         </div>
       </div>
       <HubHeader title="" product="Home" metrics={[]} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-8 pb-8 space-y-4">
-        {/* My Time + Time Off (left) | What's Happening (right) */}
-        <div className="flex gap-4">
-          <div className="w-[280px] shrink-0 space-y-4">
-            <ContentBlock height={220} />
-            <ContentBlock height={140} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <ContentBlock height={376} />
-          </div>
-        </div>
-
-        {/* My Direct Reports */}
-        <ContentBlock height={180} />
-
-        {/* Celebrations / Who's Out / Company Links */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={160} />
-          <ContentBlock height={160} />
-          <ContentBlock height={160} />
-        </div>
-
-        {/* Age / Benefit Enrollments / Candidates With Offers */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
-
-        {/* Department / Division / Employment Status */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
-
-        {/* Ethnicity / Gender / Incomplete Trainings */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
-
-        {/* Length of Service / Location / Onboarding */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
-
-        {/* People Without a Pay Raise / Time Off Requests / Time Off Used */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
-
-        {/* Time to Hire / Welcome */}
-        <div className="grid grid-cols-3 gap-4">
-          <ContentBlock height={180} />
-          <ContentBlock height={180} />
-        </div>
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

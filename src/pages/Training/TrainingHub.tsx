@@ -1,6 +1,6 @@
 import { HubHeader } from '../../components/HubHeader';
 import type { HubAutomation } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: "Compliance Rate", value: "91%", icon: "shield", ringPercent: 91, linkTo: '/reports/view/Compliance%20Rate' },
@@ -30,11 +30,10 @@ const AUTOMATIONS: HubAutomation[] = [
 
 export default function TrainingHub() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Training" product="Training" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-6 pb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Catalog</h2>
-        <Placeholder />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

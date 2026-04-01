@@ -22,11 +22,10 @@ const insights = [
 
 export default function WellbeingHub() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Wellbeing" product="Wellbeing" metrics={[]} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-6 pb-6 space-y-4">
-        <ContentBlock height={200} />
-        <ContentBlock height={300} />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

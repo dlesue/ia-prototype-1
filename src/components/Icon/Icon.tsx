@@ -1,6 +1,8 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faHome,
+  faSeedling,
+  faCircleNodes,
   faComment,
   faPlay,
   faCircleUser,
@@ -112,6 +114,11 @@ import {
   faListCheck,
   faUserPlus,
   faBook,
+  faServer,
+  faLandmark,
+  faCreditCard,
+  faWallet,
+  faWindowMaximize,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -136,6 +143,10 @@ import {
   faShareFromSquare as faShareFromSquareRegular,
   faHandshake as faHandshakeRegular,
   faHand as faHandRegular,
+  faBuilding as faBuildingRegular,
+  faHardDrive as faHardDriveRegular,
+  faWindowMaximize as faWindowMaximizeRegular,
+  faCreditCard as faCreditCardRegular,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   PanelLeftClose,
@@ -157,6 +168,17 @@ import {
   CirclePlus,
   Gamepad2,
   Zap,
+  Laptop as LaptopLucide,
+  Shield as ShieldLucide,
+  Server as ServerLucide,
+  Monitor,
+  Building2,
+  Landmark as LandmarkLucide,
+  Wallet as WalletLucide,
+  Blocks,
+  LayoutGrid,
+  Puzzle,
+  Network,
 } from 'lucide-react';
 
 export type IconName =
@@ -202,6 +224,8 @@ export type IconName =
   | 'address-card'
   | 'caret-down'
   | 'lock'
+  | 'seedling'
+  | 'circle-nodes'
   | 'thumbs-up'
   | 'heart'
   | 'sliders'
@@ -294,7 +318,17 @@ export type IconName =
   | 'user-plus'
   | 'dollar-sign'
   | 'book'
-  | 'wand-magic-sparkles';
+  | 'wand-magic-sparkles'
+  | 'server'
+  | 'monitor'
+  | 'network'
+  | 'landmark'
+  | 'credit-card'
+  | 'wallet'
+  | 'window-maximize'
+  | 'blocks'
+  | 'layout-grid'
+  | 'puzzle';
 
 interface IconProps {
   name: IconName;
@@ -353,6 +387,8 @@ const faIconMap = {
   'address-card': faAddressCard,
   'caret-down': faCaretDown,
   'lock': faLock,
+  'seedling': faSeedling,
+  'circle-nodes': faCircleNodes,
   'thumbs-up': faThumbsUp,
   'heart': faHeart,
   'sliders': faSliders,
@@ -444,6 +480,15 @@ const faIconMap = {
   'dollar-sign': faDollarSign,
   'book': faBook,
   'wand-magic-sparkles': faWandMagicSparkles,
+  'server': faServer,
+  'landmark': faLandmark,
+  'credit-card': faCreditCard,
+  'credit-card-regular': faCreditCardRegular,
+  'wallet': faWallet,
+  'window-maximize': faWindowMaximize,
+  'window-maximize-regular': faWindowMaximizeRegular,
+  'building-regular': faBuildingRegular,
+  'hard-drive-regular': faHardDriveRegular,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
@@ -557,6 +602,62 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'bolt' && variant === 'regular') {
     return <Zap size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  // Icons with Lucide regular variants (no FA regular available)
+  if (name === 'laptop' && variant === 'regular') {
+    return <LaptopLucide size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'shield' && variant === 'regular') {
+    return <ShieldLucide size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'server' && variant === 'regular') {
+    return <ServerLucide size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'monitor' && variant === 'regular') {
+    return <Monitor size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'monitor') {
+    return <Monitor size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'network' && variant === 'regular') {
+    return <Network size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'network') {
+    return <Network size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'landmark' && variant === 'regular') {
+    return <LandmarkLucide size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'landmark') {
+    return <LandmarkLucide size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'wallet' && variant === 'regular') {
+    return <WalletLucide size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'wallet') {
+    return <WalletLucide size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'blocks' && variant === 'regular') {
+    return <Blocks size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'blocks') {
+    return <Blocks size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'layout-grid' && variant === 'regular') {
+    return <LayoutGrid size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'layout-grid') {
+    return <LayoutGrid size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'puzzle' && variant === 'regular') {
+    return <Puzzle size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+  if (name === 'puzzle') {
+    return <Puzzle size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
+  }
+  if (name === 'puzzle-piece' && variant === 'regular') {
+    return <Puzzle size={size} className={className} strokeWidth={2.25} style={style} />;
   }
 
   // Handle Font Awesome icons

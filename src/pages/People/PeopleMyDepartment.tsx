@@ -1,10 +1,10 @@
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 export default function PeopleMyDepartment() {
   return (
-    <div style={{ padding: 24 }}>
+    <div className="p-6 flex flex-col flex-1">
       <h1 className="text-2xl font-bold text-[var(--text-neutral-xx-strong)] mb-6">My Department</h1>
-      <Placeholder variant="table" />
+      <ContentBlock fillHeight showJtbd />
     </div>
   );
 }

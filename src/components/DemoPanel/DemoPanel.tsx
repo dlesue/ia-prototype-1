@@ -9,7 +9,6 @@ const PERSONA_LABELS = [
   { key: 'employee' as const, label: 'Employee' },
   { key: 'manager' as const, label: 'Manager' },
   { key: 'hrAdmin' as const, label: 'HR Admin' },
-  { key: 'exec' as const, label: 'Exec' },
 ];
 
 /** Settings categorization for the demo highlight feature */

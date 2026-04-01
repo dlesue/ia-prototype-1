@@ -3538,8 +3538,8 @@ function PrimitivesPage() {
 
 // ─── Space Nav ───
 
-// Nav items imported from GlobalNavV2 — shared T1/T2 structure
-import { navItems } from '../components/GlobalNav/GlobalNavV2';
+// Nav items imported from GlobalNavV2 — shared T0/T1/T2 structure
+import { navItems, topItems } from '../components/GlobalNav/GlobalNavV2';
 import type { NavT1Item } from '../components/GlobalNav/GlobalNavV2';
 
 const CHAT_HISTORY = [
@@ -3581,8 +3581,8 @@ function SpaceNav({ expanded, onToggle, hideToggle = false }: { expanded: boolea
       onClick={onToggle}
       className="fixed z-40 w-9 h-9 rounded-full flex items-center justify-center"
       style={{
-        top: 'calc(var(--scenario-bar-h, 33px) + 16px + 6px)',
-        left: 12,
+        top: 'calc(var(--space-top-offset, 66px) + 16px + 6px)',
+        left: 'calc(var(--chrome-sidebar-w, 0px) + 12px)',
         color: expanded ? navText : surfaceBlueTertiary,
         opacity: hideToggle ? 0 : 1,
         pointerEvents: hideToggle ? 'none' : 'auto',
@@ -3608,6 +3608,43 @@ function SpaceNav({ expanded, onToggle, hideToggle = false }: { expanded: boolea
       {/* Nav items — only when expanded */}
       {expanded && (
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-2" style={{ scrollbarWidth: 'none' }}>
+        {/* T0 Chrome: Search + Inbox + My Info */}
+        <div className="flex flex-col gap-0.5 mb-1">
+          {/* Search */}
+          <button
+            className="w-full flex items-center gap-2.5 rounded-lg transition-colors"
+            style={{ height: 34, paddingLeft: 10, color: navText }}
+            onClick={() => window.dispatchEvent(new Event('bhr-open-search'))}
+            onMouseEnter={e => { e.currentTarget.style.backgroundColor = navHoverBg; e.currentTarget.style.color = navTextHover; }}
+            onMouseLeave={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = navText; }}
+          >
+            <div className="w-5 flex items-center justify-center shrink-0">
+              <Icon name="magnifying-glass" size={14} variant="regular" />
+            </div>
+            <span className="text-[13px] font-medium whitespace-nowrap overflow-hidden">Search</span>
+          </button>
+          {/* Inbox + My Info */}
+          {topItems.map(item => (
+            <button
+              key={item.id}
+              className="w-full flex items-center gap-2.5 rounded-lg transition-colors"
+              style={{ height: 34, paddingLeft: 10, color: activeT1 === item.id ? navTextActive : navText, backgroundColor: activeT1 === item.id ? navActiveBg : 'transparent' }}
+              onClick={() => { setActiveT1(item.id); setExpandedT1(null); }}
+              onMouseEnter={e => { if (activeT1 !== item.id) { e.currentTarget.style.backgroundColor = navHoverBg; e.currentTarget.style.color = navTextHover; } }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = activeT1 === item.id ? navActiveBg : 'transparent'; e.currentTarget.style.color = activeT1 === item.id ? navTextActive : navText; }}
+            >
+              <div className="w-5 flex items-center justify-center shrink-0">
+                <Icon name={item.icon} size={14} variant={activeT1 === item.id ? 'solid' : 'regular'} />
+              </div>
+              <span className="text-[13px] font-medium whitespace-nowrap overflow-hidden">{item.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Divider between T0 and T1 */}
+        <div className="mx-1 mb-1" style={{ height: 1, backgroundColor: navDivider }} />
+
+        {/* T1 Domain items */}
         <div className="flex flex-col gap-0.5">
           {navItems.map(item => {
             const isActive = activeT1 === item.id;
@@ -4565,7 +4602,7 @@ export function SpaceLayout() {
       `}</style>
 
       {/* Floating top bar */}
-      <div className="fixed z-30 px-3 sm:px-6 pr-14 sm:pr-6 pt-3 sm:pt-4 pb-10 pointer-events-none" style={{ top: 'var(--scenario-bar-h, 33px)', left: `calc(var(--chrome-sidebar-w, 0px) + ${spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW}px)`, right: demoPanelW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), right 0.5s ease-in-out', background: `linear-gradient(${bg} 0%, ${bg} 40%, transparent 100%)` }}>
+      <div className="fixed z-30 px-3 sm:px-6 pr-14 sm:pr-6 pt-3 sm:pt-4 pb-10 pointer-events-none" style={{ top: 'var(--space-top-offset, 66px)', left: `calc(var(--chrome-sidebar-w, 0px) + ${spaceNavExpanded ? spaceNavExpandedW : spaceNavCollapsedW}px)`, right: demoPanelW, transition: 'left 0.25s cubic-bezier(0.4, 0, 0.2, 1), right 0.5s ease-in-out', background: `linear-gradient(${bg} 0%, ${bg} 40%, transparent 100%)` }}>
         <div className="max-w-md sm:max-w-lg mx-auto pointer-events-auto flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-sm backdrop-blur-md" style={{ backgroundColor: 'rgba(255,255,255,0.9)', border: `1px solid ${cardBorder}` }}>
           {/* Logo mark */}
           <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden" style={{ backgroundColor: accent }}>
@@ -4596,7 +4633,7 @@ export function SpaceLayout() {
         onClick={() => setEditMode(prev => !prev)}
         className="fixed z-30 rounded-full text-[13px] font-medium transition-colors w-9 h-9 sm:w-auto sm:h-auto sm:px-3.5 sm:py-1.5 flex items-center justify-center sm:gap-1.5"
         style={{
-          top: 'calc(var(--scenario-bar-h, 33px) + 16px + 6px)',
+          top: 'calc(var(--space-top-offset, 66px) + 16px + 6px)',
           right: 12,
           backgroundColor: editMode ? accent : 'transparent',
           color: editMode ? '#FFFFFF' : surfaceBlueTertiary,

@@ -55,6 +55,9 @@ export function roleDots(roles: Role[], showLabel = true) {
     employee: { color: ROLE_EMPLOYEE, label: 'Employee' },
     manager: { color: ROLE_MANAGER, label: 'Manager' },
     admin: { color: ROLE_ADMIN, label: 'Admin' },
+    'it-admin': { color: ROLE_ADMIN, label: 'IT Admin' },
+    'finance-admin': { color: ROLE_ADMIN, label: 'Finance Admin' },
+    'workplace-admin': { color: ROLE_ADMIN, label: 'Workplace Admin' },
   }
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

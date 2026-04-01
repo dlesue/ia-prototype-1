@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { SlideVisual, New2SlideVisual, SpaceSlideVisual, IntroSlideVisual, SectionTitleVisual, PhasesVisual, getConsolidatedPhaseCount } from './SlideVisuals';
+import { SlideVisual, SpaceSlideVisual, IntroSlideVisual, SectionTitleVisual, PhasesVisual, SolvedProblemsVisual, getConsolidatedPhaseCount, getConsolidatedVisualKey } from './SlideVisuals';
 import daveAvatar from '../../assets/images/dave-avatar.jpeg';
 
 
@@ -15,35 +15,63 @@ interface Slide {
   number: number;
   headline: string;
   subtext?: string;
+  phaseHeadlines?: string[];
   layout?: SlideLayout;
   landOn?: LandOnTarget;
 }
 
 const SLIDE_PAIRS: { problem: Omit<Slide, 'number'>; solution: Omit<Slide, 'number'>; layout?: SlideLayout }[] = [
   {
-    problem: { headline: 'No shared taxonomy', subtext: `No common definition for product vs. module vs. feature, no rulebook for placement, no sequencing rules \u2014 everyone\u2019s making it up.` },
-    solution: { headline: 'Product, Module, Feature', subtext: `Three tiers. Products get a T1 and a hub. Modules get T2s. Features live inside modules. A rulebook governs placement and ordering.`, landOn: { mode: 'docs', docId: 'ia-products-modules' } },
+    problem: {
+      headline: 'No shared taxonomy or guidance',
+      phaseHeadlines: ['No shared internal taxonomy', 'No guidance on what belongs where', 'No guidance for the nav order'],
+    },
+    solution: {
+      headline: 'One taxonomy',
+      phaseHeadlines: ['Product, Module, Feature \u2014 three tiers', 'A rulebook governs placement', 'A defined ordering framework'],
+      landOn: { mode: 'docs', docId: 'ia-products-modules' },
+    },
   },
   {
-    problem: { headline: `Products don\u2019t have a front door`, subtext: `Customers pay for Performance but can\u2019t find it. Homeless products bleed into Settings. Unpurchased products are invisible.` },
-    solution: { headline: 'Every product gets a front door', subtext: `Every product gets its own T1 nav item and hub page. Config lives in-product. Locked products appear with upsell paths.` },
-    layout: 'side',
+    problem: {
+      headline: 'Homeless products',
+      phaseHeadlines: ['Products don\u2019t have nav presence', 'Settings and EE Profile absorb it', 'Unpurchased products are invisible'],
+    },
+    solution: {
+      headline: 'Front doors',
+      phaseHeadlines: ['Every product gets a T1 and hub', 'Config lives in-product', 'Locked products show upsell paths'],
+    },
   },
   {
-    problem: { headline: `The nav doesn\u2019t work`, subtext: `Two nav systems competing for attention, triple-stacked layers eating the page \u2014 and we\u2019re not even responsive.` },
-    solution: { headline: 'One nav, everything in it', subtext: `A single two-tier vertical nav. No header bar, no sub-nav. Follows the employee lifecycle. Gets out of the way.` },
+    problem: {
+      headline: 'Broken nav',
+      phaseHeadlines: ['Split nav creates a dead zone', 'The screen real estate crisis'],
+    },
+    solution: {
+      headline: 'One nav',
+      phaseHeadlines: ['A single two-tier vertical nav', 'No header bar, no sub-nav'],
+    },
   },
   {
-    problem: { headline: 'No contextual patterns', subtext: `Changing a product\u2019s settings means leaving it. Reports are scattered. AI, insights, and automations have no in-product home.` },
-    solution: { headline: 'In context, everywhere', subtext: `Settings via gear icon. Metrics and reports on every hub. Contextual Ask, insights, and automations \u2014 same pattern, every product.` },
+    problem: {
+      headline: 'Poor contextual patterns',
+      phaseHeadlines: ['Settings require a scavenger hunt', 'No pattern for contextual reports', 'No pattern for contextual AI', 'No pattern for surfacing insights'],
+    },
+    solution: {
+      headline: 'In context',
+      phaseHeadlines: ['Settings via gear icon on every hub', 'Metrics and reports on every hub', 'Contextual Ask and insights', 'Automation suggestions on every hub'],
+    },
   },
   {
-    problem: { headline: 'No wayfinding standards', subtext: `Users get lost after drilling into a record, deep links drop them with no context, and the back button is unpredictable.` },
-    solution: { headline: 'Breadcrumbs, back buttons, and \u201cyou are here\u201d', subtext: `Hierarchical breadcrumbs on every page. Consistent active states at T1 and T2. Predictable back behavior.`, landOn: { mode: 'docs', docId: 'research-wayfinding' } },
-  },
-  {
-    problem: { headline: 'No multi-product strategy', subtext: `The nav was built for one product. What happens when BambooHR becomes a platform?` },
-    solution: { headline: 'A nav that scales to a platform', subtext: `Product switcher pattern. Shared chrome shell. Each product domain gets its own nav. The architecture future-proofs to IT, Finance, and Workplace.`, landOn: { mode: 'docs', docId: 'research-mega-product-nav' } },
+    problem: {
+      headline: 'We\u2019re not future-proof',
+      phaseHeadlines: ['The nav was designed for HR only', 'No room for new domains'],
+    },
+    solution: {
+      headline: 'Future-proof by design',
+      phaseHeadlines: ['New domains slot right in', 'One nav for every role'],
+      landOn: { mode: 'docs', docId: 'platform-architecture' },
+    },
   },
 ];
 
@@ -51,28 +79,20 @@ const SLIDE_PAIRS: { problem: Omit<Slide, 'number'>; solution: Omit<Slide, 'numb
 const INTRO_SET_SLIDES: Slide[] = [
   { number: 0, headline: '__title_card__' },
   { number: 0, headline: 'We have an information architecture problem.' },
-  { number: 0, headline: 'Well, actually, it\u2019s 6 problems.' },
+  { number: 0, headline: 'Well, actually, it\u2019s 5 problems.' },
   { number: 0, headline: '__purpose__', layout: 'side-right' },
   { number: 0, headline: '__methodology__' },
   { number: 0, headline: '__phases__' },
 ];
 
 const PROBLEM_SLIDES: Slide[] = [
-  { number: 0, headline: '6 Problems' },
+  { number: 0, headline: '5 Problems' },
   ...SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.problem })),
 ];
 const SOLUTION_SLIDES: Slide[] = [
-  { number: 0, headline: 'Redesign v1\nPrototype' },
+  { number: 0, headline: 'Redesign\nPrototype' },
+  { number: 0, headline: '__solved_problems__' },
   ...SLIDE_PAIRS.map((pair, i) => ({ number: i + 1, layout: pair.layout, ...pair.solution })),
-];
-
-// New 2 slides — the journey from New nav problems to research-driven IA
-const NEW2_SLIDES: Slide[] = [
-  { number: 0, headline: 'Redesign v2\nPrototype' },
-  { number: 1, headline: 'We solved some problems\u2026 but created new ones', subtext: 'Every product gets a front door now \u2014 but 15 products means a very long nav.', layout: 'side' },
-  { number: 2, headline: 'This is a solved problem', subtext: 'Buyers, sellers, and CX teams already expect a certain structure. We don\u2019t need to invent one.' },
-  { number: 3, headline: 'Deep research across the market', subtext: 'Four AI deep-research passes across every major HRIS/HCM competitor, then cross-checked for accuracy.' },
-  { number: 4, headline: 'One aggregate IA', subtext: 'Compiled into a single consensus structure \u2014 the groupings and labels the market already uses.' },
 ];
 
 // Space exploration slides
@@ -83,6 +103,34 @@ const SPACE_SLIDES: Slide[] = [
   { number: 3, headline: 'The solution isn\u2019t a better app. It\u2019s a better platform.', subtext: 'Consistent shell. Infinite surface area. Everyone\u2019s experience is different \u2014 but everyone speaks the same language.' },
   { number: 4, headline: 'BambooHR becomes the data layer AI runs on.', subtext: 'Own the graph. Define the framework. Let everything else \u2014 apps, AI, the market \u2014 build on top.' },
 ];
+
+/** Renders children scaled to fit within a fixed container */
+function ScaleToFit({ width, height, children }: { width: number; height: number; children: React.ReactNode }) {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const inner = innerRef.current;
+    if (!inner) return;
+    const ro = new ResizeObserver(() => {
+      const iw = inner.scrollWidth;
+      const ih = inner.scrollHeight;
+      if (iw === 0 || ih === 0) return;
+      setScale(Math.min(width / iw, height / ih, 1));
+    });
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, [width, height]);
+
+  return (
+    <div ref={outerRef} className="flex items-center justify-center" style={{ width, height, overflow: 'visible' }}>
+      <div ref={innerRef} style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 const LEGACY_KEY = 'bhr-legacy-nav';
 const SLIDES_POSITION_KEY = 'bhr-slides-position'; // sessionStorage
@@ -119,7 +167,6 @@ export function ProblemSlides() {
     const stored = localStorage.getItem(LEGACY_KEY);
     if (stored === 'intro') return 'intro';
     if (stored === 'true') return 'legacy';
-    if (stored === 'new2') return 'new2';
     if (stored === 'space') return 'space';
     return 'new';
   });
@@ -133,14 +180,14 @@ export function ProblemSlides() {
     const handler = () => {
       if (chainingRef.current) return;
       const stored = localStorage.getItem(LEGACY_KEY);
-      const mode = stored === 'intro' ? 'intro' : stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new';
+      const mode = stored === 'intro' ? 'intro' : stored === 'true' ? 'legacy' : stored === 'space' ? 'space' : 'new';
       setNavMode(mode);
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
   }, []);
 
-  const slides = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+  const slides = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
 
   // Save position whenever slide or mode changes while open
   useEffect(() => {
@@ -230,21 +277,23 @@ export function ProblemSlides() {
 
     let maxPhase = 0;
     if (isMethodologySlide) {
-      maxPhase = 2;
+      maxPhase = 3;
     } else if (isPhaseSlide) {
       maxPhase = 1;
     } else if ((navMode === 'legacy' || navMode === 'new') && currentSlide > 0) {
       // Consolidated slides: use phase count from visual mapping
-      const slideIndex = currentSlide - 1; // subtract section title slide
+      const slideIndex = navMode === 'new' ? currentSlide - 2 : currentSlide - 1;
       const mode = navMode === 'legacy' ? 'problem' : 'solution';
-      maxPhase = getConsolidatedPhaseCount(slideIndex, mode) - 1;
+      if (slideIndex >= 0) {
+        maxPhase = getConsolidatedPhaseCount(slideIndex, mode) - 1;
+      }
     }
 
-    const NAV_ORDER: typeof navMode[] = ['intro', 'legacy', 'new', 'new2', 'space'];
+    const NAV_ORDER: typeof navMode[] = ['intro', 'legacy', 'new', 'space'];
     const switchNavMode = (mode: typeof navMode) => {
       chainingRef.current = true;
       setNavMode(mode);
-      const stored = mode === 'intro' ? 'intro' : mode === 'legacy' ? 'true' : mode === 'new2' ? 'new2' : mode === 'space' ? 'space' : 'false';
+      const stored = mode === 'intro' ? 'intro' : mode === 'legacy' ? 'true' : mode === 'space' ? 'space' : 'false';
       localStorage.setItem(LEGACY_KEY, stored);
       // Delay storage dispatch so React processes state updates first
       setTimeout(() => window.dispatchEvent(new Event('storage')), 0);
@@ -255,7 +304,7 @@ export function ProblemSlides() {
       if (visualPhase < maxPhase) {
         setVisualPhase(p => p + 1);
       } else {
-        const s = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'new2' ? NEW2_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+        const s = navMode === 'intro' ? INTRO_SET_SLIDES : navMode === 'legacy' ? PROBLEM_SLIDES : navMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
         if (currentSlide >= s.length - 1) {
           // Chain to next slide set
           const idx = NAV_ORDER.indexOf(navMode);
@@ -282,7 +331,7 @@ export function ProblemSlides() {
         const idx = NAV_ORDER.indexOf(navMode);
         if (idx > 0) {
           const prevMode = NAV_ORDER[idx - 1];
-          const prevSlides = prevMode === 'intro' ? INTRO_SET_SLIDES : prevMode === 'legacy' ? PROBLEM_SLIDES : prevMode === 'new2' ? NEW2_SLIDES : prevMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+          const prevSlides = prevMode === 'intro' ? INTRO_SET_SLIDES : prevMode === 'legacy' ? PROBLEM_SLIDES : prevMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
           switchNavMode(prevMode);
           setDirection('left');
           setSlideKey(k => k + 1);
@@ -351,6 +400,10 @@ export function ProblemSlides() {
         }
         @keyframes introNumIn {
           from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes phaseIn {
+          from { opacity: 0; transform: translateY(12px); }
           to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
@@ -523,27 +576,12 @@ export function ProblemSlides() {
         )}
         {/* Slide counter — hidden for intro slides */}
         {slide.number > 0 && (
-          <div className={`absolute top-8 right-10 text-sm font-mono ${navMode === 'space' ? 'text-blue-500/40' : navMode === 'new2' ? 'text-green-500/40' : navMode === 'legacy' ? 'text-red-500/40' : 'text-amber-500/40'}`}>
+          <div className={`absolute top-8 right-10 text-sm font-mono ${navMode === 'space' ? 'text-blue-500/40' : navMode === 'legacy' ? 'text-red-500/40' : 'text-green-500/40'}`}>
             {slide.number} / {SLIDE_PAIRS.length}
           </div>
         )}
 
-        {/* Circled problem number badge — legacy mode only */}
-        {navMode === 'legacy' && slide.number > 0 && (
-          <div
-            key={`badge-${slideKey}`}
-            className="absolute top-8 left-10 w-12 h-12 rounded-full border-2 flex items-center justify-center"
-            style={{
-              borderColor: 'rgba(248,113,113,0.5)',
-              color: '#f87171',
-              opacity: 0,
-              animation: 'slideContentIn 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              '--slide-from': contentTransform,
-            } as React.CSSProperties}
-          >
-            <span className="text-[20px] font-bold tabular-nums">{slide.number}</span>
-          </div>
-        )}
+        {/* Problem number badge removed from here — now inline with headline */}
 
         {/* Full-screen intro visual (scattered nav — rendered outside content wrapper) */}
         {navMode === 'intro' && currentSlide === 1 && (
@@ -555,7 +593,7 @@ export function ProblemSlides() {
         {/* Content */}
         <div
           key={slideKey}
-          className={`max-w-[1200px] px-12 relative z-10 ${slide.layout === 'side' || slide.layout === 'side-right' ? '' : 'text-center'} ${contentAnimation}`}
+          className={`max-w-[1400px] px-12 relative z-10 ${slide.layout === 'side' || slide.layout === 'side-right' || ((navMode === 'legacy' || navMode === 'new') && currentSlide > 0 && slide.phaseHeadlines && slide.phaseHeadlines.length > 1) ? '' : 'text-center'} ${contentAnimation}`}
           style={{
             '--slide-from': contentTransform,
             animation: isClosing ? undefined : 'slideContentIn 450ms cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -578,8 +616,6 @@ export function ProblemSlides() {
                   ? <IntroSlideVisual index={currentSlide - 1} noMargin />
                   : navMode === 'space'
                   ? <SpaceSlideVisual index={currentSlide - 1} noMargin />
-                  : navMode === 'new2'
-                  ? <New2SlideVisual index={currentSlide - 1} noMargin />
                   : navMode === 'new'
                   ? <SlideVisual index={currentSlide - 1} mode="solution" noMargin phase={visualPhase} />
                   : <SlideVisual index={currentSlide - 1} mode="problem" noMargin phase={visualPhase} />
@@ -593,8 +629,6 @@ export function ProblemSlides() {
                   ? <IntroSlideVisual index={currentSlide - 1} noMargin />
                   : navMode === 'space'
                   ? <SpaceSlideVisual index={currentSlide - 1} noMargin />
-                  : navMode === 'new2'
-                  ? <New2SlideVisual index={currentSlide - 1} noMargin />
                   : navMode === 'new'
                   ? <SlideVisual index={currentSlide - 1} mode="solution" noMargin phase={visualPhase} />
                   : <SlideVisual index={currentSlide - 1} mode="problem" noMargin phase={visualPhase} />
@@ -611,18 +645,69 @@ export function ProblemSlides() {
                 )}
               </div>
             </div>
+          ) : (navMode === 'legacy' || navMode === 'new') && currentSlide > 0 && slide.phaseHeadlines && slide.phaseHeadlines.length > 1 ? (
+            /* Split layout for multi-phase problem/solution slides */
+            <div className="flex items-center gap-14">
+              {/* Left: full visual */}
+              <div className="min-w-0 flex items-center justify-center" style={{ flex: '0 0 50%' }}>
+                <div key={`visual-${getConsolidatedVisualKey(navMode === 'new' ? currentSlide - 2 : currentSlide - 1, visualPhase, navMode === 'new' ? 'solution' : 'problem')}`} style={{ animation: 'phaseIn 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                  <ScaleToFit width={550} height={500}>
+                    {navMode === 'new'
+                      ? <SlideVisual index={currentSlide - 2} mode="solution" noMargin phase={visualPhase} />
+                      : <SlideVisual index={currentSlide - 1} mode="problem" noMargin phase={visualPhase} />
+                    }
+                  </ScaleToFit>
+                </div>
+              </div>
+              {/* Right: headline docked to top + building bullet list below */}
+              <div className="min-w-0 flex flex-col justify-center" style={{ flex: '0 0 50%' }}>
+                {navMode === 'legacy' && slide.number > 0 && (
+                  <div
+                    className="w-10 h-10 rounded-full border-2 flex items-center justify-center mb-5"
+                    style={{ borderColor: 'rgba(248,113,113,0.5)', color: '#f87171' }}
+                  >
+                    <span className="text-[17px] font-bold tabular-nums">{slide.number}</span>
+                  </div>
+                )}
+                <h1 className="font-bold leading-none" style={{ color: '#ffffff', fontSize: '72px', lineHeight: 1.0, textWrap: 'balance' }}>
+                  {slide.headline}
+                </h1>
+                <ul className="flex flex-col gap-5 text-left mt-16">
+                  {slide.phaseHeadlines!.map((headline, i) => {
+                    const phaseCount = getConsolidatedPhaseCount(navMode === 'new' ? currentSlide - 2 : currentSlide - 1, navMode === 'new' ? 'solution' : 'problem');
+                    const offset = phaseCount - slide.phaseHeadlines!.length;
+                    const activeBullet = visualPhase - offset;
+                    const isCurrent = i === activeBullet;
+                    const isLegacy = navMode === 'legacy';
+                    const activeText = isLegacy ? 'text-red-300' : 'text-green-300';
+                    const dimText = isLegacy ? 'text-red-300/30' : 'text-green-300/30';
+                    const activeDot = isLegacy ? 'bg-red-400' : 'bg-green-400';
+                    const dimDot = isLegacy ? 'bg-red-400/30' : 'bg-green-400/30';
+                    return (
+                      <li
+                        key={i}
+                        className={`flex items-baseline gap-4 text-[28px] font-semibold leading-snug transition-colors duration-300 ${isCurrent ? activeText : dimText}`}
+                      >
+                        <span className={`shrink-0 w-2.5 h-2.5 rounded-full mt-[10px] transition-colors duration-300 ${isCurrent ? activeDot : dimDot}`} />
+                        <span>{headline}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </div>
           ) : (
             <>
               {navMode === 'intro'
                 ? (slide.headline === '__title_card__' ? null : currentSlide === 1 ? null : slide.headline === '__phases__' ? <PhasesVisual phase={visualPhase} /> : <IntroSlideVisual index={currentSlide - 1} phase={visualPhase} />)
-                : (navMode === 'legacy' || navMode === 'new' || navMode === 'new2' || navMode === 'space') && currentSlide === 0
+                : (navMode === 'legacy' || navMode === 'new' || navMode === 'space') && currentSlide === 0
                 ? <SectionTitleVisual mode={navMode} />
                 : navMode === 'space'
                 ? <SpaceSlideVisual index={currentSlide - 1} />
-                : navMode === 'new2'
-                ? <New2SlideVisual index={currentSlide - 1} />
+                : navMode === 'new' && slide.headline === '__solved_problems__'
+                ? <SolvedProblemsVisual />
                 : navMode === 'new'
-                ? <SlideVisual index={currentSlide - 1} mode="solution" phase={visualPhase} />
+                ? <SlideVisual index={currentSlide - 2} mode="solution" phase={visualPhase} />
                 : <SlideVisual index={currentSlide - 1} mode="problem" phase={visualPhase} />
               }
               {slide.headline === '__title_card__' ? (
@@ -646,6 +731,10 @@ export function ProblemSlides() {
                 <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
                   How I approached this
                 </h1>
+              ) : slide.headline === '__solved_problems__' ? (
+                <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '72px', lineHeight: 1.15, textWrap: 'balance' }}>
+                  Good news!<br />These are solved problems.
+                </h1>
               ) : slide.headline === '__phases__' ? (
                 <h1 className="font-bold leading-tight mb-8" style={{ color: '#ffffff', fontSize: '80px', lineHeight: 1.15, textWrap: 'balance' }}>
                   {visualPhase === 0 ? 'Overhauling our IA would be a multi-phase effort.' : 'Today we\u2019re covering the first two.'}
@@ -666,9 +755,9 @@ export function ProblemSlides() {
 
         {/* Navigation dots with set bars */}
         <div className="absolute bottom-10 flex items-end gap-4">
-          {(['intro', 'legacy', 'new', 'new2', 'space'] as const).map((setMode) => {
-            const setSlides = setMode === 'intro' ? INTRO_SET_SLIDES : setMode === 'legacy' ? PROBLEM_SLIDES : setMode === 'new2' ? NEW2_SLIDES : setMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
-            const setColor = setMode === 'intro' ? 'bg-white' : setMode === 'legacy' ? 'bg-red-400' : setMode === 'new' ? 'bg-amber-300' : setMode === 'new2' ? 'bg-green-400' : 'bg-blue-400';
+          {(['intro', 'legacy', 'new', 'space'] as const).map((setMode) => {
+            const setSlides = setMode === 'intro' ? INTRO_SET_SLIDES : setMode === 'legacy' ? PROBLEM_SLIDES : setMode === 'space' ? SPACE_SLIDES : SOLUTION_SLIDES;
+            const setColor = setMode === 'intro' ? 'bg-white' : setMode === 'legacy' ? 'bg-red-400' : setMode === 'new' ? 'bg-green-400' : 'bg-blue-400';
             const isActiveSet = setMode === navMode;
 
             if (!isActiveSet) {
@@ -678,7 +767,7 @@ export function ProblemSlides() {
                   key={setMode}
                   onClick={() => {
                     if (setMode !== 'intro') {
-                      const stored = setMode === 'legacy' ? 'true' : setMode === 'new2' ? 'new2' : setMode === 'space' ? 'space' : 'false';
+                      const stored = setMode === 'legacy' ? 'true' : setMode === 'space' ? 'space' : 'false';
                       localStorage.setItem(LEGACY_KEY, stored);
                       window.dispatchEvent(new Event('storage'));
                     }
@@ -699,7 +788,7 @@ export function ProblemSlides() {
             return (
               <div key={setMode} className="flex items-end gap-2">
                 {setSlides.map((s, i) => {
-                  const dimColor = setMode === 'intro' ? 'bg-white/30 hover:bg-white/50' : setMode === 'legacy' ? 'bg-red-400/30 hover:bg-red-400/50' : setMode === 'new' ? 'bg-amber-300/30 hover:bg-amber-300/50' : setMode === 'new2' ? 'bg-green-400/30 hover:bg-green-400/50' : 'bg-blue-400/30 hover:bg-blue-400/50';
+                  const dimColor = setMode === 'intro' ? 'bg-white/30 hover:bg-white/50' : setMode === 'legacy' ? 'bg-red-400/30 hover:bg-red-400/50' : setMode === 'new' ? 'bg-green-400/30 hover:bg-green-400/50' : 'bg-blue-400/30 hover:bg-blue-400/50';
 
                   return (
                     <button

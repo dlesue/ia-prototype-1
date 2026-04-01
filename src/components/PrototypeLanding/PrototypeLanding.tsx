@@ -12,21 +12,14 @@ const PROTOTYPES = [
   },
   {
     id: 'new',
-    label: 'v1 — Product Hubs',
-    description: 'Two-tier nav with 15 product hubs in hire-to-retire order. Hub Header with metrics, insights, and Ask.',
+    label: 'New',
+    description: 'Research-driven IA with four-tier hierarchy (T0/T1/T2/T3), 11 domains, unified nav model, and formalized governance rules.',
     icon: 'compass' as const,
-    color: '#fbbf24',
-  },
-  {
-    id: 'new2',
-    label: 'v2 — Research-Driven IA',
-    description: 'Four-tier hierarchy based on competitive market research. 11 domains with formalized governance rules.',
-    icon: 'arrows-rotate' as const,
     color: '#34d399',
   },
   {
     id: 'space',
-    label: 'v3 — Space Exploration',
+    label: 'Space Exploration',
     description: 'Radical reimagining — widget-based home, app-model navigation, AI-first platform concept.',
     icon: 'rocket' as const,
     color: '#60a5fa',
@@ -51,9 +44,9 @@ function openSlides() {
 }
 
 export default function PrototypeLanding() {
-  const totalSlides = 6 + 12 + 12 + 5 + 5; // intro + problems + solutions + new2 + space
-  const totalDocs = 8;
-  const totalPrototypes = 4;
+  const totalSlides = 6 + 7 + 7 + 5; // intro + problems + solutions + space
+  const totalDocs = 15;
+  const totalPrototypes = 3;
 
   return (
     <div className="flex-1 flex items-center justify-center overflow-y-auto" style={{ backgroundColor: '#141414' }}>

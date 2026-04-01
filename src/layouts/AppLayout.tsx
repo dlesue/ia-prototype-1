@@ -13,6 +13,7 @@ import { PrototypeSidebar } from '../components/PrototypeSidebar/PrototypeSideba
 import PrototypeLanding from '../components/PrototypeLanding/PrototypeLanding';
 import { SpaceLayout } from './SpaceLayout';
 
+
 const LEGACY_KEY = 'bhr-legacy-nav';
 const DEMO_PANEL_KEY = 'bhr-demo-panel-open';
 const PROJECT_MODE_KEY = 'bhr-project-mode';
@@ -38,10 +39,9 @@ function AppLayout({ children }: AppLayoutProps) {
   });
   const [isTablet, setIsTablet] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
-  const [navMode, setNavMode] = useState<'intro' | 'legacy' | 'new' | 'new2' | 'space'>(() => {
+  const [navMode, setNavMode] = useState<'intro' | 'legacy' | 'new' | 'space'>(() => {
     const stored = localStorage.getItem(LEGACY_KEY);
     if (stored === 'true') return 'legacy';
-    if (stored === 'new2') return 'new2';
     if (stored === 'space') return 'space';
     return 'new';
   });
@@ -109,6 +109,7 @@ function AppLayout({ children }: AppLayoutProps) {
     localStorage.setItem(CHAT_EXPANDED_STORAGE_KEY, 'false');
     setIsChatPanelOpen(false);
     setIsChatExpanded(false);
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleChatExpandChange = (expanded: boolean) => {
@@ -127,7 +128,7 @@ function AppLayout({ children }: AppLayoutProps) {
   useEffect(() => {
     const handler = () => {
       const stored = localStorage.getItem(LEGACY_KEY);
-      setNavMode(stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new');
+      setNavMode(stored === 'true' ? 'legacy' : stored === 'space' ? 'space' : 'new');
       setIsDemoPanelOpen(localStorage.getItem(DEMO_PANEL_KEY) === 'true');
       setProjectMode(localStorage.getItem(PROJECT_MODE_KEY) || 'home');
     };
@@ -136,7 +137,7 @@ function AppLayout({ children }: AppLayoutProps) {
   }, []);
 
   const effectiveExpanded = isTablet ? false : isNavExpanded;
-  const navWidth = navMode === 'legacy' ? 260 : (effectiveExpanded ? 260 : 72);
+  const navWidth = navMode === 'legacy' ? 260 : (effectiveExpanded ? 220 : 72);
   const chatWidth = isChatPanelOpen ? 383 : 0;
   const demoPanelWidth = isDemoPanelOpen ? 340 : 0;
 
@@ -181,7 +182,7 @@ function AppLayout({ children }: AppLayoutProps) {
 
   // Prototype content (shared between space and standard layouts)
   const prototypeContent = navMode === 'space' ? (
-    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#E8F0F5', '--chrome-sidebar-w': '177px' } as React.CSSProperties}>
+    <div className="flex-1 min-h-0 flex flex-col overflow-hidden" style={{ backgroundColor: '#E8F0F5', '--chrome-sidebar-w': '177px', '--space-top-offset': `${scenarioBarH + 33}px` } as React.CSSProperties}>
       <ScenarioBar subBarOnly />
       <div className="flex-1 min-h-0 flex overflow-hidden">
         <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
@@ -201,7 +202,7 @@ function AppLayout({ children }: AppLayoutProps) {
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]" style={{ '--nav-w': `${navWidth}px`, '--chat-w': `${chatWidth}px`, '--demo-w': `${demoPanelWidth}px` } as React.CSSProperties}>
       <ScenarioBar subBarOnly />
       <div className="flex-1 min-h-0 relative flex">
-        {navMode === 'legacy' ? <LegacyNav /> : navMode === 'new2' ? <GlobalNavV2 /> : <GlobalNav />}
+        {navMode === 'legacy' ? <LegacyNav /> : <GlobalNavV2 />}
         <div
           className="flex-1 flex flex-col min-h-0 min-w-0 transition-none"
           style={{ marginLeft: navWidth }}
@@ -212,7 +213,7 @@ function AppLayout({ children }: AppLayoutProps) {
             {children}
           </main>
           <div
-            className="shrink-0 h-full transition-none overflow-hidden"
+            className="shrink-0 h-full overflow-hidden transition-[width] duration-300 ease-in-out"
             style={{ width: chatWidth }}
           >
             <AIChatPanel

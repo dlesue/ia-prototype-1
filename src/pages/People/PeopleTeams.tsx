@@ -1,5 +1,5 @@
 import { HubHeader } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: 'Total Teams', value: '38', icon: 'users', sparkData: [34, 35, 35, 36, 37, 37, 38], linkTo: '/reports/view/Total%20Teams' },
@@ -16,10 +16,10 @@ const insights = [
 
 export default function PeopleTeams() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Teams" product="People" metrics={metrics} insights={insights} />
-      <div className="px-8 pb-8">
-        <Placeholder variant="table" />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

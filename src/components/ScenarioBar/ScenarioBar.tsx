@@ -9,19 +9,26 @@ import type { PersonaType, PackageType, AddonType } from '../../contexts/Scenari
 const PERSONAS: { value: PersonaType; label: string }[] = [
   { value: 'employee', label: 'Employee' },
   { value: 'manager', label: 'Manager' },
+  { value: 'dept-head', label: 'Dept Head' },
+  { value: 'executive', label: 'Executive' },
   { value: 'hr-admin', label: 'HR Admin' },
+];
+
+const PLATFORM_PERSONAS: { value: PersonaType; label: string }[] = [
+  { value: 'employee', label: 'Employee' },
+  { value: 'manager', label: 'Manager' },
+  { value: 'dept-head', label: 'Dept Head' },
+  { value: 'executive', label: 'Executive' },
+  { value: 'hr-admin', label: 'HR Admin' },
+  { value: 'it-admin', label: 'IT Admin' },
+  { value: 'finance-admin', label: 'Finance Admin' },
+  { value: 'workplace-admin', label: 'Workplace Admin' },
 ];
 
 const PACKAGES: { value: PackageType; label: string }[] = [
   { value: 'core', label: 'Core' },
   { value: 'pro', label: 'Pro' },
   { value: 'elite', label: 'Elite' },
-];
-
-const ADDONS: { value: AddonType; label: string }[] = [
-  { value: 'payroll', label: 'Payroll' },
-  { value: 'benefits', label: 'Benefits' },
-  { value: 'time-tracking', label: 'Time' },
 ];
 
 const METRICS_KEY = 'bhr-show-metrics';
@@ -43,7 +50,7 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
   const location = useLocation();
   const { panelOpen: feedbackOpen, togglePanel: toggleFeedback, feedbackCount } = useFeedbackPanel();
   const isStyleGuide = location.pathname === '/style-guide';
-  const { persona, pkg, addons, hiddenProducts, setPersona, setPkg, toggleAddon, toggleProductHidden } = useScenario();
+  const { persona, pkg, addonsOn, expansionOn, hiddenProducts, setPersona, setPkg, toggleAddonsOn, toggleExpansion, toggleProductHidden } = useScenario();
   const [showMetrics, setShowMetrics] = useState(() => localStorage.getItem(METRICS_KEY) !== 'false');
   const [showAsk, setShowAsk] = useState(() => localStorage.getItem(ASK_KEY) !== 'false');
   const [showInsights, setShowInsights] = useState(() => localStorage.getItem(INSIGHTS_KEY) !== 'false');
@@ -155,8 +162,8 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
     window.dispatchEvent(new Event('storage'));
   };
 
-  const setNavModeTo = (mode: 'intro' | 'legacy' | 'new' | 'new2' | 'space') => {
-    const stored = mode === 'intro' ? 'intro' : mode === 'legacy' ? 'true' : mode === 'new2' ? 'new2' : mode === 'space' ? 'space' : 'false';
+  const setNavModeTo = (mode: 'intro' | 'legacy' | 'new' | 'space') => {
+    const stored = mode === 'intro' ? 'intro' : mode === 'legacy' ? 'true' : mode === 'space' ? 'space' : 'false';
     localStorage.setItem(LEGACY_KEY, stored);
     setNavMode(mode);
     window.dispatchEvent(new Event('storage'));
@@ -166,7 +173,7 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
   useEffect(() => {
     const handler = () => {
       const stored = localStorage.getItem(LEGACY_KEY);
-      const mode = stored === 'intro' ? 'intro' : stored === 'true' ? 'legacy' : stored === 'new2' ? 'new2' : stored === 'space' ? 'space' : 'new';
+      const mode = stored === 'intro' ? 'intro' : stored === 'true' ? 'legacy' : stored === 'space' ? 'space' : 'new';
       setNavMode(mode);
     };
     window.addEventListener('storage', handler);
@@ -181,9 +188,9 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
   };
 
   // Active highlight color based on current nav mode
-  const accentBg = navMode === 'intro' ? 'bg-white/15' : navMode === 'legacy' ? 'bg-red-500/25' : navMode === 'new2' ? 'bg-emerald-500/25' : navMode === 'space' ? 'bg-blue-500/25' : 'bg-amber-500/25';
-  const accentText = navMode === 'intro' ? 'text-white' : navMode === 'legacy' ? 'text-red-300' : navMode === 'new2' ? 'text-emerald-300' : navMode === 'space' ? 'text-blue-300' : 'text-amber-300';
-  const accentBorder = navMode === 'intro' ? 'border-white/30' : navMode === 'legacy' ? 'border-red-500/40' : navMode === 'new2' ? 'border-emerald-500/40' : navMode === 'space' ? 'border-blue-500/40' : 'border-amber-500/40';
+  const accentBg = navMode === 'intro' ? 'bg-white/15' : navMode === 'legacy' ? 'bg-red-500/25' : navMode === 'space' ? 'bg-blue-500/25' : 'bg-emerald-500/25';
+  const accentText = navMode === 'intro' ? 'text-white' : navMode === 'legacy' ? 'text-red-300' : navMode === 'space' ? 'text-blue-300' : 'text-emerald-300';
+  const accentBorder = navMode === 'intro' ? 'border-white/30' : navMode === 'legacy' ? 'border-red-500/40' : navMode === 'space' ? 'border-blue-500/40' : 'border-emerald-500/40';
   const activeToggle = `${accentBg} ${accentText}`;
   const activeChip = `${accentBg} ${accentText} ${accentBorder}`;
 
@@ -313,7 +320,7 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
       {!isStyleGuide && <>
       {/* Persona */}
       <div className="flex rounded-md overflow-hidden border border-[#444]">
-        {PERSONAS.map(p => (
+        {(navMode === 'new' || navMode === 'new2' ? PLATFORM_PERSONAS : PERSONAS).map(p => (
           <button
             key={p.value}
             onClick={() => setPersona(p.value)}
@@ -349,114 +356,56 @@ export function ScenarioBar({ projectBarOnly = false, subBarOnly = false }: { pr
 
       <span className="text-neutral-700">|</span>
 
-      {/* Add-ons */}
-      <div className="flex gap-1">
-        {ADDONS.map(a => (
-          <button
-            key={a.value}
-            onClick={() => toggleAddon(a.value)}
-            className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-              addons.includes(a.value)
-                ? activeChip
-                : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-            }`}
-          >
-            {a.label}
-          </button>
-        ))}
-      </div>
-
-      <span className="text-neutral-700">|</span>
-
-      {/* Extended products toggle */}
+      {/* Add-ons (Payroll, Benefits, Time Tracking) */}
       <button
-        onClick={() => toggleProductHidden(['training', 'onboarding', 'offboarding', 'apps', 'performance', 'employee-community', 'rewards-recognition', 'wellbeing'])}
+        onClick={toggleAddonsOn}
         className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-          !hiddenProducts.includes('training')
+          addonsOn
             ? activeChip
             : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
         }`}
       >
-        Extended
+        Add-ons
+      </button>
+
+      {/* Expansion (IT, Finance, Workplace) */}
+      <button
+        onClick={toggleExpansion}
+        className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
+          expansionOn
+            ? activeChip
+            : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
+        }`}
+      >
+        Expansion
       </button>
 
       <span className="text-neutral-700">|</span>
 
-      {/* Hub Header toggles */}
-      <div className="flex gap-1 items-center">
-        <button
-          onClick={toggleLocks}
-          className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-            showLocks
-              ? activeChip
-              : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-          }`}
-        >
-          Locks
-        </button>
-        <button
-          onClick={toggleMetrics}
-          className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-            showMetrics
-              ? activeChip
-              : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-          }`}
-        >
-          Metrics
-        </button>
-        <span className="text-neutral-700">|</span>
-        <button
-          onClick={toggleAsk}
-          className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-            showAsk
-              ? activeChip
-              : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-          }`}
-        >
-          Ask
-        </button>
-        <button
-          onClick={toggleInsights}
-          className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-            showInsights
-              ? activeChip
-              : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-          }`}
-        >
-          Insights
-        </button>
-        <button
-          onClick={toggleAutomations}
-          className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
-            showAutomations
-              ? activeChip
-              : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
-          }`}
-        >
-          Automations
-        </button>
-        {(showAsk || showInsights || showAutomations) && (
-          <div className="flex rounded-md overflow-hidden border border-[#444] ml-1">
-            {(['top', 'bottom'] as const).map(pos => (
-              <button
-                key={pos}
-                onClick={() => {
-                  localStorage.setItem(ASK_POSITION_KEY, pos);
-                  setAskPosition(pos);
-                  window.dispatchEvent(new Event('storage'));
-                }}
-                className={`px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                  askPosition === pos
-                    ? activeToggle
-                    : 'bg-[#2e2e2e] text-neutral-400 hover:text-neutral-200'
-                }`}
-              >
-                {pos === 'top' ? 'Top' : 'Bottom'}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Intel toggle (Metrics + Ask + Insights + Automations) */}
+      <button
+        onClick={() => {
+          const next = !(showMetrics && showAsk && showInsights && showAutomations);
+          localStorage.setItem(METRICS_KEY, String(next));
+          localStorage.setItem(ASK_KEY, String(next));
+          localStorage.setItem(INSIGHTS_KEY, String(next));
+          localStorage.setItem(AUTOMATIONS_KEY, String(next));
+          localStorage.setItem(ASK_POSITION_KEY, 'bottom');
+          setShowMetrics(next);
+          setShowAsk(next);
+          setShowInsights(next);
+          setShowAutomations(next);
+          setAskPosition('bottom');
+          window.dispatchEvent(new Event('storage'));
+        }}
+        className={`px-2 py-0.5 text-[10px] font-medium rounded-md border transition-colors ${
+          showMetrics && showAsk && showInsights && showAutomations
+            ? activeChip
+            : 'bg-[#2e2e2e] text-neutral-500 border-[#444] hover:text-neutral-300'
+        }`}
+      >
+        Intel
+      </button>
 
 
       {/* Demo Notes toggle — icon only */}

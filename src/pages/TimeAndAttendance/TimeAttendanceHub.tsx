@@ -1,7 +1,7 @@
 import React from 'react';
 import { HubHeader } from '../../components/HubHeader';
 import type { HubAutomation } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: "PTO Utilization", value: "67%", icon: "plane", sparkData: [58, 60, 62, 63, 65, 66, 67], linkTo: '/reports/view/PTO%20Utilization' },
@@ -31,11 +31,10 @@ const AUTOMATIONS: HubAutomation[] = [
 
 export default function TimeAttendanceHub() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Time & Attendance" product="Time & Attendance" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-6 pb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Calendar</h2>
-        <Placeholder />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

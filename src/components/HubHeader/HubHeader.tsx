@@ -137,6 +137,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
   const [showInsights, setShowInsights] = useState(() => localStorage.getItem(INSIGHTS_KEY) !== 'false');
   const [showAutomations, setShowAutomations] = useState(() => localStorage.getItem(AUTOMATIONS_KEY) === 'true');
   const [askPosition, setAskPosition] = useState(() => localStorage.getItem(ASK_POSITION_KEY) || 'top');
+  const [isChatPanelOpen, setIsChatPanelOpen] = useState(() => localStorage.getItem('bhr-chat-panel-open') === 'true');
   const askAreaRef = useRef<HTMLDivElement>(null);
   const bottomDockRef = useRef<HTMLDivElement>(null);
 
@@ -147,6 +148,7 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
       setShowInsights(localStorage.getItem(INSIGHTS_KEY) !== 'false');
       setShowAutomations(localStorage.getItem(AUTOMATIONS_KEY) === 'true');
       setAskPosition(localStorage.getItem(ASK_POSITION_KEY) || 'top');
+      setIsChatPanelOpen(localStorage.getItem('bhr-chat-panel-open') === 'true');
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
@@ -345,11 +347,16 @@ export function HubHeader({ title, subtitle, product, metrics, insights, automat
       )}
 
       {/* Bottom Dock */}
-      {isHubHeaderVisible && showAskInDock && (
+      {isHubHeaderVisible && showAsk && isBottomDock && (
         <div
           ref={bottomDockRef}
-          className="fixed bottom-0 z-50 flex justify-center transition-all duration-500 ease-in-out"
-          style={{ left: 'var(--nav-w)', right: 'calc(var(--chat-w, 0px) + var(--demo-w, 0px))' }}
+          className="fixed bottom-0 z-50 flex justify-center transition-all duration-300 ease-in-out"
+          style={{
+            left: 'var(--nav-w)',
+            right: 'var(--demo-w, 0px)',
+            transform: isChatPanelOpen ? 'translateY(100%)' : 'translateY(0)',
+            opacity: isChatPanelOpen ? 0 : 1,
+          }}
         >
           <div className="w-full max-w-[920px] px-4 pb-4">
             <div

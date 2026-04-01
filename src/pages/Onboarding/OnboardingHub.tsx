@@ -1,7 +1,7 @@
 import React from 'react';
 import { HubHeader } from '../../components/HubHeader';
 import type { HubAutomation } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: "Active Onboarding", value: "8", icon: "door-open", sparkData: [5, 6, 4, 7, 6, 9, 8], linkTo: '/reports/view/Active%20Onboarding' },
@@ -31,11 +31,10 @@ const AUTOMATIONS: HubAutomation[] = [
 
 export default function OnboardingHub() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="Onboarding" product="Onboarding" metrics={metrics} insights={insights} automations={AUTOMATIONS} />
-      <div className="px-6 pb-6">
-        <h2 className="text-lg font-semibold text-[var(--text-neutral-xx-strong)] mb-4">Active Onboarding</h2>
-        <Placeholder variant="table" />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

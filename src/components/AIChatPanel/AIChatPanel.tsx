@@ -152,6 +152,30 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
       ? (firstText === '__HELP__' ? 'Help' : firstText.slice(0, 40) + '...')
       : (selectedConversation?.title ?? `Ask ${currentProduct}`);
 
+  // Focus input when panel opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => panelInputRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
+
+  // Pulse animation when user clicks Ask while already open
+  const [isPulsing, setIsPulsing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = () => {
+      const pulse = localStorage.getItem('bhr-ask-pulse');
+      if (pulse && isOpen) {
+        setIsPulsing(true);
+        panelInputRef.current?.focus();
+        setTimeout(() => setIsPulsing(false), 900);
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, [isOpen]);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -351,9 +375,69 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
   const displayMessages = isInjectedMode ? injectedMessages : messages;
 
   return (
-    <div className={`w-full h-full flex flex-col bg-white border-l border-[var(--border-neutral-xx-weak)] ${!isOpen ? 'invisible' : ''}`}>
+    <div
+      ref={panelRef}
+      className={`w-full h-full flex flex-col bg-white border-l border-[var(--border-neutral-xx-weak)] ${!isOpen ? 'invisible' : ''}`}
+    >
+      <style>{`
+        @keyframes askBounceHeavy {
+          0% { transform: translateY(0); }
+          15% { transform: translateY(-3px); }
+          35% { transform: translateY(0); }
+          50% { transform: translateY(-1.5px); }
+          65% { transform: translateY(0); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes askBounceMedium {
+          0% { transform: translateY(0); }
+          18% { transform: translateY(-8px); }
+          38% { transform: translateY(2px); }
+          52% { transform: translateY(-4px); }
+          66% { transform: translateY(1px); }
+          78% { transform: translateY(-1.5px); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes askBounceLight {
+          0% { transform: translateY(0); }
+          20% { transform: translateY(-14px); }
+          40% { transform: translateY(3px); }
+          55% { transform: translateY(-7px); }
+          68% { transform: translateY(2px); }
+          80% { transform: translateY(-3px); }
+          90% { transform: translateY(1px); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes askBounceFloaty {
+          0% { transform: translateY(0); }
+          22% { transform: translateY(-18px); }
+          42% { transform: translateY(4px); }
+          58% { transform: translateY(-9px); }
+          72% { transform: translateY(2px); }
+          82% { transform: translateY(-4px); }
+          92% { transform: translateY(1px); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes askHandPeek {
+          0% { transform: translateY(100%) rotate(0deg); opacity: 0; }
+          15% { transform: translateY(-60%) rotate(-10deg); opacity: 1; }
+          25% { transform: translateY(-60%) rotate(15deg); }
+          35% { transform: translateY(-60%) rotate(-12deg); }
+          45% { transform: translateY(-60%) rotate(10deg); }
+          55% { transform: translateY(-60%) rotate(-5deg); }
+          65% { transform: translateY(-60%) rotate(0deg); opacity: 1; }
+          85% { transform: translateY(100%) rotate(0deg); opacity: 0; }
+          100% { transform: translateY(100%) rotate(0deg); opacity: 0; }
+        }
+        @keyframes askInputGlow {
+          0% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+          20% { box-shadow: 0 0 0 3px rgba(22,163,74,0.4); }
+          50% { box-shadow: 0 0 0 3px rgba(22,163,74,0.2); }
+          70% { box-shadow: 0 0 0 3px rgba(22,163,74,0.4); }
+          100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+        }
+      `}</style>
       {/* Header */}
-      <div className="relative shrink-0" ref={dropdownRef}>
+      <div className="relative shrink-0" ref={dropdownRef} style={isPulsing ? { animation: 'askBounceHeavy 700ms ease-out' } : undefined}>
         <div className="h-[52px] px-4 flex items-center justify-between border-b border-[var(--border-neutral-xx-weak)]">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -413,7 +497,7 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto" style={isPulsing ? { animation: 'askBounceMedium 750ms ease-out 30ms' } : undefined}>
         <div className="flex flex-col gap-5 p-4">
           {displayMessages.length === 0 && !isTyping && (() => {
             const product = getProductFromPath(location.pathname);
@@ -573,8 +657,19 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
       </div>
 
       {/* Input */}
-      <div className="shrink-0 px-4 pb-4 pt-2">
-        <div className="flex items-end gap-2 border border-[var(--border-neutral-weak)] rounded-xl px-3.5 py-2.5 bg-white focus-within:border-[var(--color-primary-medium)] transition-colors">
+      <div className="shrink-0 px-4 pb-4 pt-2 relative" style={isPulsing ? { animation: 'askBounceFloaty 800ms ease-out 50ms' } : undefined}>
+        {isPulsing && (
+          <div
+            className="absolute left-1/2 -translate-x-1/2 bottom-full pointer-events-none z-10"
+            style={{ fontSize: 80, animation: 'askHandPeek 900ms ease-in-out forwards' }}
+          >
+            👋
+          </div>
+        )}
+        <div
+          className="flex items-end gap-2 border border-[var(--border-neutral-weak)] rounded-xl px-3.5 py-2.5 bg-white focus-within:border-[var(--color-primary-medium)] transition-colors"
+          style={isPulsing ? { animation: 'askInputGlow 700ms ease-in-out', borderColor: 'var(--color-primary-medium)' } : undefined}
+        >
           <textarea
             ref={panelInputRef}
             placeholder="Ask anything..."

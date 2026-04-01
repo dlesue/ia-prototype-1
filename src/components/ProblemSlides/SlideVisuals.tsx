@@ -6,13 +6,81 @@ type Mode = 'problem' | 'solution';
 
 const boxBase = 'rounded-lg text-[17px] font-medium flex items-center justify-center';
 const dimBox = `${boxBase} bg-white/[0.10] text-white/50 border border-white/[0.15]`;
-const litBox = `${boxBase} bg-amber-400/25 text-amber-300 border border-amber-400/40`;
+const litBox = `${boxBase} bg-green-400/25 text-green-300 border border-green-400/40`;
 const redBox = `${boxBase} bg-red-400/20 text-red-300 border border-red-400/35`;
 const navItem = 'px-5 py-3 rounded-lg text-[17px] font-medium text-left';
 const navDim = `${navItem} bg-white/[0.10] text-white/50`;
-const navLit = `${navItem} bg-amber-400/25 text-amber-300`;
+const navLit = `${navItem} bg-green-400/25 text-green-300`;
 const navRed = `${navItem} bg-red-400/20 text-red-300`;
-const navLock = `${navItem} bg-white/[0.12] text-white/35 flex items-center gap-3`;
+const navLock = `${navItem} bg-white/[0.12] text-white/45 flex items-center gap-3`;
+
+// Single screen card for the stacked missing-pattern visual
+function MissingScreenCard({ title, label, style }: { title: string; label: string; style?: React.CSSProperties }) {
+  return (
+    <div className="absolute" style={{ width: 360, height: 270, ...style }}>
+      <div className="rounded-lg border border-white/[0.12] bg-[#1a1a1a] flex overflow-hidden h-full shadow-2xl">
+        {/* Collapsed main nav */}
+        <div className="w-[36px] border-r border-white/[0.10] py-3 flex flex-col items-center gap-2.5 bg-white/[0.02] shrink-0 rounded-l-lg">
+          {[1,2,3,4,5,6].map(i => (
+            <div key={i} className="w-4 h-4 rounded-full bg-white/[0.12]" />
+          ))}
+        </div>
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <div className="flex items-center px-3 py-2 border-b border-white/[0.12]">
+            <div className="h-3 w-16 rounded bg-white/[0.12]" />
+            <div className="flex-1" />
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-white/[0.12]" />
+              <div className="w-4 h-4 rounded-full bg-white/[0.12]" />
+              <div className="w-4 h-4 rounded-full bg-white/[0.12]" />
+            </div>
+          </div>
+          {/* Page title */}
+          <div className="px-4 py-2.5 border-b border-white/[0.12]">
+            <div className="text-[15px] text-white/50 font-semibold text-left">{title}</div>
+          </div>
+          {/* Body — red tinted with frown + label */}
+          <div className="flex-1 flex flex-col items-center justify-center gap-3" style={{ backgroundColor: 'rgba(248, 113, 113, 0.08)' }}>
+            <Icon name="face-frown" size={32} className="text-red-300/60" />
+            <span className="text-[14px] text-red-300/70 font-medium">{label}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Shared stacked screen mockup for missing contextual patterns
+// Accumulating missing-pattern screens — count is driven by phase via module variable
+let _missingPatternCount = 1;
+
+function MissingPatternAccumulating() {
+  const count = _missingPatternCount;
+  const cards = [
+    { title: 'Hiring', label: 'No contextual reports', top: 0, left: 0 },
+    { title: 'Payroll', label: 'No contextual Ask', top: 70, left: 60 },
+    { title: 'Compensation', label: 'No contextual insights', top: 140, left: 120 },
+  ];
+  return (
+    <div className="relative" style={{ width: 500, height: 410 }}>
+      {cards.map((card, i) => (
+        <MissingScreenCard
+          key={card.title}
+          title={card.title}
+          label={card.label}
+          style={{
+            top: card.top,
+            left: card.left,
+            opacity: i < count ? 1 : 0,
+            transform: i < count ? 'scale(1)' : 'scale(0.9)',
+            transition: 'opacity 0.35s ease-out, transform 0.35s ease-out',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 // 1. Taxonomy
 function TaxonomyVisual({ mode }: { mode: Mode }) {
@@ -27,21 +95,30 @@ function TaxonomyVisual({ mode }: { mode: Mode }) {
     );
   }
   return (
-    <div className="rounded-xl border border-amber-400/25 bg-amber-400/[0.12] px-10 py-8 flex flex-col items-center justify-center gap-5 animate-slideFadeIn" style={{ width: 640, height: 280 }}>
-      <div className="text-amber-300 text-[22px] font-semibold">Product</div>
+    <div className="rounded-xl border border-green-400/25 bg-green-400/[0.12] px-10 py-8 flex flex-col items-center justify-center gap-5 animate-slideFadeIn" style={{ width: 640, height: 280 }}>
+      <div className="flex items-baseline gap-2">
+        <span className="text-green-300 text-[22px] font-semibold">Product</span>
+        <span className="text-green-300/40 text-[14px] font-medium">T1</span>
+      </div>
       <div className="flex gap-6">
-        <div className="rounded-lg border border-amber-400/20 bg-amber-400/[0.12] px-8 py-5 flex flex-col items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '200ms' }}>
-          <div className="text-amber-300/80 text-[19px] font-medium">Module</div>
+        <div className="rounded-lg border border-green-400/20 bg-green-400/[0.12] px-8 py-5 flex flex-col items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '200ms' }}>
+          <div className="flex items-baseline gap-2">
+            <span className="text-green-300/80 text-[19px] font-medium">Module</span>
+            <span className="text-green-300/40 text-[13px] font-medium">T2</span>
+          </div>
           <div className="flex gap-3">
-            <div className="rounded bg-amber-400/10 text-amber-300/60 text-[16px] px-4 py-2">Feature</div>
-            <div className="rounded bg-amber-400/10 text-amber-300/60 text-[16px] px-4 py-2">Feature</div>
+            <div className="rounded bg-green-400/10 text-green-300/60 text-[16px] px-4 py-2 flex items-baseline gap-1.5">Feature <span className="text-green-300/30 text-[11px]">T3</span></div>
+            <div className="rounded bg-green-400/10 text-green-300/60 text-[16px] px-4 py-2 flex items-baseline gap-1.5">Feature <span className="text-green-300/30 text-[11px]">T3</span></div>
           </div>
         </div>
-        <div className="rounded-lg border border-amber-400/20 bg-amber-400/[0.12] px-8 py-5 flex flex-col items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '350ms' }}>
-          <div className="text-amber-300/80 text-[19px] font-medium">Module</div>
+        <div className="rounded-lg border border-green-400/20 bg-green-400/[0.12] px-8 py-5 flex flex-col items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '350ms' }}>
+          <div className="flex items-baseline gap-2">
+            <span className="text-green-300/80 text-[19px] font-medium">Module</span>
+            <span className="text-green-300/40 text-[13px] font-medium">T2</span>
+          </div>
           <div className="flex gap-3">
-            <div className="rounded bg-amber-400/10 text-amber-300/60 text-[16px] px-4 py-2">Feature</div>
-            <div className="rounded bg-amber-400/10 text-amber-300/60 text-[16px] px-4 py-2">Feature</div>
+            <div className="rounded bg-green-400/10 text-green-300/60 text-[16px] px-4 py-2 flex items-baseline gap-1.5">Feature <span className="text-green-300/30 text-[11px]">T3</span></div>
+            <div className="rounded bg-green-400/10 text-green-300/60 text-[16px] px-4 py-2 flex items-baseline gap-1.5">Feature <span className="text-green-300/30 text-[11px]">T3</span></div>
           </div>
         </div>
       </div>
@@ -73,9 +150,9 @@ function PlacementVisual({ mode }: { mode: Mode }) {
     <div className="flex items-center gap-6 justify-center">
       <div className={`${litBox} px-6 py-5 animate-slideFadeIn`}>New thing</div>
       <div className="flex flex-col items-center gap-2 animate-slideFadeIn" style={{ animationDelay: '150ms' }}>
-        <div className="text-amber-300/50 text-2xl">&rarr;</div>
-        <div className="text-amber-300/50 text-2xl">&rarr;</div>
-        <div className="text-amber-300/50 text-2xl">&rarr;</div>
+        <div className="text-green-300/50 text-2xl">&rarr;</div>
+        <div className="text-green-300/50 text-2xl">&rarr;</div>
+        <div className="text-green-300/50 text-2xl">&rarr;</div>
       </div>
       <div className="flex flex-col gap-2.5">
         {[
@@ -84,7 +161,7 @@ function PlacementVisual({ mode }: { mode: Mode }) {
           { q: 'Everything else', a: 'Feature', lit: false },
         ].map((b, i) => (
           <div key={b.a} className="flex items-center gap-3 animate-slideFadeIn" style={{ animationDelay: `${250 + i * 100}ms` }}>
-            <div className="text-amber-300/50 text-[14px] w-[120px] text-right whitespace-nowrap">{b.q}</div>
+            <div className="text-green-300/50 text-[14px] w-[120px] text-right whitespace-nowrap">{b.q}</div>
             <div className={`${litBox} px-5 py-2.5`}>{b.a}</div>
           </div>
         ))}
@@ -106,7 +183,7 @@ function GroupingsVisual({ mode }: { mode: Mode }) {
   }
   return (
     <div className={`${litBox} px-10 py-5 flex flex-col items-center gap-3 animate-slideFadeIn`} style={{ border: '1px solid rgba(251, 191, 36, 0.25)' }}>
-      <div className="text-amber-300 text-[18px] font-semibold">Culture</div>
+      <div className="text-green-300 text-[18px] font-semibold">Culture</div>
       <div className="flex gap-3">
         {['Community', 'Recognition', 'Wellbeing', 'eNPS'].map((l, i) => (
           <div key={l} className={`${dimBox} px-4 py-2 animate-slideFadeIn`} style={{ animationDelay: `${200 + i * 80}ms` }}>{l}</div>
@@ -141,7 +218,7 @@ function NavPresenceVisual({ mode }: { mode: Mode }) {
       <div className="flex items-center gap-6">
         <div className="w-[180px] flex flex-col gap-1.5 animate-slideFadeIn">
           {navItems.map(({ icon, label }) => (
-            <div key={label} className={`${navDim} flex items-center gap-2.5`}><Icon name={icon as any} size={13} className="text-white/30" /> {label}</div>
+            <div key={label} className={`${navDim} flex items-center gap-2.5`}><Icon name={icon as any} size={13} className="text-white/40" /> {label}</div>
           ))}
         </div>
         <div className="flex flex-wrap gap-2.5 max-w-[220px] justify-center items-center">
@@ -162,8 +239,8 @@ function NavPresenceVisual({ mode }: { mode: Mode }) {
         <div className={`${navLit} animate-slideFadeIn`} style={{ animationDelay: '300ms' }}>Compensation</div>
         <div className="flex flex-col gap-0.5 ml-3">
           {['Benchmarks', 'Levels & Bands', 'Planning', 'Total Rewards'].map((l, i) => (
-            <div key={l} className="text-[13px] text-amber-300/90 py-1 px-4 flex items-center gap-2 animate-slideFadeIn" style={{ animationDelay: `${400 + i * 60}ms` }}>
-              <span className="text-amber-300/40 text-[11px]">&#8627;</span>
+            <div key={l} className="text-[13px] text-green-300/90 py-1 px-4 flex items-center gap-2 animate-slideFadeIn" style={{ animationDelay: `${400 + i * 60}ms` }}>
+              <span className="text-green-300/50 text-[11px]">&#8627;</span>
               <span>{l}</span>
             </div>
           ))}
@@ -189,7 +266,7 @@ function InvisibleVisual({ mode }: { mode: Mode }) {
       <div className="flex items-center gap-8">
         <div className="w-[180px] flex flex-col gap-1.5 animate-slideFadeIn">
           {navItems.map(({ icon, label }) => (
-            <div key={label} className={`${navDim} flex items-center gap-2.5`}><Icon name={icon as any} size={13} className="text-white/30" /> {label}</div>
+            <div key={label} className={`${navDim} flex items-center gap-2.5`}><Icon name={icon as any} size={13} className="text-white/40" /> {label}</div>
           ))}
         </div>
         <div className="flex flex-wrap gap-2.5 max-w-[220px] justify-center">
@@ -212,7 +289,7 @@ function InvisibleVisual({ mode }: { mode: Mode }) {
     <div className="w-[220px] flex flex-col gap-1.5">
       {items.map((item, i) => (
         <div key={item.label} className={`${item.lit ? `${navLit} flex items-center gap-3` : navDim} animate-slideFadeIn`} style={{ animationDelay: `${i * 80}ms` }}>
-          {item.label} {item.lit && <Icon name="lock" size={12} className="text-amber-300/60" />}
+          {item.label} {item.lit && <Icon name="lock" size={12} className="text-green-300/60" />}
         </div>
       ))}
     </div>
@@ -223,9 +300,9 @@ function InvisibleVisual({ mode }: { mode: Mode }) {
 function SettingsDamageVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
     return (
-      <div className="flex gap-8 justify-center items-stretch">
-        <div className="w-[580px] animate-slideFadeIn">
-          <div className="rounded-lg border border-white/[0.12] bg-white/[0.05] flex h-full overflow-hidden">
+      <div className="relative" style={{ width: 620, height: 440 }}>
+        <div className="absolute animate-slideFadeIn" style={{ top: 0, left: 0, width: 500, height: 320 }}>
+          <div className="rounded-lg border border-white/[0.12] bg-[#1a1a1a] flex overflow-hidden h-full">
             {/* Collapsed main nav */}
             <div className="w-[36px] border-r border-white/[0.10] py-3 flex flex-col items-center gap-2.5 bg-white/[0.02] shrink-0 rounded-l-lg">
               {[1,2,3,4,5,6].map(i => (
@@ -251,21 +328,21 @@ function SettingsDamageVisual({ mode }: { mode: Mode }) {
               <div className="flex flex-1">
                 <div className="w-[90px] border-r border-white/[0.10] py-2 flex flex-col gap-0.5">
                   {['Account', 'Payroll', 'Benefits', 'Perf', 'Time', 'Hiring', 'Comp'].map(l => (
-                    <div key={l} className={`text-[11px] px-3 py-1.5 text-left ${l === 'Account' ? 'text-white/30' : 'text-red-300/80'}`}>{l}</div>
+                    <div key={l} className={`text-[11px] px-3 py-1.5 text-left ${l === 'Account' ? 'text-white/40' : 'text-red-300/80'}`}>{l}</div>
                   ))}
                 </div>
                 <div className="w-[80px] border-r border-white/[0.10] py-2 flex flex-col gap-0.5">
-                  <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
-                  <div className="h-2 w-2/3 rounded bg-white/[0.05] mx-2.5 my-1" />
-                  <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
+                  <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
+                  <div className="h-2 w-2/3 rounded bg-white/[0.10] mx-2.5 my-1" />
+                  <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
                 </div>
                 <div className="flex-1" />
               </div>
             </div>
           </div>
         </div>
-        <div className="w-[580px] animate-slideFadeIn" style={{ animationDelay: '250ms' }}>
-          <div className="rounded-lg border border-white/[0.12] bg-white/[0.05] flex h-full overflow-hidden">
+        <div className="absolute animate-slideFadeIn" style={{ bottom: 0, right: 0, width: 500, height: 320, animationDelay: '250ms' }}>
+          <div className="rounded-lg border border-white/[0.12] bg-[#1a1a1a] flex h-full" style={{ boxShadow: '0 12px 48px rgba(0,0,0,0.6)' }}>
             {/* Collapsed main nav */}
             <div className="w-[36px] border-r border-white/[0.10] py-3 flex flex-col items-center gap-2.5 bg-white/[0.02] shrink-0 rounded-l-lg">
               {[1,2,3,4,5,6].map(i => (
@@ -284,31 +361,32 @@ function SettingsDamageVisual({ mode }: { mode: Mode }) {
                 </div>
               </div>
               {/* Profile header with avatar */}
-              <div className="flex items-center gap-4 px-5 py-4 bg-white/[0.05] border-b border-white/[0.12]">
+              <div className="flex items-center gap-4 px-5 py-4 bg-white/[0.10] border-b border-white/[0.12]">
                 <div className="w-14 h-14 rounded bg-white/[0.12] border border-white/[0.12] flex items-center justify-center shrink-0">
-                  <Icon name="circle-user" size={22} className="text-white/35" />
+                  <Icon name="circle-user" size={22} className="text-white/45" />
                 </div>
                 <div className="flex-1 text-left">
                   <div className="text-[17px] text-white/50 font-semibold">Jane Smith</div>
-                  <div className="text-[12px] text-white/20">Marketing Manager</div>
+                  <div className="text-[12px] text-white/40">Marketing Manager</div>
                 </div>
               </div>
               {/* Body: vitals sidebar + tabs/content */}
               <div className="flex flex-1">
                 <div className="w-[90px] border-r border-white/[0.10] px-3 py-3 flex flex-col gap-2">
-                  <div className="h-2 w-full rounded bg-white/[0.05]" />
-                  <div className="h-2 w-3/4 rounded bg-white/[0.05]" />
-                  <div className="h-2 w-full rounded bg-white/[0.05]" />
-                  <div className="h-2 w-2/3 rounded bg-white/[0.05]" />
+                  <div className="h-2 w-full rounded bg-white/[0.10]" />
+                  <div className="h-2 w-3/4 rounded bg-white/[0.10]" />
+                  <div className="h-2 w-full rounded bg-white/[0.10]" />
+                  <div className="h-2 w-2/3 rounded bg-white/[0.10]" />
                 </div>
                 <div className="flex-1 flex flex-col min-w-0">
                   <div className="relative flex border-b border-white/[0.12] px-2 whitespace-nowrap">
-                    {['Personal', 'Job', 'Time Off', 'Benefits', 'Perf', 'Training'].map(l => (
-                      <div key={l} className={`text-[12px] font-medium px-2.5 py-2.5 shrink-0 ${['Personal', 'Job'].includes(l) ? 'text-white/30' : 'text-red-300/80'}`}>{l}</div>
+                    <div className="text-[12px] font-medium px-2.5 py-2.5 shrink-0 text-white/40">Job</div>
+                    {['Time Off', 'Benefits', 'Perf', 'Training'].map(l => (
+                      <div key={l} className="text-[12px] font-medium px-2.5 py-2.5 shrink-0 text-red-300/80">{l}</div>
                     ))}
                     <div className="text-[12px] font-medium px-2.5 py-2.5 shrink-0 text-red-300/80 relative">
                       More ▾
-                      <div className="absolute top-full left-0 mt-1 bg-[#1a1a1a] border border-white/[0.12] rounded-md py-1 shadow-lg z-10 w-[75px] text-left">
+                      <div className="absolute top-full z-10 w-[75px] text-left bg-[#1a1a1a] border border-white/[0.12] rounded-md py-1" style={{ boxShadow: '0 12px 48px rgba(0,0,0,0.6)', marginTop: -5, left: -8 }}>
                         {['Pay', 'Docs', 'Emerg', 'Assets', 'Notes'].map(l => (
                           <div key={l} className="text-[11px] text-red-300/80 px-3 py-1.5">{l}</div>
                         ))}
@@ -327,26 +405,26 @@ function SettingsDamageVisual({ mode }: { mode: Mode }) {
   return (
     <div className="flex gap-8 justify-center items-start">
       <div className="flex flex-col gap-1 animate-slideFadeIn">
-        <div className="text-white/20 text-[14px] mb-1.5 text-center">Settings</div>
+        <div className="text-white/40 text-[14px] mb-1.5 text-center">Settings</div>
         {['Account', 'Permissions', 'Branding'].map(l => (
           <div key={l} className={`${navDim} text-[13px] py-1.5`}>{l}</div>
         ))}
       </div>
       <div className="flex flex-col gap-1 animate-slideFadeIn" style={{ animationDelay: '150ms' }}>
-        <div className="text-white/20 text-[14px] mb-2 text-center">EE Profile</div>
-        <div className="rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden">
+        <div className="text-white/40 text-[14px] mb-2 text-center">EE Profile</div>
+        <div className="rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden">
           <div className="flex border-b border-white/[0.12]">
             {['Personal', 'Job', 'Pay', 'Docs'].map(l => (
-              <div key={l} className="text-[11px] text-white/30 px-3 py-1.5 border-r border-white/[0.10] last:border-r-0">{l}</div>
+              <div key={l} className="text-[11px] text-white/40 px-3 py-1.5 border-r border-white/[0.10] last:border-r-0">{l}</div>
             ))}
           </div>
           <div className="h-10 flex items-center justify-center">
-            <span className="text-white/20 text-[12px]">content</span>
+            <span className="text-white/40 text-[12px]">content</span>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-1 animate-slideFadeIn" style={{ animationDelay: '300ms' }}>
-        <div className="text-amber-300/50 text-[14px] mb-1.5 text-center">In-product</div>
+        <div className="text-green-300/50 text-[14px] mb-1.5 text-center">In-product</div>
         {['Perf settings', 'Time settings', 'Hiring settings'].map(l => (
           <div key={l} className={`${navLit} text-[13px] py-1.5`}>{l}</div>
         ))}
@@ -366,22 +444,20 @@ const beforeNavItems: { label: string; icon: string }[] = [
 
 const afterNavItems: { label: string; icon: string; highlight?: boolean }[] = [
   { label: 'Home', icon: 'home' },
-  { label: 'Inbox', icon: 'inbox', highlight: true },
   { label: 'People', icon: 'user-group' },
   { label: 'Hiring', icon: 'id-badge' },
   { label: 'Payroll', icon: 'money-bill-1' },
-  { label: 'Reports', icon: 'chart-pie-simple' },
   { label: 'Settings', icon: 'gear', highlight: true },
 ];
 
 function SplitNavVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
     return (
-      <div className="flex w-[480px]">
-        <div className="w-[130px] flex flex-col gap-1.5 py-4 px-3 bg-white/[0.04] border border-white/[0.12] rounded-l-lg">
+      <div className="flex w-[400px]">
+        <div className="w-[130px] flex flex-col gap-1.5 py-4 px-3 bg-[#1a1a1a] border border-white/[0.12] rounded-l-lg">
           {beforeNavItems.map(({ label, icon }) => (
-            <div key={label} className="text-[15px] text-white/35 px-2 py-1.5 text-left flex items-center gap-2.5">
-              <Icon name={icon as any} size={13} className="text-white/20" />
+            <div key={label} className="text-[15px] text-white/45 px-2 py-1.5 text-left flex items-center gap-2.5">
+              <Icon name={icon as any} size={13} className="text-white/40" />
               {label}
             </div>
           ))}
@@ -395,7 +471,7 @@ function SplitNavVisual({ mode }: { mode: Mode }) {
               <div className="px-3 py-1 rounded-md bg-red-400/20 border border-red-400/35 text-[13px] text-red-300/80 font-medium">Ask</div>
             </div>
           </div>
-          <div className="flex-1 bg-white/[0.02] border border-white/[0.10] border-l-0 border-t-0 rounded-br-lg">
+          <div className="flex-1 bg-[#1a1a1a] border border-white/[0.10] border-l-0 border-t-0 rounded-br-lg">
           </div>
         </div>
       </div>
@@ -404,34 +480,39 @@ function SplitNavVisual({ mode }: { mode: Mode }) {
   const [unified, setUnified] = useState(false);
 
   return (
-    <div className="flex flex-col items-center gap-5">
+    <div className="flex flex-col items-center gap-5" style={{ marginLeft: -30 }}>
       {/* Toggle */}
       <button
         onClick={(e) => { e.stopPropagation(); setUnified(!unified); }}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors text-[12px] font-medium ${unified ? 'border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/25 text-amber-300/80' : 'border-red-400/30 bg-red-400/10 hover:bg-red-400/20 text-red-300'}`}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors text-[12px] font-medium ${unified ? 'border-green-400/30 bg-green-400/10 hover:bg-green-400/25 text-green-300/80' : 'border-red-400/30 bg-red-400/10 hover:bg-red-400/20 text-red-300'}`}
       >
-        <span className={unified ? 'text-amber-300/40' : 'text-red-300'}>Before</span>
-        <div className={`w-7 h-4 rounded-full relative transition-colors ${unified ? 'bg-amber-400/40' : 'bg-red-400/40'}`}>
-          <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${unified ? 'bg-amber-300 left-3.5' : 'bg-red-300 left-0.5'}`} />
+        <span className={unified ? 'text-green-300/50' : 'text-red-300'}>Before</span>
+        <div className={`w-7 h-4 rounded-full relative transition-colors ${unified ? 'bg-green-400/40' : 'bg-red-400/40'}`}>
+          <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${unified ? 'bg-green-300 left-3.5' : 'bg-red-300 left-0.5'}`} />
         </div>
-        <span className={unified ? 'text-amber-300/80' : 'text-red-300/80'}>After</span>
+        <span className={unified ? 'text-green-300/80' : 'text-red-300/80'}>After</span>
       </button>
 
       {/* Visual */}
-      <div className="flex w-[640px] h-[420px] transition-all duration-500">
+      <div className="flex w-[500px] h-[340px] transition-all duration-500">
         {unified ? (
           /* After state — unified nav, no header (amber) */
           <>
-            <div className="w-[150px] flex flex-col gap-1.5 rounded-l-lg bg-amber-400/[0.12] border border-amber-400/25 transition-all duration-500">
+            <div className="w-[150px] flex flex-col gap-1.5 rounded-l-lg bg-green-400/[0.12] border border-green-400/25 transition-all duration-500">
               {/* Logo + Ask row */}
               <div className="flex items-center justify-between px-3 pt-3 pb-1">
-                <div className="w-[30px] h-[14px] rounded bg-amber-300/20" />
-                <div className="px-2 py-0.5 rounded-md bg-amber-400/25 border border-amber-400/25 text-[11px] text-amber-300/60 font-medium">Ask</div>
+                <div className="w-[30px] h-[14px] rounded bg-green-300/20" />
+                <div className="px-2 py-0.5 rounded-md bg-green-400/25 border border-green-400/25 text-[11px] text-green-300/60 font-medium">Ask</div>
               </div>
               {/* Search */}
-              <div className="px-3 text-[15px] px-5 py-1.5 text-left flex items-center gap-2.5 text-amber-300/90">
-                <Icon name="magnifying-glass" size={13} className="text-amber-300/50" />
+              <div className="px-3 text-[15px] px-5 py-1.5 text-left flex items-center gap-2.5 text-green-300/90">
+                <Icon name="magnifying-glass" size={13} className="text-green-300/50" />
                 Search
+              </div>
+              {/* Inbox */}
+              <div className="px-3 text-[15px] px-5 py-1.5 text-left flex items-center gap-2.5 text-green-300/90">
+                <Icon name="inbox" size={13} className="text-green-300/50" />
+                Inbox
               </div>
               {/* Separator */}
               <div className="mx-3 border-t border-white/[0.12]" />
@@ -439,23 +520,23 @@ function SplitNavVisual({ mode }: { mode: Mode }) {
                 {afterNavItems.map(({ label, icon, highlight }) => (
                   <div
                     key={label}
-                    className={`text-[15px] px-2 py-1.5 text-left flex items-center gap-2.5 ${highlight ? 'text-amber-300/90' : 'text-white/35'}`}
+                    className={`text-[15px] px-2 py-1.5 text-left flex items-center gap-2.5 ${highlight ? 'text-green-300/90' : 'text-white/45'}`}
                   >
-                    <Icon name={icon as any} size={13} className={highlight ? 'text-amber-300/50' : 'text-white/20'} />
+                    <Icon name={icon as any} size={13} className={highlight ? 'text-green-300/50' : 'text-white/40'} />
                     {label}
                   </div>
                 ))}
               </div>
             </div>
-            <div className="flex-1 bg-white/[0.05] border border-white/[0.10] border-l-0 rounded-r-lg" />
+            <div className="flex-1 bg-white/[0.10] border border-white/[0.10] border-l-0 rounded-r-lg" />
           </>
         ) : (
           /* Before state — split nav + header (red) */
           <>
             <div className="w-[150px] flex flex-col gap-1.5 py-4 px-3 rounded-l-lg bg-white/[0.04] border border-white/[0.12] transition-all duration-500">
               {beforeNavItems.map(({ label, icon }) => (
-                <div key={label} className="text-[15px] text-white/35 px-2 py-1.5 text-left flex items-center gap-2.5">
-                  <Icon name={icon as any} size={13} className="text-white/20" />
+                <div key={label} className="text-[15px] text-white/45 px-2 py-1.5 text-left flex items-center gap-2.5">
+                  <Icon name={icon as any} size={13} className="text-white/40" />
                   {label}
                 </div>
               ))}
@@ -480,17 +561,111 @@ function SplitNavVisual({ mode }: { mode: Mode }) {
   );
 }
 
-// 8. Nav order
-function NavOrderVisual({ mode }: { mode: Mode }) {
-  if (mode === 'problem') {
-    const items = ['Reports', 'Payroll', 'Culture', 'Home', 'Hiring', 'Benefits', 'People'];
-    return (
-      <div className="w-[200px] flex flex-col gap-1.5">
-        {items.map((l, i) => (
-          <div key={l} className={`${navRed} animate-slideFadeIn`} style={{ animationDelay: `${i * 80}ms` }}>{l}</div>
+// Two-tier nav visual — shows T1 items then expands Compensation to reveal T2s
+function TwoTierNavVisual({ mode }: { mode: Mode }) {
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setExpanded(true), 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const t1Items = [
+    { label: 'Home', icon: 'home' },
+    { label: 'People', icon: 'user-group' },
+    { label: 'Hiring', icon: 'id-badge' },
+    { label: 'Payroll', icon: 'money-bill-1' },
+    { label: 'Compensation', icon: 'dollar-sign', expandable: true },
+    { label: 'Benefits', icon: 'heart' },
+    { label: 'Culture', icon: 'face-smile' },
+    { label: 'Settings', icon: 'gear' },
+  ];
+
+  const t2Items = ['Benchmarks', 'Levels & Bands', 'Planning', 'Total Rewards'];
+
+  return (
+    <div className="flex animate-slideFadeIn" style={{ marginLeft: -30 }}>
+      <div className="w-[200px] flex flex-col gap-1 rounded-lg bg-green-400/[0.08] border border-green-400/25 py-4 px-3">
+        {t1Items.map((item) => (
+          <React.Fragment key={item.label}>
+            <div className={`text-[15px] px-3 py-2 text-left flex items-center gap-2.5 rounded-lg transition-all duration-300 ${
+              item.expandable && expanded ? 'text-green-300/90 bg-green-400/15' : 'text-white/50'
+            }`}>
+              <Icon name={item.icon as any} size={13} className={item.expandable && expanded ? 'text-green-300/50' : 'text-white/40'} />
+              {item.label}
+            </div>
+            {item.expandable && (
+              <div
+                className="overflow-hidden transition-all duration-500 ease-out"
+                style={{ maxHeight: expanded ? t2Items.length * 36 : 0, opacity: expanded ? 1 : 0 }}
+              >
+                {t2Items.map((t2) => (
+                  <div key={t2} className="text-[13px] text-green-300/70 py-1.5 pl-10 pr-3 flex items-center gap-2">
+                    <span className="text-green-300/40 text-[11px]">&#8627;</span>
+                    {t2}
+                  </div>
+                ))}
+              </div>
+            )}
+          </React.Fragment>
         ))}
       </div>
-    );
+    </div>
+  );
+}
+
+// 8. Nav order
+function NavOrderShuffler() {
+  const items = useMemo(() => [
+    { label: 'Reports', icon: 'chart-pie-simple' },
+    { label: 'Payroll', icon: 'money-bill-1' },
+    { label: 'Files', icon: 'file-lines' },
+    { label: 'Home', icon: 'home' },
+    { label: 'Hiring', icon: 'id-badge' },
+    { label: 'Benefits', icon: 'heart' },
+    { label: 'People', icon: 'user-group' },
+  ], []);
+  const [order, setOrder] = useState(items);
+
+  useEffect(() => {
+    const doSwap = () => {
+      setOrder(prev => {
+        const next = [...prev];
+        const a = Math.floor(Math.random() * (next.length - 1));
+        [next[a], next[a + 1]] = [next[a + 1], next[a]];
+        return next;
+      });
+    };
+    const startTimeout = setTimeout(doSwap, 300);
+    const interval = setInterval(doSwap, 800);
+    return () => { clearTimeout(startTimeout); clearInterval(interval); };
+  }, []);
+
+  // Map each item to its current position index for smooth animation
+  const positionMap = new Map(order.map((item, i) => [item.label, i]));
+
+  return (
+    <div className="w-[200px] relative" style={{ height: items.length * 52 }}>
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className={`${navRed} absolute left-0 right-0 flex items-center gap-2.5`}
+          style={{
+            transform: `translateY(${positionMap.get(item.label)! * 52}px)`,
+            transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
+          }}
+        >
+          <Icon name={item.icon as any} size={13} className="text-red-300/60" />
+          {item.label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function NavOrderVisual({ mode }: { mode: Mode }) {
+  if (mode === 'problem') {
+    return <NavOrderShuffler />;
   }
   const sectionColors = [
     { text: 'rgb(74 222 128 / 0.7)', icon: 'rgb(74 222 128 / 0.5)', bracket: 'rgb(74 222 128 / 0.4)', label: 'rgb(74 222 128 / 0.6)', divider: 'rgb(74 222 128 / 0.1)' },  // green
@@ -520,7 +695,7 @@ function NavOrderVisual({ mode }: { mode: Mode }) {
   ];
   return (
     <div className="flex items-stretch gap-4">
-      <div className="w-[170px] flex flex-col gap-1.5 rounded-lg bg-white/[0.05] border border-white/[0.12] py-4 px-3 animate-slideFadeIn">
+      <div className="w-[170px] flex flex-col gap-1.5 rounded-lg bg-white/[0.10] border border-white/[0.12] py-4 px-3 animate-slideFadeIn">
         {sections.map((section, si) => (
           <React.Fragment key={section.label}>
             {si > 0 && <div className="mx-1 h-px" style={{ backgroundColor: sectionColors[si].divider }} />}
@@ -556,8 +731,8 @@ function NavOrderVisual({ mode }: { mode: Mode }) {
 function ScreenRealEstateVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
     return (
-      <div className="w-[580px] animate-slideFadeIn" style={{ aspectRatio: '16 / 10' }}>
-        <div className="rounded-lg border border-white/[0.12] bg-white/[0.05] flex overflow-hidden h-full">
+      <div className="w-[420px] animate-slideFadeIn" style={{ aspectRatio: '16 / 10' }}>
+        <div className="rounded-lg border border-white/[0.12] bg-[#1a1a1a] flex overflow-hidden h-full">
           {/* Main nav with circle icons and label bars */}
           <div className="w-[90px] border-r border-white/[0.10] py-3 flex flex-col gap-2.5 px-3 bg-white/[0.02] shrink-0 rounded-l-lg">
             {[1,2,3,4,5,6].map(i => (
@@ -582,17 +757,17 @@ function ScreenRealEstateVisual({ mode }: { mode: Mode }) {
             <div className="flex flex-1">
               {/* Sub nav columns */}
               <div className="w-[80px] border-r border-white/[0.10] py-2 flex flex-col gap-0.5">
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-2/3 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-2/3 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
               </div>
               <div className="w-[70px] border-r border-white/[0.10] py-2 flex flex-col gap-0.5">
-                <div className="h-2 w-2/3 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
+                <div className="h-2 w-2/3 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
               </div>
               <div className="flex-1 bg-red-400/10 border border-red-400/25 flex flex-col items-center justify-center gap-3">
                 <Icon name="face-frown" size={32} className="text-red-300/70" />
-                <span className="text-[14px] text-red-300/70 font-medium">no room for content</span>
+                <span className="text-[14px] text-red-300/70 font-medium text-center">no room for content</span>
               </div>
               {/* Ask rail */}
               <div className="w-[120px] bg-white/[0.02] border-l border-white/[0.10] flex flex-col gap-2 px-2 py-3">
@@ -617,18 +792,18 @@ function ScreenRealEstateVisual({ mode }: { mode: Mode }) {
       {/* Toggle */}
       <button
         onClick={(e) => { e.stopPropagation(); setClean(!clean); }}
-        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors text-[12px] font-medium ${clean ? 'border-amber-400/30 bg-amber-400/10 hover:bg-amber-400/25 text-amber-300/80' : 'border-red-400/30 bg-red-400/10 hover:bg-red-400/20 text-red-300'}`}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-colors text-[12px] font-medium ${clean ? 'border-green-400/30 bg-green-400/10 hover:bg-green-400/25 text-green-300/80' : 'border-red-400/30 bg-red-400/10 hover:bg-red-400/20 text-red-300'}`}
       >
-        <span className={clean ? 'text-amber-300/40' : 'text-red-300'}>Before</span>
-        <div className={`w-7 h-4 rounded-full relative transition-colors ${clean ? 'bg-amber-400/40' : 'bg-red-400/40'}`}>
-          <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${clean ? 'bg-amber-300 left-3.5' : 'bg-red-300 left-0.5'}`} />
+        <span className={clean ? 'text-green-300/50' : 'text-red-300'}>Before</span>
+        <div className={`w-7 h-4 rounded-full relative transition-colors ${clean ? 'bg-green-400/40' : 'bg-red-400/40'}`}>
+          <div className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${clean ? 'bg-green-300 left-3.5' : 'bg-red-300 left-0.5'}`} />
         </div>
-        <span className={clean ? 'text-amber-300/80' : 'text-red-300/80'}>After</span>
+        <span className={clean ? 'text-green-300/80' : 'text-red-300/80'}>After</span>
       </button>
 
       {/* Single layout that animates between states */}
-      <div className="w-[580px]" style={{ aspectRatio: '16 / 10' }}>
-        <div className={`rounded-lg border bg-white/[0.05] flex overflow-hidden h-full transition-colors duration-500 ${clean ? 'border-white/[0.12]' : 'border-white/[0.12]'}`}>
+      <div className="w-[480px]" style={{ aspectRatio: '16 / 10' }}>
+        <div className={`rounded-lg border bg-[#1a1a1a] flex overflow-hidden h-full transition-colors duration-500 ${clean ? 'border-white/[0.12]' : 'border-white/[0.12]'}`}>
           {/* Main nav — always visible */}
           <div className="w-[90px] border-r border-white/[0.10] py-3 flex flex-col gap-2.5 px-3 bg-white/[0.02] shrink-0 rounded-l-lg transition-all duration-500">
             {[1,2,3,4,5,6].map(i => (
@@ -652,19 +827,19 @@ function ScreenRealEstateVisual({ mode }: { mode: Mode }) {
             <div className="flex flex-1">
               {/* Sub nav 1 — collapses */}
               <div className={`border-r border-white/[0.10] py-2 flex flex-col gap-0.5 transition-all duration-500 overflow-hidden ${clean ? 'w-0 opacity-0 px-0' : 'w-[80px] opacity-100'}`}>
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-2/3 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-2/3 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
               </div>
               {/* Sub nav 2 — collapses */}
               <div className={`border-r border-white/[0.10] py-2 flex flex-col gap-0.5 transition-all duration-500 overflow-hidden ${clean ? 'w-0 opacity-0 px-0' : 'w-[70px] opacity-100'}`}>
-                <div className="h-2 w-2/3 rounded bg-white/[0.05] mx-2.5 my-1" />
-                <div className="h-2 w-3/4 rounded bg-white/[0.05] mx-2.5 my-1" />
+                <div className="h-2 w-2/3 rounded bg-white/[0.10] mx-2.5 my-1" />
+                <div className="h-2 w-3/4 rounded bg-white/[0.10] mx-2.5 my-1" />
               </div>
               {/* Content area — transitions from red/cramped to amber/spacious */}
-              <div className={`flex-1 flex flex-col items-center justify-center gap-3 transition-all duration-500 ${clean ? 'bg-amber-400/[0.12] border border-amber-400/25' : 'bg-red-400/[0.06] border border-red-400/25'}`}>
-                <Icon name={clean ? 'face-smile' : 'face-frown'} size={32} className={`transition-colors duration-500 ${clean ? 'text-amber-300/50' : 'text-red-300/70'}`} />
-                <span className={`text-[14px] font-medium transition-colors duration-500 ${clean ? 'text-amber-300/90' : 'text-red-300/70'}`}>
+              <div className={`flex-1 flex flex-col items-center justify-center gap-3 transition-all duration-500 ${clean ? 'bg-green-400/[0.12] border border-green-400/25' : 'bg-red-400/[0.06] border border-red-400/25'}`}>
+                <Icon name={clean ? 'face-smile' : 'face-frown'} size={32} className={`transition-colors duration-500 ${clean ? 'text-green-300/50' : 'text-red-300/70'}`} />
+                <span className={`text-[14px] font-medium transition-colors duration-500 ${clean ? 'text-green-300/90' : 'text-red-300/70'}`}>
                   {clean ? 'room to breathe' : 'no room for content'}
                 </span>
               </div>
@@ -688,19 +863,120 @@ function ScreenRealEstateVisual({ mode }: { mode: Mode }) {
 }
 
 // 10. Contextual settings
+function ScavengerHuntVisual() {
+  const labels = [
+    'Go to Hiring',
+    'Look for settings',
+    'Not here...',
+    'Go to Settings',
+    'Find "Hiring"',
+    'Change setting',
+  ];
+
+  const TRAIL = 3; // how many steps visible at once
+  const [head, setHead] = useState(0);
+
+  useEffect(() => {
+    const startDelay = setTimeout(() => {
+      setHead(1);
+    }, 800);
+    return () => clearTimeout(startDelay);
+  }, []);
+
+  useEffect(() => {
+    if (head === 0) return;
+    const timer = setTimeout(() => {
+      setHead(h => h + 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [head]);
+
+  // Position steps in 3 rows with equal vertical spacing
+  const size = 520;
+  const n = labels.length;
+  const cx = size / 2;
+  const rowY = [60, 185, 310, 435];
+  const spread = 180;
+  const positions = [
+    { x: cx, y: rowY[0] },           // 0: top center
+    { x: cx + spread, y: rowY[1] },  // 1: middle right
+    { x: cx + spread, y: rowY[2] },  // 2: bottom-mid right
+    { x: cx, y: rowY[3] },           // 3: bottom center
+    { x: cx - spread, y: rowY[2] },  // 4: bottom-mid left
+    { x: cx - spread, y: rowY[1] },  // 5: middle left
+  ];
+
+  // Generate straight line path between adjacent positions
+  const arcPath = (fromIdx: number, toIdx: number) => {
+    const from = positions[fromIdx];
+    const to = positions[toIdx % n];
+    return `M${from.x},${from.y} L${to.x},${to.y}`;
+  };
+
+  // Each segment: from step i to step (i+1) % n
+  const segments = labels.map((_, i) => ({
+    path: arcPath(i, (i + 1) % n),
+  }));
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg className="absolute inset-0 w-full h-full" style={{ overflow: 'visible' }}>
+        {segments.map((seg, i) => {
+          // Line trails: appears when the destination card (i+1) is visible
+          const destIdx = i + 1;
+          const totalSteps = n;
+          const lastAppearance = head <= destIdx ? -1 : Math.floor((head - destIdx - 1) / totalSteps) * totalSteps + destIdx;
+          const isVisible = lastAppearance >= 0;
+          const stepsAgo = isVisible ? head - lastAppearance - 1 : 999;
+          const isFaded = stepsAgo >= TRAIL;
+          return (
+            <path
+              key={`arc-${i}`}
+              d={seg.path}
+              fill="none"
+              stroke="rgba(248,113,113,0.25)"
+              strokeWidth="1.5"
+              strokeDasharray="6 4"
+              style={{
+                opacity: isVisible && !isFaded ? 1 : 0,
+                transition: 'opacity 0.5s ease-out',
+              }}
+            />
+          );
+        })}
+      </svg>
+      {labels.map((label, i) => {
+        const totalSteps = n;
+        const lastAppearance = head <= i ? -1 : Math.floor((head - i - 1) / totalSteps) * totalSteps + i;
+        const isVisible = lastAppearance >= 0 && head > lastAppearance;
+        const stepsAgo = head - lastAppearance - 1;
+        const isFaded = stepsAgo >= TRAIL;
+
+        return (
+          <div
+            key={i}
+            className={`absolute ${redBox} text-[13px] flex items-center justify-center text-center`}
+            style={{
+              width: 160,
+              height: 52,
+              left: positions[i].x,
+              top: positions[i].y,
+              transform: `translate(-50%, -50%) scale(${isVisible && !isFaded ? 1 : 0.8})`,
+              opacity: isVisible && !isFaded ? 1 : 0,
+              transition: 'opacity 0.4s ease-out, transform 0.4s ease-out',
+            }}
+          >
+            {label}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ContextualSettingsVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
-    const steps = ['In Hiring', 'Go to Settings', 'Find Hiring', 'Change', 'Go back'];
-    return (
-      <div className="flex items-center gap-3 text-[17px]">
-        {steps.map((step, i) => (
-          <React.Fragment key={step}>
-            {i > 0 && <span className="text-red-300/80 text-xl animate-slideFadeIn" style={{ animationDelay: `${i * 150 - 75}ms` }}>&rarr;</span>}
-            <div className={`${redBox} px-5 py-3 animate-slideFadeIn`} style={{ animationDelay: `${i * 150}ms` }}>{step}</div>
-          </React.Fragment>
-        ))}
-      </div>
-    );
+    return <ScavengerHuntVisual />;
   }
   const lifecycleItems = [
     { name: 'Hiring', icon: 'id-badge' },
@@ -730,26 +1006,26 @@ function ContextualSettingsVisual({ mode }: { mode: Mode }) {
 
   return (
     <div className="flex items-center gap-6">
-      <div className="w-[200px] flex flex-col gap-1.5 rounded-lg bg-white/[0.05] border border-white/[0.12] py-4 px-3 animate-slideFadeIn">
+      <div className="w-[200px] flex flex-col gap-1.5 rounded-lg bg-white/[0.10] border border-white/[0.12] py-4 px-3 animate-slideFadeIn">
         {lifecycleItems.map((item, i) => {
           const isHovered = i === hoveredIndex;
           return (
             <div
               key={item.name}
-              className={`text-[15px] px-2 py-1.5 text-left flex items-center gap-2.5 rounded-lg transition-all duration-300 ${isHovered ? 'bg-amber-400/10 text-amber-300/90' : 'text-white/35'}`}
+              className={`text-[15px] px-2 py-1.5 text-left flex items-center gap-2.5 rounded-lg transition-all duration-300 ${isHovered ? 'bg-green-400/10 text-green-300/90' : 'text-white/45'}`}
             >
-              <Icon name={item.icon as any} size={13} className={`transition-colors duration-300 ${isHovered ? 'text-amber-300/50' : 'text-white/20'}`} />
+              <Icon name={item.icon as any} size={13} className={`transition-colors duration-300 ${isHovered ? 'text-green-300/50' : 'text-white/40'}`} />
               <span className="flex-1">{item.name}</span>
               <Icon
                 name="gear"
                 size={12}
-                className={`transition-all duration-300 ${isHovered ? 'opacity-100 text-amber-300/60' : 'opacity-0'}`}
+                className={`transition-all duration-300 ${isHovered ? 'opacity-100 text-green-300/60' : 'opacity-0'}`}
               />
             </div>
           );
         })}
       </div>
-      <div className="text-amber-300/40 text-[14px] animate-slideFadeIn" style={{ animationDelay: '400ms' }}>&larr; settings in context</div>
+      <div className="text-green-300/50 text-[14px] animate-slideFadeIn" style={{ animationDelay: '400ms' }}>&larr; settings in context</div>
     </div>
   );
 }
@@ -757,69 +1033,23 @@ function ContextualSettingsVisual({ mode }: { mode: Mode }) {
 // 11. Contextual reports
 function ContextualReportsVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
-    return (
-      <div className="flex gap-5 justify-center">
-        {/* Hiring — report icon below the title bar */}
-        <div className="w-[240px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: '0ms' }}>
-          <div className="flex items-center px-4 py-3 border-b border-white/[0.10]">
-            <span className="text-[16px] font-medium text-white/50">Hiring</span>
-          </div>
-          <div className="flex justify-end px-4 pt-3">
-            <div className="w-5 h-5 rounded bg-red-400/20 flex items-center justify-center">
-              <Icon name="chart-bar" size={10} className="text-red-300/80" />
-            </div>
-          </div>
-          <div className="px-4 py-3 space-y-2">
-            <div className="h-2.5 w-3/4 rounded bg-white/[0.10]" />
-            <div className="h-2.5 w-1/2 rounded bg-white/[0.10]" />
-          </div>
-        </div>
-
-        {/* Payroll — report button in title bar, right-aligned */}
-        <div className="w-[240px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: '150ms' }}>
-          <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.10]">
-            <span className="text-[16px] font-medium text-white/50">Payroll</span>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-red-400/20">
-              <Icon name="chart-bar" size={9} className="text-red-300/80" />
-              <span className="text-[10px] text-red-300/70">Reports</span>
-            </div>
-          </div>
-          <div className="px-4 py-4 space-y-2">
-            <div className="h-2.5 w-3/4 rounded bg-white/[0.10]" />
-            <div className="h-2.5 w-1/2 rounded bg-white/[0.10]" />
-          </div>
-        </div>
-
-        {/* Comp — no reports, frown icon centered */}
-        <div className="w-[240px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: '300ms' }}>
-          <div className="flex items-center px-4 py-3 border-b border-white/[0.10]">
-            <span className="text-[16px] font-medium text-white/50">Comp</span>
-          </div>
-          <div className="flex items-center justify-center py-8">
-            <div className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-lg bg-red-400/10">
-              <Icon name="face-frown" size={22} className="text-red-300/70" />
-              <span className="text-[11px] text-red-300/70">no link to reports</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <MissingPatternAccumulating />;
   }
   return (
     <div className="flex gap-5 justify-center">
       {['Hiring', 'Payroll', 'Comp'].map((l, i) => (
-        <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
+        <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
           <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-400/[0.15] border-b border-amber-400/25">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-green-400/[0.15] border-b border-green-400/25">
             <div className="flex gap-1.5 flex-1">
               {[1, 2, 3].map(n => (
-                <div key={n} className="w-8 h-4 rounded bg-amber-400/25" />
+                <div key={n} className="w-8 h-4 rounded bg-green-400/25" />
               ))}
             </div>
-            <span className="text-[11px] text-amber-300/90 whitespace-nowrap underline">Reports &rarr;</span>
+            <span className="text-[11px] text-green-300/90 whitespace-nowrap underline">Reports &rarr;</span>
           </div>
           <div className="h-10 flex items-center justify-center">
-            <span className="text-white/20 text-[11px]">content</span>
+            <span className="text-white/40 text-[11px]">content</span>
           </div>
         </div>
       ))}
@@ -830,34 +1060,20 @@ function ContextualReportsVisual({ mode }: { mode: Mode }) {
 // 12. Contextual Ask
 function ContextualAskVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
-    return (
-      <div className="flex gap-5 justify-center">
-        {['Hiring', 'Payroll', 'Comp'].map((l, i) => (
-          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
-            <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
-            <div className="h-16 flex items-center justify-center">
-              <span className="text-white/20 text-[11px]">content</span>
-            </div>
-            <div className="px-3 py-2 border-t border-white/[0.10] flex items-center justify-center">
-              <span className="text-red-300/80 text-[12px] italic">no Ask entry point</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <MissingPatternAccumulating />;
   }
   return (
     <div className="flex gap-5 justify-center">
       {['Hiring', 'Payroll', 'Comp'].map((l, i) => (
-        <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
+        <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
           <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
           <div className="h-16 flex items-center justify-center">
-            <span className="text-white/20 text-[11px]">content</span>
+            <span className="text-white/40 text-[11px]">content</span>
           </div>
-          <div className="px-3 py-2 border-t border-amber-400/25 bg-amber-400/[0.12] flex items-center gap-2">
-            <Icon name="sparkles" size={12} className="text-amber-300/50" />
-            <div className="flex-1 h-[22px] rounded-md border border-amber-400/25 bg-amber-400/[0.04] flex items-center px-2">
-              <span className="text-[11px] text-amber-300/40">Ask about {l}...</span>
+          <div className="px-3 py-2 border-t border-green-400/25 bg-green-400/[0.12] flex items-center gap-2">
+            <Icon name="sparkles" size={12} className="text-green-300/50" />
+            <div className="flex-1 h-[22px] rounded-md border border-green-400/25 bg-green-400/[0.04] flex items-center px-2">
+              <span className="text-[11px] text-green-300/50">Ask about {l}...</span>
             </div>
           </div>
         </div>
@@ -869,21 +1085,7 @@ function ContextualAskVisual({ mode }: { mode: Mode }) {
 // 13. Contextual Insights
 function ContextualInsightsVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
-    return (
-      <div className="flex gap-5 justify-center">
-        {['Hiring', 'Payroll', 'Comp'].map((l, i) => (
-          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
-            <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
-            <div className="h-16 flex items-center justify-center">
-              <span className="text-white/20 text-[11px]">content</span>
-            </div>
-            <div className="px-3 py-2 border-t border-white/[0.10] flex items-center justify-center">
-              <span className="text-red-300/80 text-[12px] italic">no insights</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+    return <MissingPatternAccumulating />;
   }
   return (
     <div className="flex gap-5 justify-center">
@@ -894,18 +1096,18 @@ function ContextualInsightsVisual({ mode }: { mode: Mode }) {
           ['5 reviews above band', 'Budget 92% allocated'],
         ][i];
         return (
-          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
+          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
             <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
-            <div className="px-3 py-2 border-b border-amber-400/25 bg-amber-400/[0.12] flex flex-col gap-1.5">
+            <div className="px-3 py-2 border-b border-green-400/25 bg-green-400/[0.12] flex flex-col gap-1.5">
               {insights.map(text => (
                 <div key={text} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-300/50 shrink-0" />
-                  <span className="text-[11px] text-amber-300/60">{text}</span>
+                  <div className="w-1.5 h-1.5 rounded-full bg-green-300/50 shrink-0" />
+                  <span className="text-[11px] text-green-300/60">{text}</span>
                 </div>
               ))}
             </div>
             <div className="h-10 flex items-center justify-center">
-              <span className="text-white/20 text-[11px]">content</span>
+              <span className="text-white/40 text-[11px]">content</span>
             </div>
           </div>
         );
@@ -919,10 +1121,10 @@ function ContextualAutomationsVisual({ mode }: { mode: Mode }) {
     return (
       <div className="flex gap-5 justify-center">
         {['Hiring', 'Payroll', 'Comp'].map((l, i) => (
-          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
+          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
             <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
             <div className="h-16 flex items-center justify-center">
-              <span className="text-white/20 text-[11px]">content</span>
+              <span className="text-white/40 text-[11px]">content</span>
             </div>
             <div className="px-3 py-2 border-t border-white/[0.10] flex items-center justify-center">
               <span className="text-red-300/80 text-[12px] italic">no automation suggestions</span>
@@ -941,18 +1143,18 @@ function ContextualAutomationsVisual({ mode }: { mode: Mode }) {
           ['Flag low compa-ratios', 'Alert on band ceiling'],
         ][i];
         return (
-          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
+          <div key={l} className="w-[200px] rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn" style={{ animationDelay: `${i * 150}ms` }}>
             <div className="text-[15px] font-medium text-white/50 px-3 py-2 border-b border-white/[0.10]">{l}</div>
-            <div className="px-3 py-2 border-b border-amber-400/25 bg-amber-400/[0.12] flex flex-col gap-1.5">
+            <div className="px-3 py-2 border-b border-green-400/25 bg-green-400/[0.12] flex flex-col gap-1.5">
               {autos.map(text => (
                 <div key={text} className="flex items-center gap-2">
-                  <Icon name="bolt" size={9} className="text-amber-300/50 shrink-0" />
-                  <span className="text-[11px] text-amber-300/60">{text}</span>
+                  <Icon name="bolt" size={9} className="text-green-300/50 shrink-0" />
+                  <span className="text-[11px] text-green-300/60">{text}</span>
                 </div>
               ))}
             </div>
             <div className="h-10 flex items-center justify-center">
-              <span className="text-white/20 text-[11px]">content</span>
+              <span className="text-white/40 text-[11px]">content</span>
             </div>
           </div>
         );
@@ -1032,11 +1234,11 @@ function ResearchVisual() {
             <div className="w-12 h-12 rounded-xl border border-white/[0.12] bg-white/[0.10] flex items-center justify-center">
               <span className="text-[18px] font-bold" style={{ color: ai.color }}>{ai.name[0]}</span>
             </div>
-            <span className="text-[12px] text-white/30">{ai.name}</span>
+            <span className="text-[12px] text-white/40">{ai.name}</span>
           </div>
         ))}
       </div>
-      <div className="flex items-center gap-3 text-[13px] text-white/35">
+      <div className="flex items-center gap-3 text-[13px] text-white/45">
         {['Deep research', 'Cross-check', 'Fact-check', 'Compile'].map((step, i) => (
           <React.Fragment key={step}>
             {i > 0 && <span className="text-green-300/40 animate-slideFadeIn" style={{ animationDelay: `${500 + i * 100}ms` }}>&rarr;</span>}
@@ -1062,7 +1264,7 @@ function AggregateIAVisual() {
           <div className="text-green-300 text-[14px] font-semibold">{g.label}</div>
           <div className="flex flex-col gap-0.5">
             {g.items.map(item => (
-              <div key={item} className="text-[12px] text-white/30 px-2 py-1">{item}</div>
+              <div key={item} className="text-[12px] text-white/40 px-2 py-1">{item}</div>
             ))}
           </div>
         </div>
@@ -1084,6 +1286,112 @@ export function New2SlideVisual({ index, noMargin }: { index: number; noMargin?:
   return (
     <div className={`${noMargin ? '' : 'mb-14'} flex justify-center`} style={{ transform: 'scale(1.15)', transformOrigin: 'center bottom' }}>
       <Visual />
+    </div>
+  );
+}
+
+// Decision tree for placement rulebook (solution slide)
+function DecisionTreeVisual() {
+  const nodeBox = 'rounded-lg px-6 py-3 text-[17px] font-medium text-center whitespace-nowrap';
+  const questionBox = `${nodeBox} bg-white/[0.10] text-white/60 border border-white/[0.15]`;
+  const resultBox = `${nodeBox} bg-green-400/20 text-green-300 border border-green-400/35`;
+  const line = 'bg-green-400/25';
+  const label = 'text-[13px] text-green-300/50 font-medium';
+
+  return (
+    <div className="flex flex-col items-center gap-0 animate-slideFadeIn" style={{ width: 640, marginLeft: -40 }}>
+      {/* Row 0: New initiative */}
+      <div className={resultBox}>New initiative</div>
+      <div className={`w-px h-8 ${line}`} />
+
+      {/* Row 1: Cross-cutting? */}
+      <div className={questionBox} style={{ minWidth: 370 }}>Cross-cutting? Every session?</div>
+
+      {/* Branch: Yes → T0, No → next question */}
+      <div className="flex w-full px-16">
+        <div className="flex-1 flex flex-col items-center pl-8">
+          <div className={`w-px h-4 ${line}`} />
+          <div className={label}>Yes</div>
+          <div className={`w-px h-4 ${line}`} />
+          <div className={resultBox}>T0</div>
+        </div>
+        <div className="flex-1 flex flex-col items-center pr-8">
+          <div className={`w-px h-4 ${line}`} />
+          <div className={label}>No</div>
+          <div className={`w-px h-4 ${line}`} />
+          <div className={questionBox} style={{ minWidth: 280 }}>New domain? 3+ modules?</div>
+
+          {/* Branch: Yes → New T1, No → next question */}
+          <div className="flex w-full gap-6">
+            <div className="flex-1 flex flex-col items-center">
+              <div className={`w-px h-4 ${line}`} />
+              <div className={label}>Yes</div>
+              <div className={`w-px h-4 ${line}`} />
+              <div className={resultBox}>New T1</div>
+            </div>
+            <div className="flex-1 flex flex-col items-center">
+              <div className={`w-px h-4 ${line}`} />
+              <div className={label}>No</div>
+              <div className={`w-px h-4 ${line}`} />
+              <div className={questionBox}>Distinct workflow?</div>
+
+              {/* Branch: Yes → T2, No → T3 */}
+              <div className="flex w-full">
+                <div className="flex-1 flex flex-col items-center">
+                  <div className={`w-px h-4 ${line}`} />
+                  <div className={label}>Yes</div>
+                  <div className={`w-px h-4 ${line}`} />
+                  <div className={resultBox}>T2</div>
+                </div>
+                <div className="flex-1 flex flex-col items-center">
+                  <div className={`w-px h-4 ${line}`} />
+                  <div className={label}>No</div>
+                  <div className={`w-px h-4 ${line}`} />
+                  <div className={resultBox}>T3</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Cluster ordering framework visual (solution slide)
+function ClusterOrderingVisual() {
+  const clusters = [
+    { label: 'Anchor', items: ['Home'], color: 'green' },
+    { label: 'Identity', items: ['People', 'Hiring'], color: 'green' },
+    { label: 'Operational', items: ['Payroll', 'Time', 'Benefits'], color: 'green' },
+    { label: 'Development', items: ['Talent', 'Culture'], color: 'green' },
+    { label: 'Platform', items: ['Apps', 'Analytics'], color: 'green' },
+    { label: 'Config', items: ['Settings'], color: 'green' },
+  ];
+
+  return (
+    <div className="flex flex-col gap-3 animate-slideFadeIn" style={{ width: 480 }}>
+      {clusters.map((cluster, ci) => (
+        <div key={cluster.label} className="flex items-center gap-4 animate-slideFadeIn" style={{ animationDelay: `${150 + ci * 100}ms` }}>
+          <div className="w-[110px] text-right text-[14px] text-green-300/50 font-medium shrink-0">
+            {cluster.label}
+          </div>
+          <div className="flex gap-2 flex-1">
+            {cluster.items.map(item => (
+              <div key={item} className="rounded-lg bg-green-400/20 text-green-300 border border-green-400/35 px-4 py-2 text-[16px] font-medium">
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="flex items-center gap-4 mt-3 animate-slideFadeIn" style={{ animationDelay: '800ms' }}>
+        <div className="w-[110px]" />
+        <div className="flex items-center gap-2 text-[13px] text-green-300/50">
+          <span>T2 within each:</span>
+          <span className="text-green-300/70 font-medium">frequency-first</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1117,31 +1425,31 @@ function TaxonomySpreadsheetVisual() {
         }
       `}</style>
       <div
-        className="rounded-xl border border-amber-400/20 overflow-hidden"
+        className="rounded-xl border border-green-400/20 overflow-hidden"
         style={{ width: 640, opacity: 0, animation: 'sheetFadeIn 0.4s ease-out forwards' }}
       >
         {/* Header */}
-        <div className="flex border-b border-amber-400/25 bg-amber-400/[0.06]">
-          <div className="w-[150px] px-5 py-3 text-[15px] font-semibold text-amber-300/70 border-r border-amber-400/15">Product</div>
-          <div className="w-[170px] px-5 py-3 text-[15px] font-semibold text-amber-300/70 border-r border-amber-400/15">Module</div>
-          <div className="flex-1 px-5 py-3 text-[15px] font-semibold text-amber-300/70">Features</div>
+        <div className="flex border-b border-green-400/25 bg-green-400/[0.06]">
+          <div className="w-[150px] px-5 py-3 text-[15px] font-semibold text-green-300/70 border-r border-green-400/15">Product</div>
+          <div className="w-[170px] px-5 py-3 text-[15px] font-semibold text-green-300/70 border-r border-green-400/15">Module</div>
+          <div className="flex-1 px-5 py-3 text-[15px] font-semibold text-green-300/70">Features</div>
         </div>
         {/* Rows */}
         {rows.map((row, i) => (
           <div
             key={i}
-            className={`flex items-center ${i < rows.length - 1 ? 'border-b border-amber-400/[0.06]' : ''}`}
+            className={`flex items-center ${i < rows.length - 1 ? 'border-b border-green-400/[0.06]' : ''}`}
             style={{ opacity: 0, animation: `barIn 0.3s ease-out ${0.15 + i * 0.05}s forwards` }}
           >
-            <div className="w-[150px] px-5 py-[8px] border-r border-amber-400/[0.06]">
-              {row.product && <div className="h-[7px] rounded-full bg-amber-400/30" style={{ width: `${60 + (i * 13) % 30}%` }} />}
+            <div className="w-[150px] px-5 py-[8px] border-r border-green-400/[0.06]">
+              {row.product && <div className="h-[7px] rounded-full bg-green-400/30" style={{ width: `${60 + (i * 13) % 30}%` }} />}
             </div>
-            <div className="w-[170px] px-5 py-[8px] border-r border-amber-400/[0.06]">
-              <div className="h-[7px] rounded-full bg-amber-400/20" style={{ width: `${row.moduleW}%` }} />
+            <div className="w-[170px] px-5 py-[8px] border-r border-green-400/[0.06]">
+              <div className="h-[7px] rounded-full bg-green-400/20" style={{ width: `${row.moduleW}%` }} />
             </div>
             <div className="flex-1 px-5 py-[8px] flex gap-2.5">
               {row.featureWs.map((w, fi) => (
-                <div key={fi} className="h-[7px] rounded-full bg-amber-400/10" style={{ width: w }} />
+                <div key={fi} className="h-[7px] rounded-full bg-green-400/10" style={{ width: w }} />
               ))}
             </div>
           </div>
@@ -1169,13 +1477,13 @@ function RulebookDocVisual() {
         }
       `}</style>
       <div
-        className="rounded-xl border border-amber-400/20 bg-amber-400/[0.03] px-9 py-10 flex flex-col gap-4 overflow-hidden relative"
+        className="rounded-xl border border-green-400/20 bg-green-400/[0.03] px-9 py-10 flex flex-col gap-4 overflow-hidden relative"
         style={{ width: 370, height: 478, opacity: 0, animation: 'docFadeIn 0.4s ease-out forwards' }}
       >
         {/* Doc title */}
-        <div className="flex flex-col gap-2 pb-4 border-b border-amber-400/15 text-left shrink-0">
-          <div className="text-[17px] font-semibold text-amber-300/70 leading-tight">Navigation IA Governance Rules</div>
-          <div className="text-[12px] text-amber-300/35 leading-tight">Where New Things Go — And How to Decide</div>
+        <div className="flex flex-col gap-2 pb-4 border-b border-green-400/15 text-left shrink-0">
+          <div className="text-[17px] font-semibold text-green-300/70 leading-tight">Navigation IA Governance Rules</div>
+          <div className="text-[12px] text-green-300/35 leading-tight">Where New Things Go — And How to Decide</div>
         </div>
         {/* Abstract body sections */}
         <div className="flex flex-col gap-3.5 flex-1 min-h-0">
@@ -1185,9 +1493,9 @@ function RulebookDocVisual() {
               className="flex flex-col gap-1.5"
               style={{ opacity: 0, animation: `docFadeIn 0.3s ease-out ${0.2 + si * 0.12}s forwards` }}
             >
-              <div className="h-[5px] rounded-full bg-amber-400/25" style={{ width: `${sec.title}%` }} />
+              <div className="h-[5px] rounded-full bg-green-400/25" style={{ width: `${sec.title}%` }} />
               {sec.lines.map((w, li) => (
-                <div key={li} className="h-[3px] rounded-full bg-amber-400/10" style={{ width: `${w}%` }} />
+                <div key={li} className="h-[3px] rounded-full bg-green-400/10" style={{ width: `${w}%` }} />
               ))}
             </div>
           ))}
@@ -1195,8 +1503,8 @@ function RulebookDocVisual() {
         {/* BambooHR b logo */}
         <div className="absolute bottom-5 left-4">
           <svg width="28" height="22" viewBox="0 0 37 29.35" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M7.26601 0C7.24121 -0.00826622 7.22881 0.0206656 7.24534 0.0413311C10.3658 3.56274 12.6267 7.82398 13.7591 10.556C12.3291 9.02258 10.9651 7.4272 9.43589 6.36499C6.33193 4.19924 3.06264 3.1329 0.0247987 2.72785C0 2.72785 -0.0123993 2.75679 0.00826622 2.77332C7.4396 8.73326 5.70783 11.8496 15.4082 13.0813C15.4248 13.0813 15.4413 13.0648 15.433 13.0482C13.9988 8.62994 13.5318 5.35238 11.0974 2.74852C10.3328 1.93016 8.0761 0.281052 7.26601 0Z" fill="rgba(251,191,36,0.2)"/>
-            <path d="M27.0471 9.29537C23.5257 9.29537 21.641 10.5022 20.3184 11.8166L19.9588 12.1968V0H16.9168V19.7025C16.9168 25.6418 21.4922 29.3451 26.7412 29.3451C32.5235 29.3451 36.9046 24.8937 36.9046 19.1735C36.9046 13.8625 32.3375 9.29537 27.0471 9.29537ZM26.7412 26.5263C22.9098 26.5263 19.6653 23.505 19.6653 19.4587C19.6653 15.4124 22.3973 12.0852 26.8074 12.0852C31.2174 12.0852 33.813 15.6521 33.813 19.3843C33.813 23.4471 31.0645 26.5263 26.7371 26.5263H26.7412Z" fill="rgba(251,191,36,0.2)"/>
+            <path d="M7.26601 0C7.24121 -0.00826622 7.22881 0.0206656 7.24534 0.0413311C10.3658 3.56274 12.6267 7.82398 13.7591 10.556C12.3291 9.02258 10.9651 7.4272 9.43589 6.36499C6.33193 4.19924 3.06264 3.1329 0.0247987 2.72785C0 2.72785 -0.0123993 2.75679 0.00826622 2.77332C7.4396 8.73326 5.70783 11.8496 15.4082 13.0813C15.4248 13.0813 15.4413 13.0648 15.433 13.0482C13.9988 8.62994 13.5318 5.35238 11.0974 2.74852C10.3328 1.93016 8.0761 0.281052 7.26601 0Z" fill="rgba(74,222,128,0.2)"/>
+            <path d="M27.0471 9.29537C23.5257 9.29537 21.641 10.5022 20.3184 11.8166L19.9588 12.1968V0H16.9168V19.7025C16.9168 25.6418 21.4922 29.3451 26.7412 29.3451C32.5235 29.3451 36.9046 24.8937 36.9046 19.1735C36.9046 13.8625 32.3375 9.29537 27.0471 9.29537ZM26.7412 26.5263C22.9098 26.5263 19.6653 23.505 19.6653 19.4587C19.6653 15.4124 22.3973 12.0852 26.8074 12.0852C31.2174 12.0852 33.813 15.6521 33.813 19.3843C33.813 23.4471 31.0645 26.5263 26.7371 26.5263H26.7412Z" fill="rgba(74,222,128,0.2)"/>
           </svg>
         </div>
       </div>
@@ -1215,7 +1523,7 @@ export function PhasesVisual({ phase }: { phase: number }) {
   ];
 
   return (
-    <div className="mb-14 flex justify-center">
+    <div className="mb-14 flex justify-center w-full px-8">
       <style>{`
         @keyframes phaseCardIn {
           from { opacity: 0; transform: translateY(24px) scale(0.92); }
@@ -1230,7 +1538,7 @@ export function PhasesVisual({ phase }: { phase: number }) {
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-      <div className="flex items-center">
+      <div className="flex items-center w-full" style={{ maxWidth: 1100 }}>
         {phases.map((p, i) => {
           const isProblems = phase === 1 && i === 0;
           const isDesign = phase === 1 && i === 1;
@@ -1246,20 +1554,19 @@ export function PhasesVisual({ phase }: { phase: number }) {
             bgColor = 'rgba(248,113,113,0.08)';
             textColor = 'rgba(248,113,113,0.85)';
           } else if (isDesign) {
-            borderColor = 'rgba(255,255,255,0.3)';
-            bgColor = 'rgba(255,255,255,0.06)';
-            textColor = 'rgba(255,255,255,0.8)';
+            borderColor = 'rgba(74,222,128,0.5)';
+            bgColor = 'rgba(74,222,128,0.08)';
+            textColor = 'rgba(74,222,128,0.85)';
           } else if (dimmed) {
             borderColor = 'rgba(255,255,255,0.05)';
             textColor = 'rgba(255,255,255,0.12)';
           }
 
           return (
-            <div key={i} className="flex items-center">
+            <div key={i} className="flex items-center flex-1 min-w-0">
               <div
-                className="rounded-2xl border flex flex-col items-center gap-3 transition-all duration-500 pt-8 pb-4"
+                className="rounded-2xl border flex flex-col items-center justify-center gap-3 transition-all duration-500 w-full"
                 style={{
-                  width: 210,
                   height: 260,
                   borderColor,
                   backgroundColor: bgColor,
@@ -1276,57 +1583,12 @@ export function PhasesVisual({ phase }: { phase: number }) {
                 >
                   {p.label}
                 </div>
-                {/* Mini problem cards inside Identify Problems */}
-                {isProblems && (
-                  <div className="flex flex-wrap justify-center gap-1 mt-auto px-3" style={{ maxWidth: 190 }}>
-                    {Array.from({ length: 11 }, (_, pi) => (
-                      <div
-                        key={pi}
-                        className="rounded w-7 h-7 flex items-center justify-center text-[10px] font-bold"
-                        style={{
-                          backgroundColor: 'rgba(248,113,113,0.15)',
-                          border: '1px solid rgba(248,113,113,0.3)',
-                          color: 'rgba(248,113,113,0.8)',
-                          opacity: 0,
-                          animation: `miniBoxIn 0.25s ease-out ${0.15 + pi * 0.04}s forwards`,
-                        }}
-                      >
-                        {pi + 1}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Mini prototype boxes inside Design & Prototype */}
-                {isDesign && (
-                  <div className="flex gap-2.5 mt-auto">
-                    {[
-                      { color: '#fbbf24', label: 'v1', icon: 'compass' as IconName },
-                      { color: '#34d399', label: 'v2', icon: 'arrows-rotate' as IconName },
-                      { color: '#60a5fa', label: 'v3', icon: 'rocket' as IconName },
-                    ].map((b, bi) => (
-                      <div
-                        key={bi}
-                        className="rounded-lg px-3.5 py-2.5 flex flex-col items-center gap-1.5 text-[14px] font-semibold"
-                        style={{
-                          backgroundColor: `${b.color}20`,
-                          border: `1px solid ${b.color}40`,
-                          color: b.color,
-                          opacity: 0,
-                          animation: `miniBoxIn 0.3s ease-out ${0.2 + bi * 0.1}s forwards`,
-                        }}
-                      >
-                        <Icon name={b.icon} size={18} />
-                        {b.label}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
               {i < phases.length - 1 && (
                 <div
                   className="h-[2px] origin-left transition-colors duration-500"
                   style={{
-                    width: 24,
+                    width: 16,
                     backgroundColor: dimmed ? 'rgba(255,255,255,0.06)' : highlighted && i === 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.12)',
                     opacity: 0,
                     transform: 'scaleX(0)',
@@ -1348,7 +1610,7 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
     return (
       <div className="flex flex-col items-center gap-4 max-w-[520px]">
-        <div className="w-full rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn">
+        <div className="w-full rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn">
           <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.10]">
             <div className="flex gap-1.5">
               <div className="w-2 h-2 rounded-full bg-red-400/40" />
@@ -1356,7 +1618,7 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
               <div className="w-2 h-2 rounded-full bg-white/15" />
             </div>
             <div className="flex-1 flex items-center justify-center">
-              <div className="flex items-center gap-1.5 px-3 py-0.5 rounded bg-white/[0.06] text-[10px] text-white/30">
+              <div className="flex items-center gap-1.5 px-3 py-0.5 rounded bg-white/[0.06] text-[10px] text-white/40">
                 <span>←</span>
                 <span className="text-red-300/60">???</span>
                 <span>→</span>
@@ -1366,14 +1628,14 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
           <div className="flex">
             <div className="w-[120px] border-r border-white/[0.10] p-2 space-y-1">
               {['Home', 'People', 'Hiring', 'Payroll'].map((l, i) => (
-                <div key={l} className={`text-[11px] px-2 py-1 rounded ${i === 2 ? 'bg-white/[0.08] text-white/40' : 'text-white/20'}`}>{l}</div>
+                <div key={l} className={`text-[11px] px-2 py-1 rounded ${i === 2 ? 'bg-white/[0.08] text-white/40' : 'text-white/40'}`}>{l}</div>
               ))}
             </div>
             <div className="flex-1 p-4 flex flex-col items-center justify-center gap-2">
               <div className="text-red-300/70 text-[13px] font-medium">Where am I?</div>
-              <div className="text-white/20 text-[11px]">No breadcrumbs</div>
-              <div className="text-white/20 text-[11px]">No "back to list"</div>
-              <div className="text-white/20 text-[11px]">Back button exits app</div>
+              <div className="text-white/40 text-[11px]">No breadcrumbs</div>
+              <div className="text-white/40 text-[11px]">No "back to list"</div>
+              <div className="text-white/40 text-[11px]">Back button exits app</div>
             </div>
           </div>
         </div>
@@ -1382,17 +1644,17 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
   }
   return (
     <div className="flex flex-col items-center gap-4 max-w-[520px]">
-      <div className="w-full rounded-lg border border-white/[0.12] bg-white/[0.05] overflow-hidden animate-slideFadeIn">
+      <div className="w-full rounded-lg border border-white/[0.12] bg-white/[0.10] overflow-hidden animate-slideFadeIn">
         <div className="flex items-center gap-2 px-3 py-2 border-b border-white/[0.10]">
           <div className="flex gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-amber-400/40" />
+            <div className="w-2 h-2 rounded-full bg-green-400/40" />
             <div className="w-2 h-2 rounded-full bg-white/15" />
             <div className="w-2 h-2 rounded-full bg-white/15" />
           </div>
           <div className="flex-1 flex items-center justify-center">
-            <div className="flex items-center gap-1.5 px-3 py-0.5 rounded bg-white/[0.06] text-[10px] text-white/30">
+            <div className="flex items-center gap-1.5 px-3 py-0.5 rounded bg-white/[0.06] text-[10px] text-white/40">
               <span>←</span>
-              <span className="text-amber-300/60">/hiring/candidates/jane-smith</span>
+              <span className="text-green-300/60">/hiring/candidates/jane-smith</span>
               <span>→</span>
             </div>
           </div>
@@ -1400,24 +1662,24 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
         <div className="flex">
           <div className="w-[120px] border-r border-white/[0.10] p-2 space-y-1">
             {['Home', 'People', 'Hiring', 'Payroll'].map((l, i) => (
-              <div key={l} className={`text-[11px] px-2 py-1 rounded ${i === 2 ? 'bg-amber-400/15 text-amber-300/70 font-medium' : 'text-white/20'}`}>{l}</div>
+              <div key={l} className={`text-[11px] px-2 py-1 rounded ${i === 2 ? 'bg-green-400/15 text-green-300/70 font-medium' : 'text-white/40'}`}>{l}</div>
             ))}
           </div>
           <div className="flex-1 p-3">
             <div className="flex items-center gap-1.5 text-[10px] mb-3">
-              <span className="text-amber-300/50">Hiring</span>
-              <span className="text-white/20">›</span>
-              <span className="text-amber-300/50">Candidates</span>
-              <span className="text-white/20">›</span>
+              <span className="text-green-300/50">Hiring</span>
+              <span className="text-white/40">›</span>
+              <span className="text-green-300/50">Candidates</span>
+              <span className="text-white/40">›</span>
               <span className="text-white/40">Jane Smith</span>
             </div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="flex items-center gap-1.5 text-amber-300/50 text-[11px]">
+              <div className="flex items-center gap-1.5 text-green-300/50 text-[11px]">
                 <span>←</span>
                 <span>Back to Candidates</span>
               </div>
             </div>
-            <div className="text-white/30 text-[12px] font-medium">Jane Smith</div>
+            <div className="text-white/40 text-[12px] font-medium">Jane Smith</div>
           </div>
         </div>
       </div>
@@ -1429,50 +1691,202 @@ function WayfindingVisual({ mode }: { mode: Mode }) {
 
 function MultiProductVisual({ mode }: { mode: Mode }) {
   if (mode === 'problem') {
+    const navItems = [
+      { icon: 'home', label: 'Home' },
+      { icon: 'user-group', label: 'People' },
+      { icon: 'id-badge', label: 'Hiring' },
+      { icon: 'money-bill-1', label: 'Payroll' },
+      { icon: 'chart-pie-simple', label: 'Reports' },
+      { icon: 'gear', label: 'Settings' },
+    ];
+    const orphans = [
+      { label: 'IT?', rot: -3 },
+      { label: 'Finance?', rot: 4 },
+      { label: 'Workplace?', rot: -2 },
+      { label: 'Travel?', rot: 3 },
+      { label: 'Procurement?', rot: -4 },
+    ];
     return (
-      <div className="flex flex-col items-center gap-5">
-        <div className="rounded-lg border border-white/[0.12] bg-white/[0.05] p-5 animate-slideFadeIn" style={{ width: 280 }}>
-          <div className="text-white/40 text-[13px] font-medium mb-3 text-center">BambooHR</div>
-          <div className="space-y-1">
-            {['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'Talent', 'Culture', 'Apps', 'Analytics', 'Settings'].map(l => (
-              <div key={l} className="text-[11px] text-white/25 px-2 py-0.5">{l}</div>
-            ))}
-          </div>
-        </div>
-        <div className="flex gap-3 animate-slideFadeIn" style={{ animationDelay: '300ms' }}>
-          {['IT?', 'Finance?', 'Workplace?'].map(l => (
-            <div key={l} className={`${redBox} px-4 py-2 text-[13px]`}>{l}</div>
+      <div className="flex items-center gap-6">
+        <div className="w-[180px] flex flex-col gap-1.5 animate-slideFadeIn">
+          {navItems.map(({ icon, label }) => (
+            <div key={label} className={`${navDim} flex items-center gap-2.5`}><Icon name={icon as any} size={13} className="text-white/40" /> {label}</div>
           ))}
         </div>
-        <div className="text-red-300/50 text-[12px] animate-slideFadeIn" style={{ animationDelay: '500ms' }}>Where do these go?</div>
+        <div className="flex flex-wrap gap-2.5 max-w-[220px] justify-center items-center">
+          {orphans.map(({ label, rot }, i) => (
+            <div key={label} className={`${redBox} px-4 py-2 text-[13px] animate-slideFadeIn`} style={{ transform: `rotate(${rot}deg)`, animationDelay: `${300 + i * 80}ms` }}>{label}</div>
+          ))}
+        </div>
       </div>
     );
   }
+  // Solution: unified nav showing shared items + cycling role-gated domain
+  const sharedItems = [
+    { label: 'Home', icon: 'home' },
+    { label: 'People', icon: 'user-group' },
+    { label: 'Hiring', icon: 'id-badge' },
+    { label: 'Payroll', icon: 'money-bill-1' },
+    { label: 'Benefits', icon: 'heart' },
+  ];
+  const roleDomains = [
+    { label: 'IT', icon: 'laptop' },
+    { label: 'Finance', icon: 'credit-card' },
+    { label: 'Workplace', icon: 'building' },
+  ];
+  const [activeRole, setActiveRole] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveRole(prev => (prev + 1) % roleDomains.length);
+    }, 2000);
+    return () => clearInterval(timer);
+  }, [roleDomains.length]);
+
   return (
-    <div className="flex flex-col items-center gap-5">
-      <div className="flex items-start gap-3">
-        {[
-          { name: 'BambooHR', items: ['People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'Talent'], color: 'amber' },
-          { name: 'BambooIT', items: ['Helpdesk', 'Incidents', 'Assets', 'Knowledge', 'Devices'], color: 'amber' },
-          { name: 'BambooFinance', items: ['Expenses', 'Cards', 'Budgets', 'Travel', 'Reports'], color: 'amber' },
-        ].map((product, pi) => (
-          <div key={product.name} className="rounded-lg border border-amber-400/20 bg-amber-400/[0.06] p-3 animate-slideFadeIn" style={{ width: 160, animationDelay: `${pi * 200}ms` }}>
-            <div className="text-amber-300/70 text-[12px] font-semibold mb-2 text-center">{product.name}</div>
-            <div className="space-y-0.5">
-              {product.items.map(l => (
-                <div key={l} className="text-[10px] text-amber-300/40 px-1.5 py-0.5">{l}</div>
-              ))}
-            </div>
+    <div className="flex animate-slideFadeIn" style={{ marginLeft: -30 }}>
+      <div className="w-[200px] flex flex-col rounded-lg bg-white/[0.06] border border-white/[0.12] py-4 px-3">
+        {/* Search + Inbox */}
+        <div className="flex flex-col gap-1 mb-1">
+          <div className="text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-white/50">
+            <Icon name="magnifying-glass" size={13} className="text-white/40" />
+            Search
           </div>
-        ))}
-      </div>
-      <div className="flex items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '600ms' }}>
-        <div className="h-px w-12 bg-amber-400/20" />
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-amber-400/25 bg-amber-400/[0.08]">
-          <Icon name="grid-2-plus" size={12} className="text-amber-300/50" />
-          <span className="text-amber-300/50 text-[12px] font-medium">Product Switcher</span>
+          <div className="text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-white/50">
+            <Icon name="inbox" size={13} className="text-white/40" />
+            Inbox
+          </div>
         </div>
-        <div className="h-px w-12 bg-amber-400/20" />
+        <div className="mx-1 border-t border-white/[0.10] my-2" />
+        {/* Shared domains */}
+        <div className="flex flex-col gap-1">
+          {sharedItems.map((item) => (
+            <div key={item.label} className="text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-white/50">
+              <Icon name={item.icon as any} size={13} className="text-white/40" />
+              {item.label}
+            </div>
+          ))}
+          {/* Cycling role-gated domain */}
+          <div className="relative" style={{ height: 40 }}>
+            {roleDomains.map((item, i) => (
+              <div
+                key={item.label}
+                className="absolute inset-0 text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-green-300 font-medium rounded-lg transition-all duration-500"
+                style={{ opacity: i === activeRole ? 1 : 0, backgroundColor: i === activeRole ? 'rgba(74,222,128,0.12)' : 'transparent' }}
+              >
+                <Icon name={item.icon as any} size={13} className="text-green-300/60" />
+                {item.label}
+              </div>
+            ))}
+          </div>
+          <div className="text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-white/50">
+            <Icon name="face-smile" size={13} className="text-white/40" />
+            Culture
+          </div>
+        </div>
+        <div className="mx-1 border-t border-white/[0.10] my-2" />
+        {/* Settings */}
+        <div className="flex flex-col gap-1">
+          <div className="text-[15px] px-3 py-2 text-left flex items-center gap-2.5 text-white/50">
+            <Icon name="gear" size={13} className="text-white/40" />
+            Settings
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Persona nav cycling visual — shows what each role sees
+function PersonaNavVisual() {
+  // All possible nav items in order
+  const allItems = [
+    { label: 'Home', icon: 'home' },
+    { label: 'People', icon: 'user-group' },
+    { label: 'Hiring', icon: 'id-badge' },
+    { label: 'Payroll', icon: 'money-bill-1' },
+    { label: 'Time', icon: 'clock' },
+    { label: 'Benefits', icon: 'heart' },
+    { label: 'IT', icon: 'laptop' },
+    { label: 'Finance', icon: 'credit-card' },
+    { label: 'Workplace', icon: 'building' },
+    { label: 'Talent', icon: 'star' },
+    { label: 'Culture', icon: 'face-smile' },
+    { label: 'Apps', icon: 'table-cells' },
+    { label: 'Analytics', icon: 'chart-pie-simple' },
+    { label: 'Settings', icon: 'gear' },
+  ];
+
+  const personas = [
+    { label: 'Employee', visible: new Set(['Home', 'People', 'Time', 'Benefits', 'Talent', 'Culture']), newItems: new Set(['Home', 'People', 'Time', 'Benefits', 'Talent', 'Culture']) },
+    { label: 'Manager', visible: new Set(['Home', 'People', 'Hiring', 'Time', 'Benefits', 'Talent', 'Culture', 'Analytics']), newItems: new Set(['Hiring', 'Analytics']) },
+    { label: 'HR Admin', visible: new Set(['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'Talent', 'Culture', 'Apps', 'Analytics', 'Settings']), newItems: new Set(['Payroll', 'Apps', 'Settings']) },
+    { label: 'IT Admin', visible: new Set(['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'IT', 'Talent', 'Culture', 'Apps', 'Analytics', 'Settings']), newItems: new Set(['IT']) },
+    { label: 'Finance Admin', visible: new Set(['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'Finance', 'Talent', 'Culture', 'Apps', 'Analytics', 'Settings']), newItems: new Set(['Finance']) },
+    { label: 'Workplace Admin', visible: new Set(['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Benefits', 'Workplace', 'Talent', 'Culture', 'Apps', 'Analytics', 'Settings']), newItems: new Set(['Workplace']) },
+  ];
+
+  const [activePersona, setActivePersona] = useState(0);
+  const ROW_H = 32;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActivePersona(prev => (prev + 1) % personas.length);
+    }, 2500);
+    return () => clearInterval(timer);
+  }, [personas.length]);
+
+  const current = personas[activePersona];
+
+  const SEP_HEIGHT = 12;
+  let visIdx = 0;
+  const itemPositions = allItems.map((item, idx) => {
+    const isVisible = current.visible.has(item.label);
+    const y = isVisible ? visIdx : visIdx; // hidden items collapse to current position
+    if (isVisible) visIdx++;
+    return { ...item, idx, isVisible, isNew: current.newItems.has(item.label), y: isVisible ? y : -1 };
+  });
+  const visibleCount = visIdx;
+  // Find which visible index Apps is at for the separator
+  const appsVisIdx = itemPositions.find(i => i.label === 'Apps' && i.isVisible)?.y ?? -1;
+
+  return (
+    <div className="flex items-start gap-6 animate-slideFadeIn" style={{ marginLeft: -30 }}>
+      <div className="w-[200px] rounded-lg bg-white/[0.06] border border-white/[0.12] py-3 px-3 relative" style={{ height: allItems.length * ROW_H + 24 }}>
+        {/* Separator line above Apps */}
+        {/* Separator line above Apps */}
+        <div
+          className="absolute left-4 right-4 border-t border-white/[0.10] transition-all duration-500"
+          style={{
+            top: appsVisIdx >= 0 ? 12 + appsVisIdx * ROW_H + (SEP_HEIGHT / 2) - 1 : 0,
+            opacity: appsVisIdx >= 0 ? 1 : 0,
+          }}
+        />
+        {itemPositions.map((item) => {
+          const sepOffset = item.isVisible && appsVisIdx >= 0 && item.y >= appsVisIdx ? SEP_HEIGHT : 0;
+          return (
+            <div
+              key={item.label}
+              className={`absolute left-3 right-3 flex items-center gap-2.5 px-3 rounded-lg transition-all duration-500 ${
+                item.isVisible && item.isNew ? 'text-green-300 font-medium bg-green-400/[0.12]' : 'text-white/50'
+              }`}
+              style={{
+                height: ROW_H,
+                top: item.isVisible ? 12 + item.y * ROW_H + sepOffset : 12 + visibleCount * ROW_H,
+                opacity: item.isVisible ? 1 : 0,
+                fontSize: 14,
+              }}
+            >
+              <Icon name={item.icon as any} size={12} className={item.isVisible && item.isNew ? 'text-green-300/60' : 'text-white/40'} />
+              {item.label}
+            </div>
+          );
+        })}
+      </div>
+      {/* Persona label */}
+      <div className="flex flex-col justify-center pt-4" style={{ width: 160 }}>
+        <div className="text-[18px] font-semibold text-white/80">{current.label}</div>
+        <div className="text-[13px] text-white/40 mt-1">{visibleCount} T1s</div>
       </div>
     </div>
   );
@@ -1482,33 +1896,29 @@ function MultiProductVisual({ mode }: { mode: Mode }) {
 // Maps consolidated slide index + phase to the original visual components
 
 const CONSOLIDATED_PROBLEM_VISUALS: React.FC<{ mode: Mode }>[][] = [
-  // 0: No shared taxonomy (Taxonomy, Placement, NavOrder)
-  [TaxonomyVisual, PlacementVisual, NavOrderVisual],
-  // 1: Products don't have a front door (NavPresence, SettingsDamage, Invisible)
-  [NavPresenceVisual, SettingsDamageVisual, InvisibleVisual],
-  // 2: The nav doesn't work (SplitNav, ScreenRealEstate)
-  [SplitNavVisual, ScreenRealEstateVisual],
-  // 3: No contextual patterns (Settings, Reports, Ask, Insights)
-  [ContextualSettingsVisual, ContextualReportsVisual, ContextualAskVisual, ContextualInsightsVisual],
-  // 4: No wayfinding standards
-  [WayfindingVisual],
-  // 5: No multi-product strategy
-  [MultiProductVisual],
+  // 0: No shared taxonomy (overview, Taxonomy, Placement, NavOrder)
+  [TaxonomyVisual, TaxonomyVisual, PlacementVisual, NavOrderVisual],
+  // 1: Products don't have a front door (overview, NavPresence, SettingsDamage, Invisible)
+  [NavPresenceVisual, NavPresenceVisual, SettingsDamageVisual, InvisibleVisual],
+  // 2: The nav doesn't work (overview, SplitNav, ScreenRealEstate)
+  [SplitNavVisual, SplitNavVisual, ScreenRealEstateVisual],
+  // 3: No contextual patterns (overview, Settings, then accumulating screens x3)
+  [ContextualSettingsVisual, ContextualSettingsVisual, ContextualReportsVisual, ContextualReportsVisual, ContextualReportsVisual],
+  // 4: Not future-proof (overview, MultiProduct x2)
+  [MultiProductVisual, MultiProductVisual, MultiProductVisual],
 ];
 
 const CONSOLIDATED_SOLUTION_VISUALS: (React.FC<{ mode: Mode }> | React.FC<{}>)[][] = [
-  // 0: Product, Module, Feature (Taxonomy solution, TaxonomySpreadsheet, Placement solution)
-  [TaxonomyVisual, TaxonomySpreadsheetVisual as React.FC<{}>, PlacementVisual],
-  // 1: Every product gets a front door (NavPresence, SettingsDamage, Invisible solutions)
-  [NavPresenceVisual, SettingsDamageVisual, InvisibleVisual],
-  // 2: One nav, everything in it (SplitNav, NavOrder solutions)
-  [SplitNavVisual, NavOrderVisual],
-  // 3: In context, everywhere (Settings, Reports, Ask, Insights solutions)
-  [ContextualSettingsVisual, ContextualReportsVisual, ContextualAskVisual, ContextualInsightsVisual],
-  // 4: Breadcrumbs, back buttons, "you are here"
-  [WayfindingVisual],
-  // 5: A nav that scales to a platform
-  [MultiProductVisual],
+  // 0: Product, Module, Feature (overview, Taxonomy, DecisionTree, ClusterOrdering)
+  [TaxonomyVisual, TaxonomyVisual, DecisionTreeVisual as React.FC<{}>, ClusterOrderingVisual as React.FC<{}>],
+  // 1: Every product gets a front door (overview, NavPresence, SettingsDamage, Invisible)
+  [NavPresenceVisual, NavPresenceVisual, SettingsDamageVisual, InvisibleVisual],
+  // 2: One nav, everything in it (overview, TwoTierNav, SplitNav before/after)
+  [TwoTierNavVisual, TwoTierNavVisual, SplitNavVisual],
+  // 3: In context, everywhere (overview, Settings, Reports, Ask, Insights)
+  [ContextualSettingsVisual, ContextualSettingsVisual, ContextualReportsVisual, ContextualAskVisual, ContextualInsightsVisual],
+  // 4: Future-proof by design (overview, MultiProduct/domains, PersonaNav/roles)
+  [MultiProductVisual, MultiProductVisual, PersonaNavVisual as React.FC<any>],
 ];
 
 export function SlideVisual({ index, mode, noMargin, phase = 0 }: { index: number; mode: Mode; noMargin?: boolean; phase?: number }) {
@@ -1517,6 +1927,12 @@ export function SlideVisual({ index, mode, noMargin, phase = 0 }: { index: numbe
   if (!phaseVisuals) return null;
   const Visual = phaseVisuals[Math.min(phase, phaseVisuals.length - 1)];
   if (!Visual) return null;
+
+  // Set accumulating screen count for contextual patterns slide
+  // Phases 2,3,4 map to counts 1,2,3 for the missing pattern screens
+  if (index === 3 && mode === 'problem' && phase >= 2) {
+    _missingPatternCount = phase - 1;
+  }
 
   // Some visuals (TaxonomySpreadsheet, RulebookDoc) don't take a mode prop
   const VisualAny = Visual as React.FC<any>;
@@ -1534,6 +1950,18 @@ export function getConsolidatedPhaseCount(index: number, mode: Mode): number {
   return visuals[index]?.length ?? 1;
 }
 
+/** Get a stable key for a visual phase — same key when same visual component is used */
+export function getConsolidatedVisualKey(index: number, phase: number, mode: Mode): string {
+  const visuals = mode === 'solution' ? CONSOLIDATED_SOLUTION_VISUALS : CONSOLIDATED_PROBLEM_VISUALS;
+  const phaseVisuals = visuals[index];
+  if (!phaseVisuals) return `${index}-${phase}`;
+  const effectiveIndex = Math.min(phase, phaseVisuals.length - 1);
+  // Find the first phase that uses this same visual component
+  const visual = phaseVisuals[effectiveIndex];
+  const firstIndex = phaseVisuals.indexOf(visual);
+  return `${index}-${firstIndex}`;
+}
+
 // ─── Space Exploration Visuals ───
 
 const blueBox = `${boxBase} bg-blue-400/20 text-blue-300 border border-blue-400/30`;
@@ -1545,26 +1973,26 @@ function TooLittleTooLateVisual() {
       <div className="flex gap-8 items-start">
         {/* Mini "New" nav */}
         <div className="flex flex-col gap-0.5 opacity-40 animate-slideFadeIn" style={{ animationDelay: '0ms' }}>
-          <div className="text-[10px] text-white/30 mb-1 text-center">New</div>
+          <div className="text-[10px] text-white/40 mb-1 text-center">New</div>
           <div className="w-[120px] rounded-md border border-white/[0.08] bg-white/[0.04] overflow-hidden">
             {['Home', 'People', 'Hiring', 'Payroll', 'Benefits', 'Performance'].map(l => (
-              <div key={l} className="text-[9px] text-white/25 px-2 py-1 border-b border-white/[0.04] last:border-0">{l}</div>
+              <div key={l} className="text-[9px] text-white/40 px-2 py-1 border-b border-white/[0.04] last:border-0">{l}</div>
             ))}
           </div>
         </div>
         {/* Mini "New 2" nav */}
         <div className="flex flex-col gap-0.5 opacity-40 animate-slideFadeIn" style={{ animationDelay: '150ms' }}>
-          <div className="text-[10px] text-white/30 mb-1 text-center">New 2</div>
+          <div className="text-[10px] text-white/40 mb-1 text-center">New 2</div>
           <div className="w-[120px] rounded-md border border-white/[0.08] bg-white/[0.04] overflow-hidden">
             {['Home', 'People', 'Hiring', 'Payroll', 'Time', 'Talent'].map(l => (
-              <div key={l} className="text-[9px] text-white/25 px-2 py-1 border-b border-white/[0.04] last:border-0">{l}</div>
+              <div key={l} className="text-[9px] text-white/40 px-2 py-1 border-b border-white/[0.04] last:border-0">{l}</div>
             ))}
           </div>
         </div>
       </div>
       <div className="flex items-center gap-3 animate-slideFadeIn" style={{ animationDelay: '400ms' }}>
         <div className="h-px w-12 bg-white/10" />
-        <span className="text-white/30 text-[13px] italic">optimization, not strategy</span>
+        <span className="text-white/40 text-[13px] italic">optimization, not strategy</span>
         <div className="h-px w-12 bg-white/10" />
       </div>
     </div>
@@ -1578,14 +2006,14 @@ function AIRebuildsVisual() {
     <div className="flex gap-12 justify-center animate-slideFadeIn">
       {/* Left: replicated */}
       <div className="flex flex-col gap-2">
-        <div className="text-[13px] text-white/30 font-medium mb-1">Replicated by AI</div>
+        <div className="text-[13px] text-white/40 font-medium mb-1">Replicated by AI</div>
         {features.map((f, i) => (
-          <div key={f} className="text-[14px] text-white/25 line-through animate-slideFadeIn" style={{ animationDelay: `${i * 100}ms` }}>{f}</div>
+          <div key={f} className="text-[14px] text-white/40 line-through animate-slideFadeIn" style={{ animationDelay: `${i * 100}ms` }}>{f}</div>
         ))}
       </div>
       {/* Right: what AI runs on */}
       <div className="flex flex-col gap-2">
-        <div className="text-[13px] text-white/30 font-medium mb-1">What AI runs on</div>
+        <div className="text-[13px] text-white/40 font-medium mb-1">What AI runs on</div>
         <div className={`${blueBox} px-5 py-4 text-[16px] animate-slideFadeIn`} style={{ animationDelay: '600ms' }}>
           The employee graph
         </div>
@@ -1665,7 +2093,7 @@ function DataLayerVisual() {
       {/* Stack layers */}
       <div className="flex flex-col items-center w-[360px]">
         {/* AI layer */}
-        <div className="w-full rounded-t-xl border border-b-0 border-white/[0.10] bg-white/[0.05] px-5 py-3 text-center animate-slideFadeIn" style={{ animationDelay: '500ms' }}>
+        <div className="w-full rounded-t-xl border border-b-0 border-white/[0.10] bg-white/[0.10] px-5 py-3 text-center animate-slideFadeIn" style={{ animationDelay: '500ms' }}>
           <span className="text-[13px] text-white/40">AI layer</span>
         </div>
         {/* System framework */}
@@ -1934,17 +2362,11 @@ function computeScatteredLayout() {
 // Slide 1: Numbered problem labels floating and drifting
 function ThirteenVisual() {
   const problems = [
-    { label: 'No taxonomy', x: 8, y: 5, dx: 18, dy: 12, dur: 7 },
-    { label: 'No placement rules', x: 55, y: 2, dx: -14, dy: 10, dur: 8.5 },
-    { label: 'No nav presence', x: 30, y: 18, dx: 12, dy: -8, dur: 6.5 },
-    { label: 'Settings bloat', x: 72, y: 15, dx: -10, dy: 14, dur: 9 },
-    { label: 'Invisible products', x: 5, y: 32, dx: 16, dy: -6, dur: 7.5 },
-    { label: 'Split navigation', x: 48, y: 30, dx: -12, dy: -10, dur: 8 },
-    { label: 'No nav order', x: 78, y: 38, dx: -16, dy: 8, dur: 6 },
-    { label: 'Screen real estate', x: 18, y: 50, dx: 14, dy: -12, dur: 9.5 },
-    { label: 'Settings scavenger hunt', x: 52, y: 52, dx: -10, dy: 10, dur: 7 },
-    { label: 'No contextual reports', x: 2, y: 68, dx: 18, dy: -8, dur: 8 },
-    { label: 'No contextual AI/insights/automations', x: 42, y: 78, dx: -14, dy: -10, dur: 6.5 },
+    { label: 'No shared taxonomy', x: 8, y: 8, dx: 16, dy: 10, dur: 7 },
+    { label: 'Products don\u2019t have a front door', x: 50, y: 5, dx: -12, dy: 12, dur: 8.5 },
+    { label: 'The nav doesn\u2019t work', x: 22, y: 35, dx: 14, dy: -8, dur: 6.5 },
+    { label: 'No contextual patterns', x: 58, y: 38, dx: -14, dy: 10, dur: 9 },
+    { label: 'Not future-proof', x: 20, y: 65, dx: -12, dy: -8, dur: 8 },
   ];
 
   return (
@@ -1955,7 +2377,7 @@ function ThirteenVisual() {
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-      <div className="relative" style={{ width: 900, height: 480 }}>
+      <div className="relative" style={{ width: 700, height: 320 }}>
         {problems.map((p, i) => (
           <div
             key={i}
@@ -1988,8 +2410,8 @@ function ThirteenVisual() {
 // Slide 2: Four tall cards in a row, icon above label
 function AgendaTimelineVisual() {
   const steps = [
-    { label: ['11', 'Problems'], icon: 'skull' as const, color: '#f87171' },
-    { label: ['Redesign v1', 'Prototype'], icon: 'compass' as const, color: '#fbbf24' },
+    { label: ['10', 'Problems'], icon: 'skull' as const, color: '#f87171' },
+    { label: ['Redesign v1', 'Prototype'], icon: 'compass' as const, color: '#4ade80' },
     { label: ['Redesign v2', 'Prototype'], icon: 'arrows-rotate' as const, color: '#34d399' },
     { label: ['Redesign v3', 'Prototype'], sublabel: '(Space Exploration)', icon: 'rocket' as const, color: '#60a5fa' },
   ];
@@ -2094,14 +2516,13 @@ function PurposeVisual() {
 // Methodology slide — timeline showing 25 years / 2.5 years / 2.5 weeks
 function MethodologyVisual({ phase = 0 }: { phase?: number }) {
   const bars = [
-    { label: '25 years', icon: 'pen' as IconName, width: 800, special: null as null | 'bhr', brightBg: 'rgba(251,191,36,0.25)', dimBg: 'rgba(251,191,36,0.08)', brightBorder: 'rgba(251,191,36,0.4)', dimBorder: 'rgba(251,191,36,0.12)', brightText: 'rgba(251,191,36,0.9)', dimText: 'rgba(251,191,36,0.25)' },
-    { label: '2.5 years', icon: 'pen' as IconName, width: 400, special: 'bhr' as null | 'bhr', brightBg: 'rgba(52,211,153,0.25)', dimBg: 'rgba(52,211,153,0.08)', brightBorder: 'rgba(52,211,153,0.4)', dimBorder: 'rgba(52,211,153,0.12)', brightText: 'rgba(52,211,153,0.9)', dimText: 'rgba(52,211,153,0.25)' },
-    { label: '2.5 weeks', icon: 'rocket' as IconName, width: 230, special: null as null | 'bhr', brightBg: 'rgba(96,165,250,0.25)', dimBg: 'rgba(96,165,250,0.08)', brightBorder: 'rgba(96,165,250,0.4)', dimBorder: 'rgba(96,165,250,0.12)', brightText: 'rgba(96,165,250,0.9)', dimText: 'rgba(96,165,250,0.25)' },
+    { label: '25 years', icon: 'pen' as IconName, pct: 55, special: null as null | 'bhr', brightBg: 'rgba(74,222,128,0.25)', dimBg: 'rgba(74,222,128,0.08)', brightBorder: 'rgba(74,222,128,0.4)', dimBorder: 'rgba(74,222,128,0.12)', brightText: 'rgba(74,222,128,0.9)', dimText: 'rgba(74,222,128,0.25)' },
+    { label: '2.5 years', icon: 'pen' as IconName, pct: 28, special: 'bhr' as null | 'bhr', brightBg: 'rgba(52,211,153,0.25)', dimBg: 'rgba(52,211,153,0.08)', brightBorder: 'rgba(52,211,153,0.4)', dimBorder: 'rgba(52,211,153,0.12)', brightText: 'rgba(52,211,153,0.9)', dimText: 'rgba(52,211,153,0.25)' },
+    { label: '2.5 weeks', icon: 'rocket' as IconName, pct: 17, special: null as null | 'bhr', brightBg: 'rgba(96,165,250,0.25)', dimBg: 'rgba(96,165,250,0.08)', brightBorder: 'rgba(96,165,250,0.4)', dimBorder: 'rgba(96,165,250,0.12)', brightText: 'rgba(96,165,250,0.9)', dimText: 'rgba(96,165,250,0.25)' },
   ];
   const gap = 12;
-  const totalBarWidth = bars.reduce((s, b) => s + b.width, 0) + (bars.length - 1) * gap;
   return (
-    <div className="mb-8 flex justify-center">
+    <div className="mb-8 flex justify-center w-full">
       <style>{`
         @keyframes methBarGrow {
           from { transform: scaleX(0); opacity: 0; }
@@ -2110,36 +2531,49 @@ function MethodologyVisual({ phase = 0 }: { phase?: number }) {
       `}</style>
       {/* Container */}
       <div
-        className="rounded-full border p-3 flex"
-        style={{ gap, width: totalBarWidth + 36, borderColor: 'rgba(255,255,255,0.12)' }}
+        className="rounded-full border p-3 flex w-full"
+        style={{ gap, width: '80vw', maxWidth: 1400, borderColor: 'rgba(255,255,255,0.12)' }}
       >
         {bars.map((bar, i) => {
-          if (i > phase) return <div key={i} className="rounded-full" style={{ width: bar.width, height: 84 }} />;
-          const isCurrent = i === phase;
+          const effectivePhase = Math.min(phase, 2);
+          if (i > effectivePhase) return <div key={i} className="rounded-full" style={{ width: `${bar.pct}%`, height: 84 }} />;
+          const isCurrent = phase <= 2 && i === effectivePhase;
           const borderColor = isCurrent ? bar.brightBorder : bar.dimBorder;
           const bgColor = isCurrent ? bar.brightBg : bar.dimBg;
           const textColor = isCurrent ? bar.brightText : bar.dimText;
           return (
-            <div
-              key={i}
-              className="origin-left rounded-full border flex items-center gap-3 px-7 transition-all duration-400"
-              style={{
-                width: bar.width,
-                height: 84,
-                borderColor,
-                backgroundColor: bgColor,
-                ...(i === phase ? { animation: 'methBarGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' } : {}),
-              }}
-            >
-              {bar.special === 'bhr' ? (
-                <svg width="22" height="17" viewBox="0 0 37 29.35" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, transition: 'opacity 0.4s' }}>
-                  <path d="M7.26601 0C7.24121 -0.00826622 7.22881 0.0206656 7.24534 0.0413311C10.3658 3.56274 12.6267 7.82398 13.7591 10.556C12.3291 9.02258 10.9651 7.4272 9.43589 6.36499C6.33193 4.19924 3.06264 3.1329 0.0247987 2.72785C0 2.72785 -0.0123993 2.75679 0.00826622 2.77332C7.4396 8.73326 5.70783 11.8496 15.4082 13.0813C15.4248 13.0813 15.4413 13.0648 15.433 13.0482C13.9988 8.62994 13.5318 5.35238 11.0974 2.74852C10.3328 1.93016 8.0761 0.281052 7.26601 0Z" fill={textColor}/>
-                  <path d="M27.0471 9.29537C23.5257 9.29537 21.641 10.5022 20.3184 11.8166L19.9588 12.1968V0H16.9168V19.7025C16.9168 25.6418 21.4922 29.3451 26.7412 29.3451C32.5235 29.3451 36.9046 24.8937 36.9046 19.1735C36.9046 13.8625 32.3375 9.29537 27.0471 9.29537ZM26.7412 26.5263C22.9098 26.5263 19.6653 23.505 19.6653 19.4587C19.6653 15.4124 22.3973 12.0852 26.8074 12.0852C31.2174 12.0852 33.813 15.6521 33.813 19.3843C33.813 23.4471 31.0645 26.5263 26.7371 26.5263H26.7412Z" fill={textColor}/>
-                </svg>
-              ) : (
-                <Icon name={bar.icon} size={22} style={{ color: textColor, transition: 'color 0.4s' }} />
+            <div key={i} className="relative" style={{ width: `${bar.pct}%` }}>
+              {/* Callout above blue bar */}
+              {phase === 3 && i === 2 && (
+                <div
+                  className="absolute left-1/2 -translate-x-1/2 bottom-full mb-4 whitespace-nowrap animate-slideFadeIn"
+                  style={{ color: bar.brightText }}
+                >
+                  <div className="text-[32px] font-semibold text-center leading-tight">Claude Code<br />is AMAZING!</div>
+                  <div className="flex justify-center mt-1">
+                    <div style={{ width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: `8px solid ${bar.brightBorder}` }} />
+                  </div>
+                </div>
               )}
-              <span className="text-[24px] font-semibold whitespace-nowrap transition-colors duration-400" style={{ color: textColor }}>{bar.label}</span>
+              <div
+                className="origin-left rounded-full border flex items-center gap-3 px-7 transition-all duration-400 w-full"
+                style={{
+                  height: 84,
+                  borderColor,
+                  backgroundColor: bgColor,
+                  ...(i === effectivePhase && phase <= 2 ? { animation: 'methBarGrow 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' } : {}),
+                }}
+              >
+                {bar.special === 'bhr' ? (
+                  <svg width="22" height="17" viewBox="0 0 37 29.35" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0, transition: 'opacity 0.4s' }}>
+                    <path d="M7.26601 0C7.24121 -0.00826622 7.22881 0.0206656 7.24534 0.0413311C10.3658 3.56274 12.6267 7.82398 13.7591 10.556C12.3291 9.02258 10.9651 7.4272 9.43589 6.36499C6.33193 4.19924 3.06264 3.1329 0.0247987 2.72785C0 2.72785 -0.0123993 2.75679 0.00826622 2.77332C7.4396 8.73326 5.70783 11.8496 15.4082 13.0813C15.4248 13.0813 15.4413 13.0648 15.433 13.0482C13.9988 8.62994 13.5318 5.35238 11.0974 2.74852C10.3328 1.93016 8.0761 0.281052 7.26601 0Z" fill={textColor}/>
+                    <path d="M27.0471 9.29537C23.5257 9.29537 21.641 10.5022 20.3184 11.8166L19.9588 12.1968V0H16.9168V19.7025C16.9168 25.6418 21.4922 29.3451 26.7412 29.3451C32.5235 29.3451 36.9046 24.8937 36.9046 19.1735C36.9046 13.8625 32.3375 9.29537 27.0471 9.29537ZM26.7412 26.5263C22.9098 26.5263 19.6653 23.505 19.6653 19.4587C19.6653 15.4124 22.3973 12.0852 26.8074 12.0852C31.2174 12.0852 33.813 15.6521 33.813 19.3843C33.813 23.4471 31.0645 26.5263 26.7371 26.5263H26.7412Z" fill={textColor}/>
+                  </svg>
+                ) : (
+                  <Icon name={bar.icon} size={22} style={{ color: textColor, transition: 'color 0.4s' }} />
+                )}
+                <span className="text-[24px] font-semibold whitespace-nowrap transition-colors duration-400" style={{ color: textColor }}>{bar.label}</span>
+              </div>
             </div>
           );
         })}
@@ -2177,7 +2611,7 @@ export function IntroSlideVisual({ index, noMargin, phase }: { index: number; no
 
 const SECTION_ICONS: Record<string, { icon: IconName; color: string }> = {
   legacy: { icon: 'skull', color: '#f87171' },
-  new: { icon: 'compass', color: '#fbbf24' },
+  new: { icon: 'compass', color: '#4ade80' },
   new2: { icon: 'arrows-rotate', color: '#34d399' },
   space: { icon: 'rocket', color: '#60a5fa' },
 };
@@ -2201,6 +2635,41 @@ export function SectionTitleVisual({ mode }: { mode: string }) {
         }}
       >
         <Icon name={section.icon} size={72} />
+      </div>
+    </div>
+  );
+}
+
+export function SolvedProblemsVisual() {
+  const rows = [
+    ['Workday', 'Rippling', 'SuccessFactors'],
+    ['UKG', 'ADP', 'Ceridian', 'Paylocity'],
+    ['Dayforce', 'Gusto', 'Paycom', 'Paychex'],
+    ['Lattice', 'Namely', 'Justworks', 'HiBob'],
+    ['Deel', 'Personio', 'Factorial', 'Remote'],
+  ];
+
+  let idx = 0;
+  return (
+    <div className="mb-10 flex justify-center">
+      <div className="flex flex-col items-center gap-3">
+        {rows.map((row, ri) => (
+          <div key={ri} className="flex justify-center gap-3">
+            {row.map((name) => {
+              const delay = 150 + idx * 60;
+              idx++;
+              return (
+                <div
+                  key={name}
+                  className="rounded-lg font-medium whitespace-nowrap animate-slideFadeIn bg-green-400/20 text-green-300 border border-green-400/35 text-[20px] px-6 py-3"
+                  style={{ animationDelay: `${delay}ms` }}
+                >
+                  {name}
+                </div>
+              );
+            })}
+          </div>
+        ))}
       </div>
     </div>
   );

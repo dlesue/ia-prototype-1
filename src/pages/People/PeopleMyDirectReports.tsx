@@ -1,5 +1,5 @@
 import { HubHeader } from '../../components/HubHeader';
-import { Placeholder } from '../../components/Placeholder/Placeholder';
+import { ContentBlock } from '../../components/ContentBlock/ContentBlock';
 
 const metrics = [
   { label: 'Direct Reports', value: '8', icon: 'users', sparkData: [7, 7, 8, 8, 8, 7, 8], linkTo: '/reports/view/Direct%20Reports' },
@@ -16,10 +16,10 @@ const insights = [
 
 export default function PeopleMyDirectReports() {
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <HubHeader title="My Direct Reports" product="People" metrics={metrics} insights={insights} />
-      <div className="px-8 pb-8">
-        <Placeholder variant="table" />
+      <div className="px-6 pb-6 flex-1 flex flex-col">
+        <ContentBlock fillHeight showJtbd />
       </div>
     </div>
   );

@@ -252,8 +252,13 @@ export default function UpsellPage() {
   return (
     <div className="flex-1 flex items-center justify-center p-8">
       <div className="max-w-[580px] w-full">
-        {/* Eyebrow + Headline + Subheadline */}
+        {/* Seedling + Eyebrow + Headline + Subheadline */}
         <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <div className="w-14 h-14 rounded-2xl bg-[var(--surface-neutral-xx-weak)] flex items-center justify-center">
+              <Icon name="seedling" size={28} className="text-[var(--color-primary-strong)]" />
+            </div>
+          </div>
           <p className="text-xs font-semibold uppercase tracking-wide text-[var(--color-primary-strong)] mb-2">
             {config.eyebrow}
           </p>
@@ -294,7 +299,8 @@ export default function UpsellPage() {
 
         {/* CTA block */}
         <div className="text-center">
-          <button className="px-6 py-3 text-sm font-semibold text-white bg-[var(--color-primary-strong)] rounded-lg hover:opacity-90 transition-opacity">
+          <button className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-[var(--color-primary-strong)] rounded-lg hover:opacity-90 transition-opacity">
+            <Icon name="seedling" size={14} className="text-white/80" />
             {config.ctaLabel}
           </button>
           <p className="text-[12px] text-[var(--text-neutral-weak)] mt-2.5">

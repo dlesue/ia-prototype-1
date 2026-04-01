@@ -42,8 +42,8 @@ function deriveScenarioConfig(
   let visibleProducts: string[];
   let lockedProducts: string[] = [];
 
-  if (persona === 'hr-admin') {
-    // HR Admin always sees all products — package/addons determine locked state
+  if (persona === 'hr-admin' || persona === 'it-admin' || persona === 'finance-admin' || persona === 'workplace-admin') {
+    // Admin personas always see all products — package/addons determine locked state
     visibleProducts = [];
     lockedProducts = [];
     for (const p of ALL_PRODUCTS) {
@@ -73,17 +73,17 @@ function deriveScenarioConfig(
     if (isPackageUnlocked('compensation', pkg)) visibleProducts.push('compensation');
     if (hasAddon('payroll')) visibleProducts.push('payroll');
     if (hasAddon('benefits')) visibleProducts.push('benefits');
-  } else {
-    // Exec
+  } else if (persona === 'dept-head' || persona === 'executive') {
     visibleProducts = [
       'home', 'people', 'hiring', 'onboarding', 'training',
-      'time-and-attendance', 'offboarding', 'reports',
+      'time-and-attendance', 'offboarding',
     ];
     if (isPackageUnlocked('performance', pkg)) visibleProducts.push('performance');
     if (isPackageUnlocked('employee-community', pkg)) { visibleProducts.push('employee-community', 'rewards-recognition', 'wellbeing'); }
     if (isPackageUnlocked('compensation', pkg)) visibleProducts.push('compensation');
     if (hasAddon('payroll')) visibleProducts.push('payroll');
     if (hasAddon('benefits')) visibleProducts.push('benefits');
+    visibleProducts.push('reports');
   }
 
   // My Info is always visible for all personas
@@ -105,14 +105,16 @@ function deriveScenarioConfig(
       '/people/my-department', '/people/my-division',
       '/people/divisions', '/people/departments', '/people/teams',
     );
-  } else if (persona === 'hr-admin') {
+  } else if (persona === 'dept-head') {
+    hiddenT2Paths.push(
+      '/people/my-division',
+      '/people/divisions',
+    );
+  } else if (persona === 'executive') {
+    // Executive sees everything in People
+  } else if (persona === 'hr-admin' || persona === 'it-admin' || persona === 'finance-admin' || persona === 'workplace-admin') {
     hiddenT2Paths.push(
       '/people/my-direct-reports', '/people/my-department', '/people/my-division',
-    );
-  } else {
-    // Exec
-    hiddenT2Paths.push(
-      '/people/my-direct-reports', '/people/my-department',
     );
   }
 
@@ -124,7 +126,7 @@ function deriveScenarioConfig(
 
   // Timesheets: hidden for non-time-tracking, locked for HR Admin without addon
   if (!hasTimeTracking) {
-    if (persona === 'hr-admin') {
+    if (persona === 'hr-admin' || persona === 'it-admin' || persona === 'finance-admin' || persona === 'workplace-admin') {
       lockedT2Paths.push('/time-and-attendance/timesheets');
     } else {
       hiddenT2Paths.push('/time-and-attendance/timesheets');
@@ -158,10 +160,11 @@ function deriveScenarioConfig(
 export const SCENARIOS: ScenarioConfig[] = [
   deriveScenarioConfig('employee', 'core', []),
   deriveScenarioConfig('manager', 'pro', ['payroll', 'benefits']),
+  deriveScenarioConfig('dept-head', 'pro', ['payroll', 'benefits']),
+  deriveScenarioConfig('executive', 'pro', ['payroll', 'benefits']),
   deriveScenarioConfig('hr-admin', 'core', []),
   deriveScenarioConfig('hr-admin', 'pro', ['payroll', 'benefits']),
   deriveScenarioConfig('hr-admin', 'elite', ['payroll', 'benefits', 'time-tracking']),
-  deriveScenarioConfig('exec', 'elite', ['payroll', 'benefits']),
 ];
 
 interface ScenarioContextValue {
@@ -169,10 +172,14 @@ interface ScenarioContextValue {
   persona: PersonaType;
   pkg: PackageType;
   addons: AddonType[];
+  addonsOn: boolean;
+  expansionOn: boolean;
   hiddenProducts: string[];
   setPersona: (p: PersonaType) => void;
   setPkg: (p: PackageType) => void;
   toggleAddon: (a: AddonType) => void;
+  toggleAddonsOn: () => void;
+  toggleExpansion: () => void;
   toggleProductHidden: (p: string | string[]) => void;
   /** Legacy — sets all three at once from a preset */
   setScenarioId: (id: string) => void;
@@ -183,6 +190,8 @@ const ScenarioContext = createContext<ScenarioContextValue | null>(null);
 const PERSONA_KEY = 'bhr-persona';
 const PACKAGE_KEY = 'bhr-package';
 const ADDONS_KEY = 'bhr-addons';
+const ADDONS_ON_KEY = 'bhr-addons-on';
+const EXPANSION_KEY = 'bhr-expansion-on';
 const HIDDEN_PRODUCTS_KEY = 'bhr-hidden-products';
 
 export function ScenarioProvider({ children }: { children: ReactNode }) {
@@ -195,6 +204,12 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   const [addons, setAddonsState] = useState<AddonType[]>(() => {
     const stored = localStorage.getItem(ADDONS_KEY);
     return stored ? JSON.parse(stored) : ['payroll', 'benefits', 'time-tracking'];
+  });
+  const [addonsOn, setAddonsOnState] = useState<boolean>(() => {
+    return localStorage.getItem(ADDONS_ON_KEY) !== 'false';
+  });
+  const [expansionOn, setExpansionOnState] = useState<boolean>(() => {
+    return localStorage.getItem(EXPANSION_KEY) !== 'false';
   });
   const [hiddenProducts, setHiddenProductsState] = useState<string[]>(() => {
     const stored = localStorage.getItem(HIDDEN_PRODUCTS_KEY);
@@ -224,6 +239,24 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
     setAddonsState(next);
   };
 
+  const toggleAddonsOn = () => {
+    const next = !addonsOn;
+    localStorage.setItem(ADDONS_ON_KEY, String(next));
+    setAddonsOnState(next);
+    // Sync individual addons
+    const nextAddons: AddonType[] = next ? ['payroll', 'benefits', 'time-tracking'] : [];
+    localStorage.setItem(ADDONS_KEY, JSON.stringify(nextAddons));
+    setAddonsState(nextAddons);
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  const toggleExpansion = () => {
+    const next = !expansionOn;
+    localStorage.setItem(EXPANSION_KEY, String(next));
+    setExpansionOnState(next);
+    window.dispatchEvent(new Event('storage'));
+  };
+
   const toggleProductHidden = (p: string | string[]) => {
     const ids = Array.isArray(p) ? p : [p];
     // Use the first id to determine direction (show or hide)
@@ -248,7 +281,6 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
       'hr-admin-core': ['hr-admin', 'core', []],
       'hr-admin-pro': ['hr-admin', 'pro', ['payroll', 'benefits']],
       'hr-admin-elite': ['hr-admin', 'elite', ['payroll', 'benefits', 'time-tracking']],
-      'exec': ['exec', 'elite', ['payroll', 'benefits']],
     };
     const preset = presets[id];
     if (preset) {
@@ -260,7 +292,7 @@ export function ScenarioProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ScenarioContext.Provider value={{ scenario, persona, pkg, addons, hiddenProducts, setPersona, setPkg, toggleAddon, toggleProductHidden, setScenarioId }}>
+    <ScenarioContext.Provider value={{ scenario, persona, pkg, addons, addonsOn, expansionOn, hiddenProducts, setPersona, setPkg, toggleAddon, toggleAddonsOn, toggleExpansion, toggleProductHidden, setScenarioId }}>
       {children}
     </ScenarioContext.Provider>
   );
